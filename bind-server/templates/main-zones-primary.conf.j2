@@ -1,0 +1,31 @@
+#jinja2: trim_blocks:False
+# Generated
+
+zone "{{ infra_names.zone }}" {
+    type primary;
+    {%- if bind_dnssec_signing_default %}
+    dnssec-policy default;
+    {%- endif %}
+    file "/etc/bind/zones/{{ infra_names.zone }}db";
+    {# Ignore if secondary actually exists #}
+    allow-transfer {
+        {{ bind_external_network.ipv4_address_secondary }};
+        {{ bind_external_network.ipv6_address_secondary }};
+    };
+};
+
+{%- for network in infra_names.networks %}
+
+zone "{{ network.zone }}" {
+    type primary;
+    {%- if bind_dnssec_signing_default %}
+    dnssec-policy default;
+    {%- endif %}
+    file "/etc/bind/zones/{{ network.zone }}db";
+    {# Ignore if secondary actually exists #}
+    allow-transfer {
+        {{ bind_external_network.ipv4_address_secondary }};
+        {{ bind_external_network.ipv6_address_secondary }};
+    };
+};
+{%- endfor %}

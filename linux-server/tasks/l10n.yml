@@ -1,0 +1,30 @@
+# Setup localization (l10n)
+
+- name: Generate locale
+  locale_gen:
+    name: '{{ locale }}'
+    state: present
+
+- name: Set default locale
+  lineinfile:
+    path: /etc/default/locale
+    create: yes
+    regexp: '^LANG='
+    line: 'LANG={{ locale }}'
+
+- name: Set keyboard configuration
+  with_items:
+  - { key: XKBMODEL, value: '{{ linux_server_l10n_keyboard.model }}' }
+  - { key: XKBLAYOUT, value: '{{ linux_server_l10n_keyboard.layout }}' }
+  - { key: XKBVARIANT, value: '{{ linux_server_l10n_keyboard.variant }}' }
+  - { key: XKBOPTIONS, value: '{{ linux_server_l10n_keyboard.options }}' }
+  - { key: BACKSPACE, value: '{{ linux_server_l10n_keyboard.backspace }}' }
+  lineinfile:
+    path: /etc/default/keyboard
+    regexp: '^{{ item.key }}='
+    line: '{{ item.key }}="{{ item.value }}"'
+  notify: Update keyboard configuration
+
+- name: Set timezone
+  timezone:
+    name: '{{ timezone }}'

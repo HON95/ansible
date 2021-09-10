@@ -1,0 +1,29 @@
+#jinja2: trim_blocks:False
+# Generated
+
+zone "{{ infra_names.zone }}" {
+    type secondary;
+    file "/etc/bind/zones/{{ infra_names.zone }}db";
+    primaries {
+        {{ bind_external_network.ipv6_address_primary }};
+    };
+    allow-notify {
+        {{ bind_external_network.ipv4_address_primary }};
+        {{ bind_external_network.ipv6_address_primary }};
+    };
+};
+
+{%- for network in infra_names.networks %}
+
+zone "{{ network.zone }}" {
+    type secondary;
+    file "/etc/bind/zones/{{ network.zone }}db";
+    primaries {
+        {{ bind_external_network.ipv6_address_primary }};
+    };
+    allow-notify {
+        {{ bind_external_network.ipv4_address_primary }};
+        {{ bind_external_network.ipv6_address_primary }};
+    };
+};
+{%- endfor %}

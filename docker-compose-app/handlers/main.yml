@@ -1,0 +1,5 @@
+- name: Restart app
+  community.docker.docker_compose:
+    project_src: '{{ app.srv_path }}'
+    recreate: always
+    remove_orphans: true

@@ -1,0 +1,38 @@
+# Setup VIM
+
+# HON preferences
+
+- name: Install
+  apt: name=vim
+
+- name: Check if default
+  shell: 'update-alternatives --display editor | egrep "^\s*link currently points to /usr/bin/vim.basic\s*$"'
+  register: editor_result
+  changed_when: no
+  failed_when: no
+  ignore_errors: yes
+
+- name: Set as default
+  when: 'editor_result.rc != 0'
+  command: 'update-alternatives --set editor /usr/bin/vim.basic'
+
+- name: Disable mouse (1)
+  lineinfile:
+    path: /etc/vim/vimrc.local
+    create: yes
+    regexp: '^set mouse='
+    line: 'set mouse='
+
+- name: Disable mouse (2)
+  lineinfile:
+    path: /etc/vim/vimrc.local
+    create: yes
+    regexp: '^set ttymouse='
+    line: 'set ttymouse='
+
+- name: Fix YAML formatting
+  lineinfile:
+    path: /etc/vim/vimrc.local
+    create: yes
+    regexp: '^autocmd FileType yaml'
+    line: 'autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab'

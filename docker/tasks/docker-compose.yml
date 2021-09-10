@@ -1,0 +1,19 @@
+# Setup Docker Compose
+
+# Based on: https://docs.docker.com/compose/install/
+
+- name: Install Docker SDK for Python
+  pip:
+    name:
+      - docker-compose
+
+- name: Download Docker Compose
+  get_url:
+    url: 'https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64'
+    dest: '/usr/local/bin/docker-compose'
+    mode: '0755'
+
+- name: Install Docker Compose command completion
+  get_url:
+    url: 'https://raw.githubusercontent.com/docker/compose/{{ docker_compose_version }}/contrib/completion/bash/docker-compose'
+    dest: '/etc/bash_completion.d/docker-compose'

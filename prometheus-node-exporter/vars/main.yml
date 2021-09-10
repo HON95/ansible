@@ -1,0 +1,16 @@
+go_architecture_map:
+  i386: '386'
+  x86_64: 'amd64'
+  aarch64: 'arm64'
+  armv7l: 'armv7'
+  armv6l: 'armv6'
+go_architecture: "{{ go_architecture_map[ansible_architecture] }}"
+
+prom_node_exp_binary_path: /usr/bin/prometheus-node-exporter
+prom_node_exp_service: prometheus-node-exporter.service
+prom_node_exp_textfile_output_path: /var/lib/prometheus/node-exporter
+prom_node_exp_textfile_collectors_path: /opt/prometheus/node-exporter/textfile-collectors
+prom_node_exp_textfile_collectors_provided:
+  apt:
+    bin_src: 'textfile-collectors/apt.sh'
+    cron_job: '0 * * * * root /opt/prometheus/node-exporter/textfile-collectors/apt | sponge /var/lib/prometheus/node-exporter/apt.prom'

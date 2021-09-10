@@ -1,0 +1,5 @@
+{% for collector_id in collectors %}
+{% if collector_id in prom_node_exp_textfile_collectors_enabled %}
+{{ collectors[collector_id].cron_job }}
+{% endif %}
+{% endfor %}

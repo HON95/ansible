@@ -1,0 +1,16 @@
+# Supported methods:
+# - ignore: Don't touch it.
+# - basic: Setup /etc/resolv.conf as a plain file pointing to the upstream servers.
+# - systemd: Setup the local systemd resolver.
+linux_server_dns_method: systemd
+# Let systemd-resolved bind to local port 53/udp (recommended unless running other DNS servers).
+linux_server_dns_systemd_stublistener: true
+# Enable DNSSEC (may cause a chicken-and-egg problem if using NTP, recommended to disable to avoid lockout).
+linux_server_dns_systemd_dnssec: false
+# DNS servers (split into v4 and v6 for configuration flexibility, but only a few will be used)
+linux_server_dns_servers_ipv4:
+  - 1.1.1.1
+  - 1.0.0.1
+linux_server_dns_servers_ipv6:
+  - 2606:4700:4700::1111
+  - 2606:4700:4700::1001

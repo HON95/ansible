@@ -1,0 +1,34 @@
+# Setup SSHD
+
+- name: Disable root login
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*PermitRootLogin .+$'
+    line: 'PermitRootLogin no'
+    validate: 'sshd -t -f %s'
+  notify: Restart SSHD
+
+- name: Disable password login
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*PasswordAuthentication .+$'
+    line: 'PasswordAuthentication no'
+    validate: 'sshd -t -f %s'
+  notify: Restart SSHD
+
+# Disable locales to avoid annoying missing locale errors
+- name: Disable SSH user locales
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*AcceptEnv LANG LC_\*$'
+    line: '#AcceptEnv LANG LC_*'
+    validate: 'sshd -t -f %s'
+  notify: Restart SSHD
+
+- name: Set banner location
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*Banner .+$'
+    line: 'Banner /etc/issue.net'
+    validate: 'sshd -t -f %s'
+  notify: Restart SSHD

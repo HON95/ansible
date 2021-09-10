@@ -1,0 +1,10 @@
+# Host ID used within internal network
+bind_internal_address_nums:
+  host: 1
+  bind: 2
+  prom_exporter: 3
+  doh_proxy: 4
+
+# Generated vars
+bind_srv_path: '{{ bind_primary | ternary(bind_srv_path_primary, bind_srv_path_secondary, omit) }}'
+bind_role_name: '{{ bind_primary | ternary("primary", "secondary", omit) }}'

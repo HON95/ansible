@@ -1,0 +1,17 @@
+# Docker compose version to install
+docker_compose_version: "1.29.2"
+# Force is required to change details, but will recreate the network and kick off any containers
+docker_network_force_update: false
+# Docker networks to create
+docker_networks: []
+# docker_networks:
+#   - name: apps-general
+#     driver: macvlan
+#     parent_interface: '{{ networking_main_interface.name }}'
+#     ipv4_subnet: '{{ networking_main_interface.ipv4_address | ansible.netcommon.ipaddr("network/prefix") }}'
+#     ipv6_subnet: '{{ networking_main_interface.name | ansible.netcommon.ipaddr("network/prefix") }}'
+#   - name: test2
+#     driver: bridge
+#     ipv4_subnet: 10.95.99.0/22
+#     ipv6_subnet: fd87:d8aa:222:99::/64
+

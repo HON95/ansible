@@ -1,0 +1,12 @@
+# Setup sudo
+
+# Warning: This assumes the current user is the ansible user and does not remove entries for old ansible users.
+
+- name: Disable password for ansible user
+  lineinfile:
+    path: '/etc/sudoers'
+    backup: yes
+    regexp: '^{{ ansible_user }}\s.+$'
+    line: '{{ ansible_user }} ALL=(ALL:ALL) NOPASSWD: ALL'
+    insertafter: '^%sudo\s.+$'
+    validate: 'visudo -c %s'

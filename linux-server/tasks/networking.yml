@@ -1,0 +1,60 @@
+# Setup network interface
+
+# Warning: Changing network managers requires a system reboot, as prompted by one of the tasks if necessary.
+
+- name: Check if interface exists
+  when: 'linux_server_networking_method != "ignore"'
+  stat:
+    path: '/sys/class/net/{{ linux_server_networking_interface }}/'
+  register: check_network_interface
+
+- name: Fail if unknown interface
+  when: 'linux_server_networking_method != "ignore" and not check_network_interface.stat.exists'
+  fail:
+    msg: 'The provided network interface ({{ linux_server_networking_interface }}) does not exist in the system.'
+
+- name: Disable ifupdown config
+  when: 'linux_server_networking_method != "ignore"'
+  replace:
+    path: '/etc/network/interfaces'
+    regexp: '^([^#].*)$'
+    replace: '# \1'
+
+- name: Update network config (systemd-networkd)
+  when: 'linux_server_networking_method == "systemd"'
+  template:
+    src: 'networking/systemd-main.network.j2'
+    dest: '/etc/systemd/network/main.network'
+  notify: Restart systemd-networkd.service
+
+- name: Disable dhcpcd service
+  when: 'linux_server_networking_method != "ignore" and "dhcpcd.service" in service_facts.ansible_facts.services'
+  systemd:
+    name: dhcpcd.service
+    enabled: no
+    masked: yes
+  register: linux_server_networking_disable_dhcpcd
+
+- name: Enable systemd-networkd service (systemd-networkd)
+  when: 'linux_server_networking_method == "systemd"'
+  systemd:
+    name: systemd-networkd.service
+    enabled: yes
+  register: linux_server_networking_enable_systemd
+
+- name: Prompt to change to reboot system and break playbook
+  when: 'linux_server_networking_disable_dhcpcd.changed or linux_server_networking_enable_systemd.changed'
+  fail:
+    msg: 'Planned failure: The network config was significantly changed, please reboot the system'
+
+- name: Stop dhcpcd service
+  when: 'linux_server_networking_method != "ignore" and "dhcpcd.service" in service_facts.ansible_facts.services'
+  systemd:
+    name: dhcpcd.service
+    state: stopped
+
+- name: Start systemd-networkd service (systemd-networkd)
+  when: 'linux_server_networking_method == "systemd"'
+  systemd:
+    name: systemd-networkd.service
+    state: started

@@ -1,0 +1,28 @@
+; Generated
+
+$ORIGIN {{ item.zone }}
+$TTL {{ infra_names.ttl }}
+
+@   IN          SOA     {{ infra_names.ns1_name }}.{{ infra_names.zone }} {{ infra_names.hostmaster }} (
+                        {{ infra_names.serial }} ; serial number YYMMDDNN
+                        28800           ; Refresh
+                        7200            ; Retry
+                        864000          ; Expire
+                        86400           ; Min TTL
+                        )
+                NS      {{ infra_names.ns1_name }}.{{ infra_names.zone }}
+{% if infra_names.ns2_name is defined %}
+                NS      {{ infra_names.ns2_name }}.{{ infra_names.zone }}
+{% endif %}
+
+{% for name_set in infra_names.names -%}
+
+{%- if item.family == "IPv4" and name_set.a is defined and name_set.add_reverse is defined and name_set.add_reverse %}
+{{ name_set.a | ansible.netcommon.ipaddr("revdns") }}    PTR     {{ name_set.name }}.{{ infra_names.zone }}
+{% endif %}
+
+{%- if item.family == "IPv6" and name_set.aaaa is defined and name_set.add_reverse is defined and name_set.add_reverse %}
+{{ name_set.aaaa | ansible.netcommon.ipaddr("revdns") }}    PTR     {{ name_set.name }}.{{ infra_names.zone }}
+{% endif %}
+
+{%- endfor %}

@@ -1,0 +1,130 @@
+#jinja2: trim_blocks:False
+# Docker Compose file for a BIND server
+# Generated
+{# Generalized for primary/secondary and authoritative/recursive #}
+
+services:
+  bind:
+    image: internetsystemsconsortium/bind9:9.16
+    command:
+      - '/usr/sbin/named'
+      # Foreground, without forced STDERR redirect
+      - '-f'
+      # Config file
+      - '-c'
+      - '/etc/bind/named.conf'
+      # User
+      - '-u'
+      - 'bind'
+    environment:
+      - TZ={{ timezone }}
+    volumes:
+      # Individual files for "/etc/bind/" to avoid overwriting other files there
+      - ./etc/named.conf:/etc/bind/named.conf:ro
+      - ./etc/default-zones.conf:/etc/bind/default-zones.conf:ro
+      {%- if bind_authoritative %}
+      - ./etc/main-zones.conf:/etc/bind/main-zones.conf:ro
+      {%- endif %}
+      {%- for local_config in bind_local_configs %}
+      {%- if (bind_primary and local_config.primary | default(true)) or (not bind_primary and local_config.secondary | default(true)) %}
+      - ./etc/local/{{ local_config.filename }}:/etc/bind/local/{{ local_config.filename }}:ro
+      {%- endif %}
+      {%- endfor %}
+      # RW zone file dir for automatic DNSSEC signing
+      - ./zones/:/etc/bind/zones/:rw
+      - ./cache/:/var/cache/bind/:rw
+      - ./data/:/var/lib/bind/:rw
+      - ./log/:/var/log/bind/:rw
+    networks:
+      {{ bind_external_network.name }}:
+        {%- if bind_primary %}
+        ipv4_address: {{ bind_external_network.ipv4_address_primary }}
+        ipv6_address: {{ bind_external_network.ipv6_address_primary }}
+        {%- else %}
+        ipv4_address: {{ bind_external_network.ipv4_address_secondary }}
+        ipv6_address: {{ bind_external_network.ipv6_address_secondary }}
+        {%- endif %}
+      {%- if bind_internal_network is defined %}
+      internal:
+        {%- if bind_primary %}
+        ipv4_address: {{ bind_internal_network.ipv4_subnet_primary | ansible.netcommon.ipaddr(bind_internal_address_nums.bind) | ansible.netcommon.ipaddr("address") }}
+        ipv6_address: {{ bind_internal_network.ipv6_subnet_primary | ansible.netcommon.ipaddr(bind_internal_address_nums.bind) | ansible.netcommon.ipaddr("address") }}
+        {%- else %}
+        ipv4_address: {{ bind_internal_network.ipv4_subnet_secondary | ansible.netcommon.ipaddr(bind_internal_address_nums.bind) | ansible.netcommon.ipaddr("address") }}
+        ipv6_address: {{ bind_internal_network.ipv6_subnet_secondary | ansible.netcommon.ipaddr(bind_internal_address_nums.bind) | ansible.netcommon.ipaddr("address") }}
+        {%- endif %}
+      {%- endif %}
+    restart: always
+
+  {%- if bind_recursive and bind_cloudflare_doh_enable %}
+
+  doh-proxy:
+    image: cloudflare/cloudflared:2021.7.0
+    command:
+      - "--no-autoupdate"
+      - "proxy-dns"
+      - "--address=::"
+      #- "--metrics=0.0.0.0:40883"
+    environment:
+      - TZ=Europe/Oslo
+    networks:
+      # IPv4+6 required for full internet access
+      internal:
+        {%- if bind_primary %}
+        ipv4_address: {{ bind_internal_network.ipv4_subnet_primary | ansible.netcommon.ipaddr(bind_internal_address_nums.doh_proxy) | ansible.netcommon.ipaddr("address") }}
+        ipv6_address: {{ bind_internal_network.ipv6_subnet_primary | ansible.netcommon.ipaddr(bind_internal_address_nums.doh_proxy) | ansible.netcommon.ipaddr("address") }}
+        {%- else %}
+        ipv4_address: {{ bind_internal_network.ipv4_subnet_secondary | ansible.netcommon.ipaddr(bind_internal_address_nums.doh_proxy) | ansible.netcommon.ipaddr("address") }}
+        ipv6_address: {{ bind_internal_network.ipv6_subnet_secondary | ansible.netcommon.ipaddr(bind_internal_address_nums.doh_proxy) | ansible.netcommon.ipaddr("address") }}
+        {%- endif %}
+    restart: always
+  {%- endif %}{# bind_cloudflare_doh_enable #}
+
+  {%- if bind_prometheus_exporter_enable %}
+
+  prom-exporter:
+    image: prometheuscommunity/bind-exporter:v0.3.0
+    command:
+      {%- if bind_primary %}
+      - "--bind.stats-url=http://{{ bind_internal_network.ipv6_subnet_primary | ansible.netcommon.ipaddr(bind_internal_address_nums.bind) | ansible.netcommon.ipaddr("address") }}:8053"
+      {%- else %}
+      - "--bind.stats-url=http://{{ bind_internal_network.ipv6_subnet_secondary | ansible.netcommon.ipaddr(bind_internal_address_nums.bind) | ansible.netcommon.ipaddr("address") }}:8053"
+      {%- endif %}
+    environment:
+      - TZ=Europe/Oslo
+    networks:
+      {{ bind_external_network.name }}:
+        {%- if bind_primary %}
+        ipv4_address: {{ bind_prometheus_exporter_external_network.ipv4_address_primary }}
+        ipv6_address: {{ bind_prometheus_exporter_external_network.ipv6_address_primary }}
+        {%- else %}
+        ipv4_address: {{ bind_prometheus_exporter_external_network.ipv4_address_secondary }}
+        ipv6_address: {{ bind_prometheus_exporter_external_network.ipv6_address_secondary }}
+        {%- endif %}
+      internal:
+        {%- if bind_primary %}
+        ipv4_address: {{ bind_internal_network.ipv4_subnet_primary | ansible.netcommon.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.netcommon.ipaddr("address") }}
+        ipv6_address: {{ bind_internal_network.ipv6_subnet_primary | ansible.netcommon.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.netcommon.ipaddr("address") }}
+        {%- else %}
+        ipv4_address: {{ bind_internal_network.ipv4_subnet_secondary | ansible.netcommon.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.netcommon.ipaddr("address") }}
+        ipv6_address: {{ bind_internal_network.ipv6_subnet_secondary | ansible.netcommon.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.netcommon.ipaddr("address") }}
+        {%- endif %}
+    restart: always
+  {%- endif %}{# prometheus_exporter_enable #}
+
+networks:
+  {{ bind_external_network.name }}:
+    external: true
+  {%- if bind_internal_network is defined %}
+  internal:
+    enable_ipv6: true
+    ipam:
+      config:
+        {%- if bind_primary %}
+        - subnet: {{ bind_internal_network.ipv4_subnet_primary | ansible.netcommon.ipaddr("network/prefix") }}
+        - subnet: {{ bind_internal_network.ipv6_subnet_primary | ansible.netcommon.ipaddr("network/prefix") }}
+        {%- else %}
+        - subnet: {{ bind_internal_network.ipv4_subnet_secondary | ansible.netcommon.ipaddr("network/prefix") }}
+        - subnet: {{ bind_internal_network.ipv6_subnet_secondary | ansible.netcommon.ipaddr("network/prefix") }}
+        {%- endif %}
+  {%- endif %}

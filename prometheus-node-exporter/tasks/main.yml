@@ -1,0 +1,165 @@
+- name: Install required packages
+  apt:
+    name:
+      - moreutils
+
+# Check if currently installed, if up-to-date and remove if not
+
+- name: Check if it's currently installed
+  stat:
+    path: '{{ prom_node_exp_binary_path }}'
+  register: prom_node_exp_check_exists
+
+- name: Check the current version
+  when: 'prom_node_exp_check_exists.stat.exists'
+  shell: '{{ prom_node_exp_binary_path }} --version 2>&1 | egrep -o "version [^ ]+ " | cut -d" " -f2'
+  register: prom_node_exp_check_version
+  failed_when: 'prom_node_exp_check_version.stdout == ""'
+  changed_when: no
+
+- name: Show current version
+  when: 'prom_node_exp_check_exists.stat.exists'
+  debug: msg='Found version "{{ prom_node_exp_check_version.stdout }}", desired version is "{{ prom_node_exp_version }}"'
+
+- name: Get service info to check if running (remove outdated version)
+  when: 'prom_node_exp_check_exists.stat.exists and prom_node_exp_check_version.stdout != prom_node_exp_version'
+  service_facts: {}
+  register: service_facts
+
+- name: Stop existing service (remove outdated version)
+  when: 'prom_node_exp_check_exists.stat.exists and prom_node_exp_check_version.stdout != prom_node_exp_version and prom_node_exp_service in service_facts.ansible_facts.services'
+  systemd:
+    name: '{{ prom_node_exp_service }}'
+    state: stopped
+    enabled: no
+
+- name: Remove existing binary (remove outdated version)
+  when: 'prom_node_exp_check_exists.stat.exists and prom_node_exp_check_version.stdout != prom_node_exp_version'
+  file:
+    path: '{{ prom_node_exp_binary_path }}'
+    state: absent
+
+# Install (fresh or update)
+
+- name: Check if it's currently installed (again)
+  stat:
+    path: '{{ prom_node_exp_binary_path }}'
+  register: prom_node_exp_check_exists
+
+- name: Create temporary download directory
+  when: 'not prom_node_exp_check_exists.stat.exists'
+  tempfile:
+    state: directory
+    suffix: build
+  register: prom_node_exp_create_tmpdir
+
+- name: Download
+  when: 'not prom_node_exp_check_exists.stat.exists'
+  unarchive:
+    src: 'https://github.com/prometheus/node_exporter/releases/download/v{{ prom_node_exp_version }}/node_exporter-{{ prom_node_exp_version }}.linux-{{ go_architecture }}.tar.gz'
+    remote_src: yes
+    dest: '{{ prom_node_exp_create_tmpdir.path }}'
+
+- name: Find path of downloaded binary
+  when: 'not prom_node_exp_check_exists.stat.exists'
+  shell: 'ls -1 {{ prom_node_exp_create_tmpdir.path }}/*/node_exporter'
+  changed_when: false
+  register: prom_node_exp_find_downloaded_binary_path
+
+- name: Move binary to final destination
+  when: 'not prom_node_exp_check_exists.stat.exists'
+  copy:
+    src: '{{ prom_node_exp_find_downloaded_binary_path.stdout }}'
+    remote_src: yes
+    dest: '{{ prom_node_exp_binary_path }}'
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Delete temporary download directory
+  when: 'not prom_node_exp_check_exists.stat.exists'
+  file:
+    path: "{{ prom_node_exp_create_tmpdir.path }}"
+    state: absent
+
+- name: Add system user
+  user:
+    name: prometheus
+    system: yes
+    create_home: no
+    groups: '{{ prom_node_exp_user_extra_groups }}'
+    shell: /usr/sbin/nologin
+
+- name: Add config file
+  template:
+    src: 'config.j2'
+    dest: '/etc/default/prometheus-node-exporter'
+
+- name: Create textfile output directory
+  file:
+    path: '{{ prom_node_exp_textfile_output_path }}'
+    state: directory
+
+- name: Add service file
+  copy:
+    src: '{{ prom_node_exp_service }}'
+    dest: '/etc/systemd/system/{{ prom_node_exp_service }}'
+  register: prom_node_exp_add_service_file
+
+- name: Enable and start service
+  systemd:
+    name: '{{ prom_node_exp_service }}'
+    state: started
+    enabled: yes
+    daemon_reload: '{{ prom_node_exp_add_service_file.changed }}'
+
+# Setup textfile collectors
+
+- name: Create textfile collector directory
+  file:
+    path: '{{ prom_node_exp_textfile_collectors_path }}'
+    state: directory
+
+- name: Find existing textfile collectors
+  shell: 'ls -1 {{ prom_node_exp_textfile_collectors_path }}'
+  changed_when: false
+  register: prom_node_exp_find_textfile_collectors
+
+- name: Add textfile collectors
+  vars:
+    collectors: '{{ prom_node_exp_textfile_collectors_provided | combine(prom_node_exp_textfile_collectors_custom) }}'
+  loop: '{{ prom_node_exp_textfile_collectors_enabled }}'
+  when: 'item in collectors'
+  copy:
+    src: '{{ collectors[item].bin_src }}'
+    dest: '{{ prom_node_exp_textfile_collectors_path }}/{{ item }}'
+    mode: 755
+  register: prom_node_exp_add_textfile_collectors
+
+- name: Remove old textfile collectors
+  loop: '{{ prom_node_exp_find_textfile_collectors.stdout_lines }}'
+  when: 'item not in prom_node_exp_textfile_collectors_enabled'
+  file:
+    path: '{{ prom_node_exp_textfile_collectors_path }}/{{ item }}'
+    state: absent
+  register: prom_node_exp_remove_textfile_collectors
+
+- name: Find old textfile collector output to wipe if collector changes
+  when: 'prom_node_exp_add_textfile_collectors.changed or prom_node_exp_remove_textfile_collectors.changed'
+  shell: 'ls -1 {{ prom_node_exp_textfile_output_path }}'
+  changed_when: false
+  register: prom_node_exp_find_textfile_output
+
+- name: Wipe old textfile collector output
+  loop: '{{ prom_node_exp_find_textfile_output.stdout_lines | default([]) }}'
+  file:
+    path: '{{ prom_node_exp_textfile_output_path }}/{{ item }}'
+    state: absent
+
+- name: Setup cron jobs (without validating them)
+  vars:
+    collectors: '{{ prom_node_exp_textfile_collectors_provided | combine(prom_node_exp_textfile_collectors_custom) }}'
+  template:
+    src: 'cron.j2'
+    dest: '/etc/cron.d/prometheus-node-exporter-textfile-collectors'
+    mode: 644

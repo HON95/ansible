@@ -1,0 +1,7 @@
+timezone: "Europe/Oslo"
+locale: "en_US.UTF-8"
+
+# (Required) Supports <see main task file>
+#linux_server_os: debian-10
+# (Required) Supports "physical", "qemu-vm"
+#linux_server_machine_type: physical

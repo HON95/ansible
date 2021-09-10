@@ -1,0 +1,14 @@
+- name: Check for failed units
+  shell: '/usr/bin/systemctl --failed | egrep "^0 loaded units listed."'
+  changed_when: no
+
+- name: Check if AppArmor is operational (Debian)
+  when: 'ansible_facts["os_family"] == "Debian"
+      and not linux_status_ignore_apparmor | default(false)'
+  shell: '/usr/sbin/apparmor_status | egrep "^apparmor module is loaded.$"'
+  changed_when: no
+
+- name: Check if reboot file present (Debian)
+  when: 'ansible_facts["os_family"] == "Debian"'
+  shell: 'file /var/run/reboot-required | egrep "(No such file or directory)"'
+  changed_when: no

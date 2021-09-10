@@ -1,0 +1,15 @@
+#jinja2: trim_blocks:False
+{
+    "experimental": true,
+    "exec-opts": ["native.cgroupdriver=systemd"],
+    "log-driver": "json-file",
+    "log-opts": {
+        "max-size": "100m"
+    },
+    "default-address-pools": [{"base": "10.194.0.0/16", "size": 24}],
+    "ipv6": true,
+    "ip6tables": true,
+    "fixed-cidr-v6": "fd34:93c7:6fa8:39f0::/64",
+    "dns": ["1.1.1.1", "2606:4700:4700::1111"],
+    "metrics-addr": "[::]:9323"
+}

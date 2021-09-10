@@ -1,0 +1,67 @@
+# Setup Docker
+
+# Based on: https://docs.docker.com/engine/install/debian/
+
+- name: Install Docker SDK for Python
+  pip:
+    name:
+      - docker
+
+- name: Install Docker installation requirements
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+
+- name: Add Docker's GPG key
+  apt_key:
+    url: 'https://download.docker.com/linux/debian/gpg'
+    keyring: '/usr/share/keyrings/docker-archive-keyring.gpg'
+    state: present
+
+- name: Setup stable Docker repo
+  apt_repository:
+    repo: 'deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable'
+    filename: 'docker'
+
+- name: Install Docker
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+
+- name: Setup Docker daemon config
+  template:
+    src: 'daemon.json.j2'
+    dest: '/etc/docker/daemon.json'
+    backup: true
+  notify: Restart docker.service
+
+- name: Enable Docker service
+  service:
+    name: docker.service
+    enabled: yes
+    state: "started"
+  notify: Restart docker.service
+
+- name: Check swap limit support
+  shell: 'docker info | grep "WARNING: No swap limit support"'
+  register: docker_swap_limit_result
+  changed_when: no
+  failed_when: no
+  ignore_errors: yes
+
+- name: Add swap limit support in GRUB config
+  when: 'docker_swap_limit_result.rc == 0'
+  script: file-sh-var-space-list-append.sh /etc/default/grub GRUB_CMDLINE_LINUX cgroup_enable=memory swapaccount=1
+  notify: Update GRUB
+
+- name: Warn about swap limit support changes
+  when: 'docker_swap_limit_result.rc == 0'
+  fail:
+    msg: 'Swap limit support is not enabled yet, reboot required.'
+  ignore_errors: yes

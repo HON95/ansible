@@ -1,0 +1,29 @@
+# Setup Docker networks
+
+- name: Setup Docker MACVLAN networks
+  loop: '{{ docker_networks }}'
+  when: 'item.driver == "macvlan"'
+  community.docker.docker_network:
+    # Force is required to change details
+    force: '{{ docker_network_force_update }}'
+    name: '{{ item.name }}'
+    driver: macvlan
+    driver_options:
+      parent: '{{ item.parent_interface }}'
+    enable_ipv6: true
+    ipam_config:
+      - subnet: '{{ item.ipv4_subnet | ansible.netcommon.ipaddr("network/prefix") }}'
+      - subnet: '{{ item.ipv6_subnet | ansible.netcommon.ipaddr("network/prefix") }}'
+
+- name: Setup Docker bridge networks
+  loop: '{{ docker_networks }}'
+  when: 'item.driver == "bridge"'
+  community.docker.docker_network:
+    # Force is required to change details
+    force: '{{ docker_network_force_update }}'
+    name: '{{ item.name }}'
+    driver: bridge
+    enable_ipv6: true
+    ipam_config:
+      - subnet: '{{ item.ipv4_subnet | ansible.netcommon.ipaddr("network/prefix") }}'
+      - subnet: '{{ item.ipv6_subnet | ansible.netcommon.ipaddr("network/prefix") }}'

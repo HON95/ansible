@@ -1,0 +1,182 @@
+#jinja2: trim_blocks:False
+# Generated
+
+options {
+    // Working directory
+    directory "/var/lib/bind";
+
+    listen-on { any; };
+    listen-on-v6 { any; };
+
+    {# Authoritative #}
+    {%- if bind_authoritative %}
+
+    // Authoritative
+    notify yes;
+    {%- else %}
+
+    // Not authoritative
+    notify no;
+    {%- endif %}{# bind_authoritative #}
+
+    {# Recursive #}
+    {%- if bind_recursive %}
+
+    // Recursive
+    recursion yes;
+    allow-recursion { any; };
+    forward only;
+    {%- if bind_cloudflare_doh_enable %}
+    // Forward to Cloudflare DoH proxy
+    forwarders {
+        {%- if bind_primary %}
+        {{ bind_internal_network.ipv6_subnet_primary | ansible.netcommon.ipaddr(bind_internal_address_nums.doh_proxy) | ansible.netcommon.ipaddr("address") }};
+        {%- else %}
+        {{ bind_internal_network.ipv6_subnet_secondary | ansible.netcommon.ipaddr(bind_internal_address_nums.doh_proxy) | ansible.netcommon.ipaddr("address") }};
+        {%- endif %}
+    };
+    {%- else %}
+    // Forward to Cloudflare
+    forwarders {
+        1.1.1.1;
+        1.0.0.1;
+        2606:4700:4700::1111;
+        2606:4700:4700::1001;
+    };
+    {%- endif %}{# bind_cloudflare_doh_enable #}
+    {%- else %}
+
+    // Not recursive
+    recursion no;
+    {%- endif %}{# bind_recursive #}
+
+    // DNSSEC
+    dnssec-validation auto;
+
+    // Enable stats for all zones
+    zone-statistics yes;
+
+    // Access control
+    allow-query { any; };
+    allow-transfer { none; };
+    allow-notify { none; };
+    allow-update { none; };
+    allow-update-forwarding { none; };
+
+    {# Query logging #}
+    {%- if bind_log_query_enable %}
+
+    // Query logging
+    querylog yes;
+    {%- else %}
+
+    // Query logging
+    querylog no;
+    {%- endif %}{# bind_log_query_enable #}
+
+    {# Caching #}
+    {%- if bind_recursive %}
+
+    // Caching
+    cleaning-interval 15;
+    max-cache-size {{ bind_cache_max_size }};
+    max-cache-ttl {{ bind_cache_max_ttl }};
+    max-ncache-ttl {{ bind_cache_max_nttl }};
+    {%- endif %}{# bind_recursive #}
+
+    // Hide hostname and version
+    hostname "unknown";
+    version "BIND 9";
+};
+
+logging{
+    channel error_stderr {
+        stderr;
+        severity error;
+        print-severity yes;
+        print-category yes;
+    };
+    channel main_file {
+        file "/var/log/bind/default.log" versions 3 size 5m;
+        severity info;
+        print-time yes;
+        print-severity yes;
+        print-category yes;
+    };
+    channel error_file {
+        file "/var/log/bind/error.log" versions 3 size 5m;
+        severity error;
+        print-time yes;
+        print-severity yes;
+        print-category yes;
+    };
+    channel debug_file {
+        file "/var/log/bind/debug.log" versions 3 size 5m;
+        severity debug;
+        print-time yes;
+        print-severity yes;
+        print-category yes;
+    };
+    channel query_file {
+        file "/var/log/bind/query.log" versions 3 size 5m;
+        severity info;
+        print-time yes;
+        print-severity yes;
+        print-category yes;
+    };
+    category default {
+        error_stderr;
+        main_file;
+        error_file;
+        //debug_file;
+    };
+    category queries {
+        query_file;
+        //null;
+    };
+};
+
+{%- if bind_prometheus_exporter_enable %}
+
+// Enable stats access from host and Prom exporter
+statistics-channels {
+    {%- if bind_primary %}
+    inet {{ bind_internal_network.ipv4_subnet_primary | ansible.netcommon.ipaddr(bind_internal_address_nums.bind) | ansible.netcommon.ipaddr("address") }} port 8053 allow {
+        {{ bind_internal_network.ipv4_subnet_primary | ansible.netcommon.ipaddr(bind_internal_address_nums.host) | ansible.netcommon.ipaddr("address") }};
+        {{ bind_internal_network.ipv4_subnet_primary | ansible.netcommon.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.netcommon.ipaddr("address") }};
+    };
+    inet {{ bind_internal_network.ipv6_subnet_primary | ansible.netcommon.ipaddr(bind_internal_address_nums.bind) | ansible.netcommon.ipaddr("address") }} port 8053 allow {
+        {{ bind_internal_network.ipv6_subnet_primary | ansible.netcommon.ipaddr(bind_internal_address_nums.host) | ansible.netcommon.ipaddr("address") }};
+        {{ bind_internal_network.ipv6_subnet_primary | ansible.netcommon.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.netcommon.ipaddr("address") }};
+    };
+    {%- else %}
+    inet {{ bind_internal_network.ipv4_subnet_secondary | ansible.netcommon.ipaddr(bind_internal_address_nums.bind) | ansible.netcommon.ipaddr("address") }} port 8053 allow {
+        {{ bind_internal_network.ipv4_subnet_secondary | ansible.netcommon.ipaddr(bind_internal_address_nums.host) | ansible.netcommon.ipaddr("address") }};
+        {{ bind_internal_network.ipv4_subnet_secondary | ansible.netcommon.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.netcommon.ipaddr("address") }};
+    };
+    inet {{ bind_internal_network.ipv6_subnet_secondary | ansible.netcommon.ipaddr(bind_internal_address_nums.bind) | ansible.netcommon.ipaddr("address") }} port 8053 allow {
+        {{ bind_internal_network.ipv6_subnet_secondary | ansible.netcommon.ipaddr(bind_internal_address_nums.host) | ansible.netcommon.ipaddr("address") }};
+        {{ bind_internal_network.ipv6_subnet_secondary | ansible.netcommon.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.netcommon.ipaddr("address") }};
+    };
+    {%- endif %}
+};
+{%- endif %}
+
+{%- if bind_recursive %}
+
+zone "." {
+    type hint;
+    file "/usr/share/dns/root.hints";
+};
+{%- endif %}
+
+{%- if bind_authoritative %}
+
+include "/etc/bind/main-zones.conf";
+{%- endif %}
+
+{%- for local_config in bind_local_configs %}
+include "/etc/bind/local/{{ local_config.filename }}";
+{% endfor %}
+
+include "/etc/bind/default-zones.conf";

@@ -1,0 +1,8 @@
+# Install IPTables-related packages
+linux_server_iptables_install: true
+# Use the basic IPTables script to set up the basics
+linux_server_iptables_basic_enable: true
+# Which services to allow in the basic script (add SSH to prevent lockout) (see the script for supported values)
+linux_server_iptables_basic_services: []
+# linux_server_iptables_basic_services:
+#   - ssh

@@ -1,0 +1,16 @@
+# You may want to override this to pin it
+prom_node_exp_version: '1.2.2'
+# Add the daemon user to certain groups,
+# e.g. if you have enabled hidepid and the user needs to be part of the configured group for full system visibility
+prom_node_exp_user_extra_groups: []
+# Args to pass to the binary, typically to configure collectors
+prom_node_exp_args: []
+# Textfile collectors to add and accompanying cron jobs
+prom_node_exp_textfile_collectors_custom: []
+# prom_node_exp_textfile_collectors_custom:
+#   apt:
+#     bin_src: 'general/prometheus-textfile-collectors/apt.sh'
+#     cron_job: '0 * * * * root /opt/prometheus/node-exporter/textfile-collectors/apt | sponge /var/lib/prometheus/node-exporter/apt.prom'
+prom_node_exp_textfile_collectors_enabled: []
+# prom_node_exp_textfile_collectors_enabled:
+#   - apt
