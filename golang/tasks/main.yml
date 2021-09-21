@@ -1,0 +1,80 @@
+# Check if currently installed, if up-to-date and remove if not
+
+- name: Check if it's currently installed
+  stat:
+    path: '{{ go_binary_path }}'
+  register: go_check_exists
+
+- name: Check the current version
+  when: 'go_check_exists.stat.exists'
+  shell: '{{ go_binary_path }} version 2>&1 | grep -Po1 "(?<=version go)[^ ]+(?= )"'
+  register: go_check_version
+  failed_when: 'go_check_version.stdout == ""'
+  changed_when: no
+
+- name: Remove existing installation (remove outdated version)
+  when: 'go_check_exists.stat.exists and go_check_version.stdout != go_version'
+  file:
+    path: '{{ go_install_path }}'
+    state: absent
+
+# Install (fresh or update)
+
+- name: Check if it's currently installed (again)
+  stat:
+    path: '{{ go_binary_path }}'
+  register: go_check_exists
+
+- name: Download and install (block)
+  when: 'not go_check_exists.stat.exists'
+  block:
+    - name: Remove old install dir
+      file:
+        path: '{{ go_install_path }}'
+        state: absent
+
+    - name: Create temporary download file
+      tempfile:
+        state: file
+      register: go_create_tmpfile
+
+    - name: Download archive
+      get_url:
+        url: 'https://golang.org/dl/go{{ go_version }}.linux-{{ architecture }}.tar.gz'
+        dest: '{{ go_create_tmpfile.path }}'
+        force: yes
+
+    - name: Create install dir
+      file:
+        path: '{{ go_install_path }}'
+        state: directory
+
+    - name: Unarchive to install dir
+      unarchive:
+        src: '{{ go_create_tmpfile.path }}'
+        remote_src: yes
+        dest: '{{ go_install_path }}/../'
+  always:
+    - name: Delete temporary download file
+      file:
+        path: "{{ go_create_tmpfile.path }}"
+        state: absent
+
+- name: Add to PATH
+  copy:
+    content: 'export PATH=$PATH:{{ go_install_path }}/bin'
+    dest: /etc/profile.d/go.sh
+
+# Verify install
+
+- name: Check if it's currently installed (verify install)
+  stat:
+    path: '{{ go_binary_path }}'
+  register: go_check_exists
+  failed_when: 'not go_check_exists.stat.exists'
+
+- name: Check the current version (verify install)
+  shell: '{{ go_binary_path }} version 2>&1 | grep -Po1 "(?<=version go)[^ ]+(?= )"'
+  register: go_check_version
+  failed_when: 'go_check_version.stdout != go_version'
+  changed_when: no

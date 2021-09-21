@@ -1,0 +1,9 @@
+architecture_map:
+  i386: '386'
+  x86_64: 'amd64'
+  aarch64: 'arm64'
+  armv6l: 'armv6l'
+architecture: "{{ architecture_map[ansible_architecture] }}"
+
+go_install_path: /usr/local/go
+go_binary_path: /usr/local/go/bin/go
