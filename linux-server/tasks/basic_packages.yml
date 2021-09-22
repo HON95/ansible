@@ -32,6 +32,7 @@
       - htop
       - screen
       - tree
+      - bash-completion
 
 - name: Install machine type-specific packages (physical)
   when: 'linux_server_machine_type == "physical"'

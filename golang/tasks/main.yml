@@ -56,6 +56,7 @@
         dest: '{{ go_install_path }}/../'
   always:
     - name: Delete temporary download file
+      when: 'go_create_tmpfile is defined'
       file:
         path: "{{ go_create_tmpfile.path }}"
         state: absent

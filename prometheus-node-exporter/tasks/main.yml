@@ -77,6 +77,7 @@
 
   always:
     - name: Delete temporary download directory
+      when: 'prom_node_exp_create_tmpdir is defined'
       file:
         path: "{{ prom_node_exp_create_tmpdir.path }}"
         state: absent

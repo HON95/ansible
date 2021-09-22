@@ -7,32 +7,34 @@
     name:
       - docker
 
-- name: Install Docker installation requirements
-  apt:
-    name:
-      - apt-transport-https
-      - ca-certificates
-      - curl
-      - gnupg
-      - lsb-release
+- name: Check if it's currently installed
+  stat:
+    path: '{{ docker_binary_path }}'
+  register: docker_check_exists
 
-- name: Add Docker's GPG key
-  apt_key:
-    url: 'https://download.docker.com/linux/debian/gpg'
-    keyring: '/usr/share/keyrings/docker-archive-keyring.gpg'
-    state: present
+- name: Install (block)
+  when: 'not docker_check_exists.stat.exists'
+  block:
+    - name: Create temporary download file
+      tempfile:
+        state: file
+      register: docker_create_tmpfile
 
-- name: Setup stable Docker repo
-  apt_repository:
-    repo: 'deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable'
-    filename: 'docker'
+    - name: Download install script
+      get_url:
+        url: 'https://get.docker.com/'
+        dest: '{{ docker_create_tmpfile.path }}'
+        force: yes
+        mode: 0755
 
-- name: Install Docker
-  apt:
-    name:
-      - docker-ce
-      - docker-ce-cli
-      - containerd.io
+    - name: Run install script
+      shell: '{{ docker_create_tmpfile.path }}'
+  always:
+    - name: Delete temporary download file
+      when: 'docker_create_tmpfile is defined'
+      file:
+        path: "{{ docker_create_tmpfile.path }}"
+        state: absent
 
 - name: Setup Docker daemon config
   template:
