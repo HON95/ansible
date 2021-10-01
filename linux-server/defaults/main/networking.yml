@@ -3,7 +3,7 @@
 # Network manager:
 # - ignore: Don't touch anything.
 # - systemd: Use systemd-networkd.
-linux_server_networking_method: systemd
+linux_server_networking_method: ignore
 # IPv4 addressing method: none, static, dhcp
 linux_server_networking_ipv4_addressing: dhcp
 # IPv6 addressing method: none, static, slaac (uses DHCPv6 if necessary)

@@ -1,16 +1,23 @@
-#jinja2: trim_blocks:False
 {
-    "experimental": true,
     "exec-opts": ["native.cgroupdriver=systemd"],
     "log-driver": "json-file",
     "log-opts": {
         "max-size": "100m"
     },
-    "default-address-pools": [{"base": "10.194.0.0/16", "size": 24}],
+    "default-address-pools": [{"base": "{{ docker_network_pools_ipv4_prefix }}", "size": 24}],
     "ipv6": true,
     "ip6tables": true,
-    "fixed-cidr-v6": "fd34:93c7:6fa8:39f0::/64",
-    "dns": ["1.1.1.1", "2606:4700:4700::1111"],
+    "fixed-cidr-v6": "{{ docker_network_default_bridge_ipv6_subnet }}",
+    "dns": {{ docker_default_dns_servers | to_json }},
     "metrics-addr": "[::]:9323",
-    "userland-proxy": false
+    "userland-proxy": false,
+    {% if docker_network_nvidia_stuff %}
+    "runtimes": {
+        "nvidia": {
+            "path": "nvidia-container-runtime",
+            "runtimeArgs": []
+        }
+    },
+    {% endif %}
+    "experimental": true
 }
