@@ -1,5 +1,7 @@
 # Docker compose version to install
 docker_compose_version: "1.29.2"
+# Userland proxy: The community recommends disabling it as it has its problems, but doing so seems to break published ports for IPv6.
+docker_userland_proxy_enable: true
 # Force is required to change details, but will recreate the network and kick off any containers
 docker_network_force_update: false
 docker_network_pools_ipv4_prefix: "10.194.0.0/16"

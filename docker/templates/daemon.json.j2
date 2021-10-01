@@ -8,9 +8,9 @@
     "ipv6": true,
     "ip6tables": true,
     "fixed-cidr-v6": "{{ docker_network_default_bridge_ipv6_subnet }}",
-    "dns": {{ docker_default_dns_servers | to_json }},
+    "dns": {{ docker_default_dns_servers | list | to_json }},
     "metrics-addr": "[::]:9323",
-    "userland-proxy": false,
+    "userland-proxy": {{ docker_userland_proxy_enable | bool | to_json }},
     {% if docker_network_nvidia_stuff %}
     "runtimes": {
         "nvidia": {
