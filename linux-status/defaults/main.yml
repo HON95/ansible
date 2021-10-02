@@ -1,0 +1,2 @@
+linux_status_ignore_apparmor: false
+linux_status_ignore_reboot_required: true

@@ -4,11 +4,14 @@
 
 - name: Check if AppArmor is operational (Debian)
   when: 'ansible_facts["os_family"] == "Debian"
-      and not linux_status_ignore_apparmor | default(false)'
-  shell: '/usr/sbin/apparmor_status | egrep "^apparmor module is loaded.$"'
+      and not linux_status_ignore_apparmor'
+  shell: '/usr/sbin/apparmor_status --enabled'
   changed_when: no
 
 - name: Check if reboot file present (Debian)
-  when: 'ansible_facts["os_family"] == "Debian"'
-  shell: 'file /var/run/reboot-required | egrep "(No such file or directory)"'
-  changed_when: no
+  when: 'ansible_facts["os_family"] == "Debian"
+      and not linux_status_ignore_reboot_required'
+  stat:
+    path: /var/run/reboot-required
+  register: linux_status_check_reboot_required
+  failed_when: 'linux_status_check_reboot_required.stat.exists'

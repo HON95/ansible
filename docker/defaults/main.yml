@@ -1,5 +1,5 @@
-# Docker compose version to install
-docker_compose_version: "1.29.2"
+# Path to the template to use for the daemon config (/etc/docker/daemon.json)
+docker_config_src: "daemon.json.j2"
 # Force is required to change details, but will recreate the network and kick off any containers
 docker_network_force_update: false
 # Docker networks to create
@@ -14,4 +14,9 @@ docker_networks: []
 #     driver: bridge
 #     ipv4_subnet: 10.95.99.0/22
 #     ipv6_subnet: fd87:d8aa:222:99::/64
-
+# Install the NVIDIA Container Toolkit (for using GPUs)
+docker_nvidia_runtime_enable: false
+# Override distribution if the repos are outdated, see https://nvidia.github.io/nvidia-docker/
+#docker_nvidia_runtime_distribution: ubuntu20.04
+# Docker compose version to install
+docker_compose_version: "1.29.2"

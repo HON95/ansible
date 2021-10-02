@@ -38,7 +38,7 @@
 
 - name: Setup Docker daemon config
   template:
-    src: 'daemon.json.j2'
+    src: '{{ docker_config_src }}'
     dest: '/etc/docker/daemon.json'
     backup: true
   notify: Restart docker.service
