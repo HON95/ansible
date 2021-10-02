@@ -2,6 +2,15 @@
 
 # Note: The script flushes all existing rules, so e.g. Docker and Fail2Ban must be restarted afterward to re-add their own rules.
 
+- name: Uninstall other firewalls
+  when: 'linux_server_iptables_install'
+  apt:
+    name:
+      - ufw
+      - firewalld
+    state: absent
+    purge: yes
+
 - name: Install IPTables
   when: 'linux_server_iptables_install'
   apt:

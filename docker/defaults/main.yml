@@ -1,7 +1,15 @@
 # Path to the template to use for the daemon config (/etc/docker/daemon.json)
 docker_config_src: "daemon.json.j2"
-# Force is required to change details, but will recreate the network and kick off any containers
+# The community recommends disabling the userland proxy as it has its problems and isn't required any more,
+# but doing so seems to break published ports for IPv6.
+docker_userland_proxy_enable: true
+docker_default_dns_servers:
+  - "1.1.1.1"
+  - "2606:4700:4700::1111"
+# Force recreate the networks and kicks off any containers so that it can perform changes
 docker_network_force_update: false
+docker_network_pools_ipv4_prefix: "10.194.0.0/16"
+docker_network_default_bridge_ipv6_subnet: "fd34:93c7:6fa8:39f0::/64"
 # Docker networks to create
 docker_networks: []
 # docker_networks:
@@ -14,9 +22,11 @@ docker_networks: []
 #     driver: bridge
 #     ipv4_subnet: 10.95.99.0/22
 #     ipv6_subnet: fd87:d8aa:222:99::/64
+
 # Install the NVIDIA Container Toolkit (for using GPUs)
 docker_nvidia_runtime_enable: false
 # Override distribution if the repos are outdated, see https://nvidia.github.io/nvidia-docker/
 #docker_nvidia_runtime_distribution: ubuntu20.04
+
 # Docker compose version to install
 docker_compose_version: "1.29.2"
