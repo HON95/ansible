@@ -1,7 +1,7 @@
-linux_server_users: []
+linux_server_local_users: []
 
 # Example:
-# linux_server_users:
+# linux_server_local_users:
 #   root:
 #     groups: []
 #     password_hash: $6$jN.xCC/VbUDRShqn$Vqw6Xa.vXrgwxCFqOoDPPRjIhNoQD2bRQ0IdB063PREB2Ur1noIR5o2RiIXHmUPUTsgG4D4IVEelE1peV/p4P0
