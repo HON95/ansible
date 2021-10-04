@@ -1,14 +1,24 @@
 # Setup users
 
-- name: Update users
+- name: Update non-system users
   loop: '{{ linux_server_local_users | dict2items }}'
-  when: 'not item.value.remove | default(false)'
+  when: 'not item.value.remove | default(false) and not item.value.system | default(false)'
   user:
     name: '{{ item.key }}'
-    password: '{{ item.value.password_hash }}'
+    password: '{{ item.value.password_hash | default("*") }}'
     groups: '{{ item.value.groups | default([]) }}'
-    append: true
     shell: '{{ item.value.shell | default("/bin/bash") }}'
+
+- name: Update system users
+  loop: '{{ linux_server_local_users | dict2items }}'
+  when: 'not item.value.remove | default(false) and item.value.system | default(false)'
+  user:
+    name: '{{ item.key }}'
+    groups: '{{ item.value.groups | default([]) }}'
+    shell: '/usr/sbin/nologin'
+    system: yes
+    home: /nonexistent
+    create_home: no
 
 - name: Remove old users
   loop: '{{ linux_server_local_users | dict2items }}'
@@ -16,7 +26,7 @@
   user:
     name: '{{ item.key }}'
     state: absent
-    remove: true
+    remove: yes
 
 - name: Update users' authorized keys
   loop: '{{ linux_server_local_users | dict2items }}'

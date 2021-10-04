@@ -93,4 +93,4 @@
   service:
     name: systemd-resolved.service
     enabled: yes
-  notify: Restart systemd-resolved
+    state: started

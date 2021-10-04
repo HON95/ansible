@@ -3,6 +3,9 @@
 [Match]
 Name={{ linux_server_networking_interface }}
 
+[Link]
+MTUBytes={{ linux_server_networking_mtu }}
+
 [Network]
 {# IPv4 #}
 {% if linux_server_networking_ipv4_addressing == 'static' %}

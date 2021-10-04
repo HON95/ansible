@@ -5,14 +5,14 @@
     mode: 0700
 
 - name: Add docker-compose.yml (copy)
-  when: 'not app.dc_file.is_template | default(false)'
+  when: 'not app.dc_file.template | default(false)'
   copy:
     src: '{{ app.dc_file.path }}'
     dest: '{{ app.srv_path }}/docker-compose.yml'
   notify: Restart app
 
 - name: Add docker-compose.yml (template)
-  when: 'app.dc_file.is_template | default(false)'
+  when: 'app.dc_file.template | default(false)'
   template:
     src: '{{ app.dc_file.path }}'
     dest: '{{ app.srv_path }}/docker-compose.yml'
@@ -23,32 +23,44 @@
   file:
     path: '{{ app.srv_path }}/{{ item.path }}'
     state: directory
-    owner: '{{ item.owner | default(root) }}'
-    group: '{{ item.group | default(root) }}'
+    owner: '{{ item.owner | default("root") }}'
+    group: '{{ item.group | default("root") }}'
+    mode: '{{ item.mode | default(omit) }}'
+  notify: Restart app
+
+- name: Add files (new)
+  loop: '{{ app.files | default([]) }}'
+  when: 'item.type == "touch"'
+  copy:
+    dest: '{{ app.srv_path }}/{{ item.path }}'
+    content: ''
+    force: no
+    owner: '{{ item.owner | default("root") }}'
+    group: '{{ item.group | default("root") }}'
     mode: '{{ item.mode | default(omit) }}'
   notify: Restart app
 
 - name: Add files (copy)
   loop: '{{ app.files | default([]) }}'
-  when: '{{ not item.template | default(false) }}'
+  when: 'item.type == "copy"'
   copy:
-    path: '{{ app.srv_path }}/{{ item.path }}'
+    dest: '{{ app.srv_path }}/{{ item.path }}'
     src: '{{ item.src | default(omit) }}'
     content: '{{ item.content | default(omit) }}'
-    owner: '{{ item.owner | default(root) }}'
-    group: '{{ item.group | default(root) }}'
+    owner: '{{ item.owner | default("root") }}'
+    group: '{{ item.group | default("root") }}'
     mode: '{{ item.mode | default(omit) }}'
     backup: '{{ item.backup | default(omit) }}'
   notify: Restart app
 
 - name: Add files (template)
   loop: '{{ app.files | default([]) }}'
-  when: '{{ item.template | default(false) }}'
+  when: 'item.type == "template"'
   template:
-    path: '{{ app.srv_path }}/{{ item.path }}'
+    dest: '{{ app.srv_path }}/{{ item.path }}'
     src: '{{ item.src | default(omit) }}'
-    owner: '{{ item.owner | default(root) }}'
-    group: '{{ item.group | default(root) }}'
+    owner: '{{ item.owner | default("root") }}'
+    group: '{{ item.group | default("root") }}'
     mode: '{{ item.mode | default(omit) }}'
     backup: '{{ item.backup | default(omit) }}'
   notify: Restart app

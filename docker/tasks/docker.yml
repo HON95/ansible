@@ -47,8 +47,7 @@
   service:
     name: docker.service
     enabled: yes
-    state: "started"
-  notify: Restart docker.service
+    state: started
 
 - name: Check swap limit support
   shell: 'docker info | grep "WARNING: No swap limit support"'

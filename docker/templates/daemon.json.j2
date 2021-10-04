@@ -5,6 +5,7 @@
     "log-opts": {
         "max-size": "100m"
     },
+    "mtu": {{ docker_network_mtu | int | to_json }},
     "default-address-pools": [{"base": "{{ docker_network_pools_ipv4_prefix }}", "size": 24}],
     "ipv6": true,
     "ip6tables": true,

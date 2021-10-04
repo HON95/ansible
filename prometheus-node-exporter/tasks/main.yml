@@ -87,6 +87,7 @@
     name: prometheus
     system: yes
     create_home: no
+    home: /nonexistent
     groups: '{{ prom_node_exp_user_extra_groups }}'
     shell: /usr/sbin/nologin
 

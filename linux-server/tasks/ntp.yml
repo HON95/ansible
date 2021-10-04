@@ -31,7 +31,7 @@
   service:
     name: systemd-timesyncd.service
     enabled: true
-  notify: Restart systemd-timesyncd
+    state: started
 
 # chrony
 
@@ -60,4 +60,4 @@
   service:
     name: chronyd.service
     enabled: yes
-  notify: Restart chronyd
+    state: started

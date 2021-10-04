@@ -14,11 +14,12 @@
 
 - name: Set keyboard configuration
   with_items:
-  - { key: XKBMODEL, value: '{{ linux_server_l10n_keyboard.model }}' }
-  - { key: XKBLAYOUT, value: '{{ linux_server_l10n_keyboard.layout }}' }
-  - { key: XKBVARIANT, value: '{{ linux_server_l10n_keyboard.variant }}' }
-  - { key: XKBOPTIONS, value: '{{ linux_server_l10n_keyboard.options }}' }
-  - { key: BACKSPACE, value: '{{ linux_server_l10n_keyboard.backspace }}' }
+    - { key: XKBMODEL, value: '{{ linux_server_l10n_keyboard.model }}' }
+    - { key: XKBLAYOUT, value: '{{ linux_server_l10n_keyboard.layout }}' }
+    - { key: XKBVARIANT, value: '{{ linux_server_l10n_keyboard.variant }}' }
+    - { key: XKBOPTIONS, value: '{{ linux_server_l10n_keyboard.options }}' }
+    - { key: BACKSPACE, value: '{{ linux_server_l10n_keyboard.backspace }}' }
+  when: 'linux_server_machine_type == "physical"'
   lineinfile:
     path: /etc/default/keyboard
     regexp: '^{{ item.key }}='

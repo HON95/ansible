@@ -15,4 +15,6 @@ linux_server_local_users: []
 #   removed_user:
 #     remove: yes
 #   disabled_user:
-#     shell: /sbin/nologin
+#     shell: /usr/sbin/nologin
+#   system_user:
+#     system: true

@@ -22,7 +22,7 @@
 - name: Setup basic IPTables script
   when: 'linux_server_iptables_basic_enable'
   template:
-    src: 'iptables/config.sh'
+    src: '{{ linux_server_iptables_basic_source }}'
     dest: '/etc/iptables/config.sh'
     mode: 'u+x'
   register: iptables_config

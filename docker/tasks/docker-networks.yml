@@ -9,6 +9,7 @@
     name: '{{ item.name }}'
     driver: macvlan
     driver_options:
+      com.docker.network.driver.mtu: '{{ docker_network_mtu | int }}'
       parent: '{{ item.parent_interface }}'
     enable_ipv6: true
     ipam_config:
@@ -23,6 +24,8 @@
     force: '{{ docker_network_force_update }}'
     name: '{{ item.name }}'
     driver: bridge
+    driver_options:
+      com.docker.network.driver.mtu: '{{ docker_network_mtu | int }}'
     enable_ipv6: true
     ipam_config:
       - subnet: '{{ item.ipv4_subnet | ansible.netcommon.ipaddr("network/prefix") }}'
