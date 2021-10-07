@@ -7,17 +7,31 @@
   register: service_facts
 
 - import_tasks: basic_packages.yml
+- meta: flush_handlers
 - import_tasks: iptables.yml
+- meta: flush_handlers
 - import_tasks: fail2ban.yml
+- meta: flush_handlers
 - import_tasks: logging.yml
+- meta: flush_handlers
 - import_tasks: networking.yml
+- meta: flush_handlers
 - import_tasks: dns.yml
+- meta: flush_handlers
 - import_tasks: ntp.yml
+- meta: flush_handlers
 - import_tasks: hostname.yml
+- meta: flush_handlers
 - import_tasks: hidepid.yml
+- meta: flush_handlers
 - import_tasks: sudo.yml
+- meta: flush_handlers
 - import_tasks: users.yml
+- meta: flush_handlers
 - import_tasks: l10n.yml
+- meta: flush_handlers
 - import_tasks: banner.yml
+- meta: flush_handlers
 - import_tasks: sshd.yml
+- meta: flush_handlers
 - import_tasks: vim.yml

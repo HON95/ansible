@@ -1,0 +1,10 @@
+- name: Restart postfix.service
+  service:
+    name: postfix.service
+    state: restarted
+
+- name: Update aliases database
+  command: 'newaliases'
+
+- name: Update SASL password database
+  command: 'postmap {{ postfix_sasl_passwd_file }}'

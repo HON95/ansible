@@ -19,7 +19,6 @@
       failed_when: 'prom_node_exp_check_version.stdout == ""'
       changed_when: no
 
-
     - name: Remove if wrong version
       when: 'prom_node_exp_check_version.stdout != prom_node_exp_version'
       block:

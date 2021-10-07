@@ -1,0 +1,102 @@
+- name: Install required packages
+  apt:
+    name:
+      - postfix
+      - libsasl2-modules
+      - mailutils
+
+- name: Update root alias
+  lineinfile:
+    path: '/etc/aliases'
+    regexp: '^root:'
+    line: 'root: {{ postfix_root_alias }}'
+  notify:
+    - Update aliases database
+    - Restart postfix.service
+
+- name: Update config file
+  template:
+    src: 'main.cf.j2'
+    dest: '/etc/postfix/main.cf'
+  notify: Restart postfix.service
+
+- name: Update SASL password file
+  template:
+    src: 'sasl_passwd.j2'
+    dest: '{{ postfix_sasl_passwd_file }}'
+    mode: '600'
+  no_log: yes
+  notify:
+    - Update SASL password database
+    - Restart postfix.service
+
+- name: Enable and start service
+  systemd:
+    name: 'postfix.service'
+    state: started
+    enabled: yes
+
+# Setup textfile collectors
+
+# - name: Create textfile collector directory
+#   file:
+#     path: '{{ prom_node_exp_textfile_collectors_path }}'
+#     state: directory
+
+# - name: Find existing textfile collectors
+#   shell: 'ls -1 {{ prom_node_exp_textfile_collectors_path }}'
+#   changed_when: false
+#   register: prom_node_exp_find_textfile_collectors
+
+# - name: Add textfile collectors
+#   vars:
+#     collectors: '{{ prom_node_exp_textfile_collectors_provided | combine(prom_node_exp_textfile_collectors_custom) }}'
+#   loop: '{{ prom_node_exp_textfile_collectors_enabled }}'
+#   when: 'item in collectors'
+#   copy:
+#     src: '{{ collectors[item].bin_src }}'
+#     dest: '{{ prom_node_exp_textfile_collectors_path }}/{{ item }}'
+#     mode: '755'
+#   register: prom_node_exp_add_textfile_collectors
+
+# - name: Remove old textfile collectors
+#   loop: '{{ prom_node_exp_find_textfile_collectors.stdout_lines }}'
+#   when: 'item not in prom_node_exp_textfile_collectors_enabled'
+#   file:
+#     path: '{{ prom_node_exp_textfile_collectors_path }}/{{ item }}'
+#     state: absent
+#   register: prom_node_exp_remove_textfile_collectors
+
+# - name: Find old textfile collector output to wipe if collector changes
+#   when: 'prom_node_exp_add_textfile_collectors.changed or prom_node_exp_remove_textfile_collectors.changed'
+#   shell: 'ls -1 {{ prom_node_exp_textfile_output_path }}'
+#   changed_when: false
+#   register: prom_node_exp_find_textfile_output
+
+# - name: Wipe old textfile collector output
+#   loop: '{{ prom_node_exp_find_textfile_output.stdout_lines | default([]) }}'
+#   file:
+#     path: '{{ prom_node_exp_textfile_output_path }}/{{ item }}'
+#     state: absent
+
+# - name: Setup cron jobs (without validating them)
+#   vars:
+#     collectors: '{{ prom_node_exp_textfile_collectors_provided | combine(prom_node_exp_textfile_collectors_custom) }}'
+#   template:
+#     src: 'cron.j2'
+#     dest: '/etc/cron.d/prometheus-node-exporter-textfile-collectors'
+#     mode: '644'
+
+# # Verify install
+
+# - name: Check if it's currently installed (verify install)
+#   stat:
+#     path: '{{ prom_node_exp_binary_path }}'
+#   register: prom_node_exp_check_exists
+#   failed_when: 'not prom_node_exp_check_exists.stat.exists'
+
+# - name: Check the current version (verify install)
+#   shell: '{{ prom_node_exp_binary_path }} --version 2>&1 | grep -Po1 "(?<=version )[^ ]+(?= )"'
+#   register: prom_node_exp_check_version
+#   failed_when: 'prom_node_exp_check_version.stdout != prom_node_exp_version'
+#   changed_when: no
