@@ -73,7 +73,7 @@
         dest: '{{ prom_node_exp_binary_path }}'
         owner: root
         group: root
-        mode: 0755
+        mode: '755'
 
   always:
     - name: Delete temporary download directory
@@ -134,7 +134,7 @@
   copy:
     src: '{{ collectors[item].bin_src }}'
     dest: '{{ prom_node_exp_textfile_collectors_path }}/{{ item }}'
-    mode: 755
+    mode: '755'
   register: prom_node_exp_add_textfile_collectors
 
 - name: Remove old textfile collectors
@@ -163,7 +163,7 @@
   template:
     src: 'cron.j2'
     dest: '/etc/cron.d/prometheus-node-exporter-textfile-collectors'
-    mode: 644
+    mode: '644'
 
 # Verify install
 

@@ -2,7 +2,7 @@
   file:
     path: '{{ app.srv_path }}'
     state: directory
-    mode: 0700
+    mode: '700'
 
 - name: Add docker-compose.yml (copy)
   when: 'not app.dc_file.template | default(false)'

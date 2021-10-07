@@ -11,7 +11,7 @@
   get_url:
     url: 'https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64'
     dest: '{{ docker_compose_binary_path }}'
-    mode: '0755'
+    mode: '755'
 
 - name: Make sure command completion dir exists
   file:

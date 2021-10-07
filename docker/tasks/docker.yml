@@ -25,7 +25,7 @@
         url: 'https://get.docker.com/'
         dest: '{{ docker_create_tmpfile.path }}'
         force: yes
-        mode: 0755
+        mode: '755'
 
     - name: Run install script
       shell: '{{ docker_create_tmpfile.path }}'

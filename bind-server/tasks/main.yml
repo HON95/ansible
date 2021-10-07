@@ -2,7 +2,7 @@
   file:
     path: '{{ bind_srv_path }}'
     state: directory
-    mode: 0700
+    mode: '700'
 
 - name: Add Docker Compose file
   template:
@@ -23,7 +23,7 @@
   file:
     path: '{{ bind_srv_path }}/{{ item }}'
     state: directory
-    mode: 0777
+    mode: '777'
   notify: Restart BIND
 
 - name: Add standard BIND configs
