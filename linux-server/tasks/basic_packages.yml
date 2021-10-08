@@ -33,6 +33,7 @@
       - screen
       - tree
       - bash-completion
+      - rsync
 
 - name: Install machine type-specific packages (physical)
   when: 'linux_server_machine_type == "physical"'

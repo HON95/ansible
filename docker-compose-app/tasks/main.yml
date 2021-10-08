@@ -18,7 +18,8 @@
     dest: '{{ app.srv_path }}/docker-compose.yml'
   notify: Restart app
 
-- name: Add dirs
+# Create new dirs
+- name: Add dirs (new)
   loop: '{{ app.dirs | default([]) }}'
   file:
     path: '{{ app.srv_path }}/{{ item.path }}'
@@ -28,6 +29,7 @@
     mode: '{{ item.mode | default(omit) }}'
   notify: Restart app
 
+# Create new files
 - name: Add files (new)
   loop: '{{ app.files | default([]) }}'
   when: 'item.type == "touch"'
@@ -40,6 +42,7 @@
     mode: '{{ item.mode | default(omit) }}'
   notify: Restart app
 
+# Copy single files, from file or supplied content
 - name: Add files (copy)
   loop: '{{ app.files | default([]) }}'
   when: 'item.type == "copy"'
@@ -53,6 +56,20 @@
     backup: '{{ item.backup | default(omit) }}'
   notify: Restart app
 
+# Synchronize file or dir to remote (requires rsync)
+- name: Add files (synchronize)
+  loop: '{{ app.files | default([]) }}'
+  when: 'item.type == "synchronize"'
+  synchronize:
+    dest: '{{ app.srv_path }}/{{ item.path }}'
+    src: '{{ item.src | default(omit) }}'
+    mode: push
+    owner: false
+    group: false
+    perms: false
+  notify: Restart app
+
+# Use template files
 - name: Add files (template)
   loop: '{{ app.files | default([]) }}'
   when: 'item.type == "template"'
