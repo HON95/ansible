@@ -5,7 +5,7 @@
 - name: Check if AppArmor is operational (Debian)
   when: 'ansible_facts["os_family"] == "Debian"
       and not linux_status_ignore_apparmor'
-  shell: '/usr/sbin/apparmor_status --enabled'
+  command: '/usr/sbin/apparmor_status --enabled'
   changed_when: no
 
 - name: Check if reboot file present (Debian)

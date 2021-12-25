@@ -12,7 +12,6 @@ Supports automatic DNSSEC signing.
 - Ansible collections:
     - `netcommon`
     - `community.docker`
-    - `community.docker_compose`
 
 ## Info
 

@@ -25,7 +25,7 @@
   template:
     src: 'networking/systemd-main.network.j2'
     dest: '/etc/systemd/network/main.network'
-  notify: Restart systemd-networkd.service
+  register: linux_server_networking_systemd_config_change
 
 - name: Disable ifupdown service
   when: 'linux_server_networking_method != "ignore" and "networking.service" in service_facts.ansible_facts.services'
@@ -48,11 +48,13 @@
   systemd:
     name: systemd-networkd.service
     enabled: yes
-  register: linux_server_networking_enable_systemd
+  register: linux_server_networking_systemd_enable
 
 # Wait until after prompt to stup services to avoid breaking networking while the playbook is running
 - name: Prompt to change to reboot system and break playbook
-  when: 'linux_server_networking_disable_ifupdown.changed or linux_server_networking_disable_dhcpcd.changed or linux_server_networking_enable_systemd.changed'
+  when: 'linux_server_networking_systemd_config_change.changed
+    or linux_server_networking_disable_dhcpcd.changed
+    or linux_server_networking_systemd_enable.changed'
   fail:
     msg: 'Planned failure: The network config was significantly changed, please reboot the system before re-running the playbook'
 

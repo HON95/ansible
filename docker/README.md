@@ -8,4 +8,3 @@ Configures the Docker daemon and Docker Compose.
 - OS: Debian 10
 - Ansible collections:
     - `community.docker`
-    - `community.docker_compose`
