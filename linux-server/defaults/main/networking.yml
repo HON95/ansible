@@ -13,6 +13,7 @@ linux_server_networking_ipv6_addressing: slaac
 # Main network interface:
 #linux_server_networking_interface: eth0
 # Static addressing parameters (v4 and/or v6):
+# Note: The gateway defaults to the first address in the subnet (supports v4/31 and v6/127).
 #linux_server_networking_static_ipv4_address: 10.95.12.10/22
 #linux_server_networking_static_ipv4_gateway: 10.95.12.1
 #linux_server_networking_static_ipv6_address: fd87:d8aa:222:10::10/64
