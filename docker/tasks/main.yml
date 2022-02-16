@@ -1,5 +1,5 @@
 - import_tasks: docker.yml
-- import_tasks: nvidia-runtime.yml
-  when: 'docker_nvidia_runtime_enable'
-- import_tasks: docker-networks.yml
 - import_tasks: docker-compose.yml
+- import_tasks: nvidia-runtime.yml
+  when: 'docker_nvidia_runtime_install'
+- import_tasks: docker-networks.yml
