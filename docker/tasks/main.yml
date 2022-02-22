@@ -1,5 +1,11 @@
+- import_tasks: prerequisites.yml
+- meta: flush_handlers
 - import_tasks: docker.yml
+- meta: flush_handlers
 - import_tasks: docker-compose.yml
+- meta: flush_handlers
 - import_tasks: nvidia-runtime.yml
   when: 'docker_nvidia_runtime_install'
+- meta: flush_handlers
 - import_tasks: docker-networks.yml
+- meta: flush_handlers
