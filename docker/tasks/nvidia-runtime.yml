@@ -1,34 +1,32 @@
 # Setup NVIDIA Container Toolkit for Docker
 
-- name: Collect package facts
-  package_facts:
-    manager: apt
+# Based on: https://nvidia.github.io/nvidia-container-runtime/
 
 - name: Install NVIDIA Container Toolkit (NCT) for Docker (block)
-  when: '"nvidia-docker2" not in ansible_facts.packages'
+  when: '"nvidia-container-toolkit" not in ansible_facts.packages'
   block:
     - name: Get the distribution for NCT
       shell: '. /etc/os-release; echo $ID$VERSION_ID'
       changed_when: false
       register: docker_nvidia_runtime_distribution_result
 
-    - name: Add NCT APT GPG keyring
-      shell: 'curl -sSf https://nvidia.github.io/nvidia-docker/gpgkey | gpg --dearmor > /usr/share/keyrings/nvidia-docker-archive-keyring.gpg'
+    - name: Add NCT GPG keyring
+      shell: 'curl -sSf https://nvidia.github.io/nvidia-container-runtime/gpgkey | gpg --dearmor > {{ docker_nvidia_runtime_repo_keyring_path }}'
       args:
         warn: false
 
-    - name: Add NCT APT GPG repo
+    - name: Add NCT APT repo
       vars:
         distribution: '{{ docker_nvidia_runtime_distribution | default(docker_nvidia_runtime_distribution_result.stdout_lines[0]) }}'
       get_url:
-        url: 'https://nvidia.github.io/nvidia-docker/{{ distribution }}/nvidia-docker.list'
-        dest: /etc/apt/sources.list.d/nvidia-docker.list
+        url: 'https://nvidia.github.io/nvidia-container-runtime/{{ distribution }}/nvidia-container-runtime.list'
+        dest: '{{ docker_nvidia_runtime_repo_path }}'
 
     - name: Add keyring to repo file
       replace:
-        path: /etc/apt/sources.list.d/nvidia-docker.list
+        path: '{{ docker_nvidia_runtime_repo_path }}'
         regexp: '^(.*)(deb|deb-src) +(http.*)$'
-        replace: '\1\2 [signed-by=/usr/share/keyrings/nvidia-docker-archive-keyring.gpg] \3'
+        replace: '\1\2 [signed-by={{ docker_nvidia_runtime_repo_keyring_path }}] \3'
 
     - name: Update cache
       apt:
@@ -37,12 +35,25 @@
     - name: Install NCT
       apt:
         name:
-          - nvidia-docker2
+          - nvidia-container-toolkit
       notify: Restart docker.service
 
-  always:
-    - name: Delete temporary download file
-      when: 'docker_nvidia_runtime_tmpfile is defined'
-      file:
-        path: "{{ docker_nvidia_runtime_tmpfile.path }}"
-        state: absent
+- name: Remove the older nvidia-docker2
+  apt:
+    state: absent
+    name:
+      - nvidia-docker2
+  notify: Restart docker.service
+
+# Bugfix, see https://github.com/NVIDIA/nvidia-docker/issues/1399
+- name: Fix the ldconfig bug (Debian)
+  when: 'ansible_distribution == "Debian"'
+  community.general.ini_file:
+    path: /etc/nvidia-container-runtime/config.toml
+    section: nvidia-container-cli
+    option: ldconfig
+    value: '"/sbin/ldconfig"'
+
+- name: Verify
+  shell: 'docker run --rm hello-world'
+  changed_when: no

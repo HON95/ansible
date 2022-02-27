@@ -2,29 +2,52 @@
 
 # Based on: https://docs.docker.com/engine/install/debian/
 
-- name: Install (block)
+- name: Make sure Docker is NOT installed
+  when: '"docker" in ansible_facts.packages
+      or "docker-engine" in ansible_facts.packages
+      or "docker.io" in ansible_facts.packages
+      or "containerd" in ansible_facts.packages
+      or "runc" in ansible_facts.packages'
+  fail:
+    msg: 'Old Docker is installed. Please remove it first.'
+
+- name: Install Docker (block)
   when: '"docker-ce" not in ansible_facts.packages'
   block:
-    - name: Create temporary download file
-      tempfile:
-        state: file
-      register: docker_create_tmpfile
+    - name: Get arch for repo
+      shell: 'dpkg --print-architecture'
+      changed_when: false
+      register: docker_dpkg_arch_result
 
-    - name: Download install script
-      get_url:
-        url: 'https://get.docker.com/'
-        dest: '{{ docker_create_tmpfile.path }}'
-        force: yes
-        mode: '755'
+    - name: Get OS info
+      shell: '. /etc/os-release; echo $ID; echo $VERSION_ID; echo $VERSION_CODENAME'
+      changed_when: false
+      register: docker_os_info_result
 
-    - name: Run install script
-      shell: '{{ docker_create_tmpfile.path }}'
-  always:
-    - name: Delete temporary download file
-      when: 'docker_create_tmpfile is defined'
-      file:
-        path: "{{ docker_create_tmpfile.path }}"
-        state: absent
+    - name: Add GPG keyring for APT repo
+      vars:
+        os_distro: '{{ docker_os_info_result.stdout_lines[0] }}'
+      shell: 'curl -sSf https://download.docker.com/linux/{{ os_distro }}/gpg | gpg --dearmor > {{ docker_repo_keyring_path }}'
+
+    - name: Create repo file
+      vars:
+        os_distro: '{{ docker_os_info_result.stdout_lines[0] }}'
+        dpkg_arch: '{{ docker_dpkg_arch_result.stdout_lines[0] }}'
+        os_version_codename: '{{ docker_os_info_result.stdout_lines[2] }}'
+      copy:
+        content: "deb [arch={{ dpkg_arch }} signed-by={{ docker_repo_keyring_path }}] https://download.docker.com/linux/{{ os_distro }} {{ os_version_codename }} stable\n"
+        dest: '{{ docker_repo_path }}'
+
+    - name: Update cache
+      apt:
+        update_cache: true
+
+    - name: Install Docker packages
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
 
 - name: Setup Docker daemon config
   template:
@@ -56,3 +79,7 @@
   fail:
     msg: 'Swap limit support is not enabled yet, reboot required.'
   ignore_errors: yes
+
+- name: Verify
+  shell: 'docker run --rm hello-world'
+  changed_when: no

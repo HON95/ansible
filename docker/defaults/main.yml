@@ -27,7 +27,7 @@ docker_networks: []
 
 # Install the NVIDIA Container Toolkit (for using GPUs)
 docker_nvidia_runtime_install: false
-# Override distribution if the repos are outdated, see https://nvidia.github.io/nvidia-docker/
+# Override distribution if the repos are outdated, see https://nvidia.github.io/nvidia-container-runtime/
 #docker_nvidia_runtime_distribution: ubuntu20.04
 
 # Docker compose version to install

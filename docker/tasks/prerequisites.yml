@@ -2,6 +2,14 @@
   package_facts:
     manager: apt
 
+- name: Install APT prerequisites
+  apt:
+    name:
+      - ca-certificates
+      - gnupg
+      - lsb-release
+      - curl
+
 - name: Install Docker SDKs for Python
   pip:
     name:
