@@ -1,32 +1,40 @@
-# Setup NVIDIA Container Toolkit for Docker
+- name: Gather package facts
+  package_facts:
+    manager: apt
 
-# Based on: https://nvidia.github.io/nvidia-container-runtime/
+- name: Install APT prerequisites
+  apt:
+    name:
+      - ca-certificates
+      - gnupg
+      - lsb-release
+      - curl
 
-- name: Install NVIDIA Container Toolkit (NCT) for Docker (block)
-  when: '"nvidia-container-toolkit" not in ansible_facts.packages'
+- name: Install (block)
+  when: '"nvidia-container-runtime" not in ansible_facts.packages'
   block:
     - name: Get the distribution for NCT
       shell: '. /etc/os-release; echo $ID$VERSION_ID'
       changed_when: false
-      register: docker_nvidia_runtime_distribution_result
+      register: nvidia_container_runtime_distribution_result
 
     - name: Add NCT GPG keyring
-      shell: 'curl -sSf https://nvidia.github.io/nvidia-container-runtime/gpgkey | gpg --dearmor > {{ docker_nvidia_runtime_repo_keyring_path }}'
+      shell: 'curl -sSf https://nvidia.github.io/nvidia-container-runtime/gpgkey | gpg --dearmor > {{ nvidia_container_runtime_repo_keyring_path }}'
       args:
         warn: false
 
     - name: Add NCT APT repo
       vars:
-        distribution: '{{ docker_nvidia_runtime_distribution | default(docker_nvidia_runtime_distribution_result.stdout_lines[0]) }}'
+        distribution: '{{ nvidia_container_runtime_distribution | default(nvidia_container_runtime_distribution_result.stdout_lines[0]) }}'
       get_url:
         url: 'https://nvidia.github.io/nvidia-container-runtime/{{ distribution }}/nvidia-container-runtime.list'
-        dest: '{{ docker_nvidia_runtime_repo_path }}'
+        dest: '{{ nvidia_container_runtime_repo_path }}'
 
     - name: Add keyring to repo file
       replace:
-        path: '{{ docker_nvidia_runtime_repo_path }}'
+        path: '{{ nvidia_container_runtime_repo_path }}'
         regexp: '^(.*)(deb|deb-src) +(http.*)$'
-        replace: '\1\2 [signed-by={{ docker_nvidia_runtime_repo_keyring_path }}] \3'
+        replace: '\1\2 [signed-by={{ nvidia_container_runtime_repo_keyring_path }}] \3'
 
     - name: Update cache
       apt:
@@ -35,10 +43,9 @@
     - name: Install NCT
       apt:
         name:
-          - nvidia-container-toolkit
-      notify: Restart docker.service
+          - nvidia-container-runtime
 
-- name: Remove the older nvidia-docker2
+- name: Remove the older nvidia-docker2, if found
   apt:
     state: absent
     name:
@@ -53,7 +60,3 @@
     section: nvidia-container-cli
     option: ldconfig
     value: '"/sbin/ldconfig"'
-
-- name: Verify
-  shell: 'docker run --rm hello-world'
-  changed_when: no

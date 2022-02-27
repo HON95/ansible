@@ -1,0 +1,2 @@
+# Override distribution if the repos are outdated, see https://nvidia.github.io/nvidia-container-runtime/
+#nvidia_container_runtime_distribution: ubuntu20.04

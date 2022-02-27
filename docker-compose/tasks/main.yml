@@ -1,6 +1,8 @@
-# Setup Docker Compose
-
-# Based on: https://docs.docker.com/compose/install/
+- name: Install Docker SDKs for Python
+  pip:
+    name:
+      - docker
+      - docker-compose
 
 - name: Download Docker Compose
   get_url:

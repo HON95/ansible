@@ -6,6 +6,8 @@ docker_userland_proxy_enable: true
 docker_default_dns_servers:
   - "1.1.1.1"
   - "2606:4700:4700::1111"
+# Enable the NVIDIA Container Runtime for using GPUs (must be intalled first)
+docker_nvidia_runtime_enable: false
 # Force recreate the networks and kicks off any containers so that it can perform changes
 docker_network_force_update: false
 # Change the default MTU (1500) if path MTU is broken or you need jumbo frames or something
@@ -24,11 +26,3 @@ docker_networks: []
 #     driver: bridge
 #     ipv4_subnet: 10.95.99.0/22
 #     ipv6_subnet: fd87:d8aa:222:99::/64
-
-# Install the NVIDIA Container Toolkit (for using GPUs)
-docker_nvidia_runtime_install: false
-# Override distribution if the repos are outdated, see https://nvidia.github.io/nvidia-container-runtime/
-#docker_nvidia_runtime_distribution: ubuntu20.04
-
-# Docker compose version to install
-docker_compose_version: "1.29.2"

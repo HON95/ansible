@@ -13,7 +13,7 @@
     "dns": {{ docker_default_dns_servers | list | to_json }},
     "metrics-addr": "[::]:9323",
     "userland-proxy": {{ docker_userland_proxy_enable | bool | to_json }},
-    {%- if docker_nvidia_runtime_install %}
+    {%- if docker_nvidia_runtime_enable %}
     "runtimes": {
         "nvidia": {
             "path": "nvidia-container-runtime",

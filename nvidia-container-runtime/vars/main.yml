@@ -1,0 +1,2 @@
+nvidia_container_runtime_repo_keyring_path: "/usr/share/keyrings/nvidia-docker-archive-keyring.gpg"
+nvidia_container_runtime_repo_path: "/etc/apt/sources.list.d/nvidia-container-runtime.list"

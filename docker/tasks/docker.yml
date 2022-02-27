@@ -80,6 +80,11 @@
     msg: 'Swap limit support is not enabled yet, reboot required.'
   ignore_errors: yes
 
-- name: Verify
+- name: Verify Docker
   shell: 'docker run --rm hello-world'
+  changed_when: no
+
+- name: Verify NVIDIA Container Runtime
+  when: 'docker_nvidia_runtime_enable'
+  shell: 'docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi'
   changed_when: no
