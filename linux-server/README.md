@@ -5,6 +5,10 @@
 - Arch: x86_64
 - OS: Debian 10
 
+## Requirements
+
+- netaddr (Python/Pip)
+
 ## Before
 
 Do this before running the Ansible role on the server.

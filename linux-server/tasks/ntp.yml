@@ -2,13 +2,19 @@
 
 # systemd
 
-- name: Uninstall Chrony (systemd)
+- name: Purge Chrony (systemd)
   when: 'linux_server_ntp_method == "systemd"'
   apt:
     name:
       - chrony
     state: absent
     purge: yes
+
+- name: Install systemd-timesyncd (systemd)
+  when: 'linux_server_ntp_method == "systemd"'
+  apt:
+    name:
+      - systemd-timesyncd
 
 - name: Set NTP servers (systemd)
   when: 'linux_server_ntp_method == "systemd" and linux_server_ntp_servers is defined'
@@ -35,12 +41,13 @@
 
 # chrony
 
-- name: Disable systemd NTP (chrony)
+- name: Purge systemd-timesyncd (chrony)
   when: 'linux_server_ntp_method == "chrony"'
-  service:
-    name: systemd-timesyncd.service
-    enabled: false
-    state: stopped
+  apt:
+    name:
+      - systemd-timesyncd
+    state: absent
+    purge: yes
 
 - name: Install Chrony (chrony)
   when: 'linux_server_ntp_method == "chrony"'
