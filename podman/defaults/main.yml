@@ -1,0 +1,20 @@
+# Enable Docker compat stuff, so e.g. Docker Compose works
+podman_docker_compat_enable: true
+# Force recreate the networks and kicks off any containers so that it can perform changes
+podman_network_force_update: false
+# Change the default MTU (1500) if path MTU is broken or you need jumbo frames or something
+podman_network_mtu: 1500
+podman_network_default_ipv4_subnet: "10.194.0.0/24"
+podman_network_default_ipv6_subnet: "fd34:93c7:6fa8:39f0::/64"
+# Networks to create
+podman_networks: []
+# podman_networks:
+#   - name: apps-general
+#     driver: macvlan
+#     parent_interface: '{{ networking_main_interface.name }}'
+#     ipv4_subnet: '{{ networking_main_interface.ipv4_address | ansible.netcommon.ipaddr("network/prefix") }}'
+#     ipv6_subnet: '{{ networking_main_interface.name | ansible.netcommon.ipaddr("network/prefix") }}'
+#   - name: test2
+#     driver: bridge
+#     ipv4_subnet: 10.95.99.0/22
+#     ipv6_subnet: fd87:d8aa:222:99::/64
