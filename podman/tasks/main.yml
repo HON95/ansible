@@ -69,22 +69,17 @@
 
 # Docker compat
 
-- name: Add Docker symlink (compat)
+- name: Add Docker executable symlink (compat)
   file:
     src: /usr/bin/podman
     dest: /usr/bin/docker
     state: link
 
-- name: Add DOCKER_HOST env var (compat)
-  lineinfile:
-    path: /etc/environment
-    regexp: '^DOCKER_HOST='
-    line: 'DOCKER_HOST=unix:///run/podman/podman.sock'
-
-- name: Set sudo to accept DOCKER_HOST (compat)
-  copy:
-    content: "Defaults env_keep += \"DOCKER_HOST\"\n"
-    dest: /etc/sudoers.d/podman-compat
+- name: Add Docker socket symlink (compat)
+  file:
+    src: /run/podman/podman.sock
+    dest: /var/run/docker.sock
+    state: link
 
 # Network setup
 
