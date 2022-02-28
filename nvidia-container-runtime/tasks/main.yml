@@ -40,10 +40,10 @@
       apt:
         update_cache: true
 
-    - name: Install NCT
-      apt:
-        name:
-          - nvidia-container-runtime
+- name: Install NCT
+  apt:
+    name:
+      - nvidia-container-runtime
 
 - name: Remove the older nvidia-docker2, if found
   apt:
@@ -60,3 +60,18 @@
     section: nvidia-container-cli
     option: ldconfig
     value: '"/sbin/ldconfig"'
+
+# Bugfix
+- name: Add missing OCI hook (Debian) (1)
+  when: 'ansible_distribution == "Debian"'
+  file:
+    path: '{{ nvidia_container_runtime_oci_hook_dir }}'
+    state: directory
+    recurse: yes
+
+# Bugfix
+- name: Add missing OCI hook (Debian) (2)
+  when: 'ansible_distribution == "Debian"'
+  copy:
+    src: 'oci-nvidia-hook.json'
+    dest: '{{ nvidia_container_runtime_oci_hook_dir }}/oci-nvidia-hook.json'

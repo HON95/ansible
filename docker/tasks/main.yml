@@ -9,7 +9,6 @@
     name:
       - ca-certificates
       - gnupg
-      - lsb-release
       - curl
 
 - name: Install Docker SDKs for Python
@@ -20,7 +19,7 @@
 
 # Docker setup
 
-- name: Make sure Docker is NOT installed
+- name: Make sure old Docker is installed
   when: '"docker" in ansible_facts.packages
       or "docker-engine" in ansible_facts.packages
       or "docker.io" in ansible_facts.packages
@@ -60,12 +59,12 @@
       apt:
         update_cache: true
 
-    - name: Install Docker packages
-      apt:
-        name:
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
+- name: Install Docker packages
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
 
 - name: Setup Docker daemon config
   template:
