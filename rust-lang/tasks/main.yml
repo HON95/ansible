@@ -1,0 +1,86 @@
+# Check if currently installed and if up-to-date
+
+- name: Check if it's currently installed
+  stat:
+    path: '{{ rust_rustc_path }}'
+  register: rust_check_exists
+
+- name: Check the current version
+  when: 'rust_check_exists.stat.exists'
+  shell: '{{ rust_rustc_path }} --version 2>&1 | grep -Po -m1 "(?<=rustc )[^ ]+(?= )"'
+  register: rust_check_version
+  failed_when: 'rust_check_version.stdout == ""'
+  changed_when: no
+
+# Install (fresh or update)
+
+- name: Download and install (block)
+  when: 'not rust_check_exists.stat.exists or (rust_check_exists.stat.exists and rust_check_version.stdout != rust_version)'
+  block:
+    - name: Create temporary archive file
+      tempfile:
+        state: file
+      register: rust_create_archive_tmpfile
+
+    - name: Download archive
+      get_url:
+        url: '{{ rust_download_url }}'
+        dest: '{{ rust_create_archive_tmpfile.path }}'
+        force: yes
+
+    - name: Verify GPG signature of archive
+      vars:
+        file_path: '{{ rust_create_archive_tmpfile.path }}'
+        pubkey_url: '{{ rust_download_pubkey_url }}'
+        signature_url: '{{ rust_download_sig_url }}'
+      import_tasks: gpg-verify-file.yml
+
+    - name: Create temporary extraction directory
+      tempfile:
+        state: directory
+      register: rust_create_extraction_tmpdir
+
+    - name: Unarchive
+      unarchive:
+        src: '{{ rust_create_archive_tmpfile.path }}'
+        dest: '{{ rust_create_extraction_tmpdir.path }}'
+        remote_src: yes
+
+    - name: Find the extracted directory
+      find:
+        paths: '{{ rust_create_extraction_tmpdir.path }}'
+        file_type: directory
+      register: rust_list_extracted_files
+      failed_when: 'rust_list_extracted_files.files | length != 1'
+
+    - name: Run the uninstaller to remove the old version
+      when: 'rust_check_exists.stat.exists and rust_check_version.stdout != rust_version'
+      vars:
+        extracted_dir: '{{ rust_list_extracted_files.files[0].path }}'
+      command: '{{ extracted_dir }}/install.sh --prefix={{ rust_install_prefix_path }} --uninstall'
+
+    - name: Run the installer
+      vars:
+        extracted_dir: '{{ rust_list_extracted_files.files[0].path }}'
+      command: '{{ extracted_dir }}/install.sh --prefix={{ rust_install_prefix_path }}'
+
+  always:
+    - name: Delete temporary archive file
+      when: 'rust_create_archive_tmpfile is defined'
+      file:
+        path: '{{ rust_create_archive_tmpfile.path }}'
+        state: absent
+
+    - name: Delete temporary extraction directory
+      when: 'rust_create_extraction_tmpdir is defined'
+      file:
+        path: '{{ rust_create_extraction_tmpdir.path }}'
+        state: absent
+
+# Verify install
+
+- name: Check the current version (verify install)
+  shell: '{{ rust_rustc_path }} --version 2>&1 | grep -Po -m1 "(?<=rustc )[^ ]+(?= )"'
+  register: rust_check_version
+  failed_when: 'rust_check_version.stdout != rust_version'
+  changed_when: no

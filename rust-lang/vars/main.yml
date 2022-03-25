@@ -1,0 +1,9 @@
+rust_architecture_map:
+  x86_64: 'x86_64'
+rust_architecture: "{{ rust_architecture_map[ansible_architecture] }}"
+
+rust_install_prefix_path: /usr/local
+rust_rustc_path: '{{ rust_install_prefix_path }}/bin/rustc'
+rust_download_url: 'https://static.rust-lang.org/dist/rust-{{ rust_version }}-{{ rust_architecture }}-unknown-linux-gnu.tar.gz'
+rust_download_sig_url: '{{ rust_download_url }}.asc'
+rust_download_pubkey_url: 'https://keybase.io/rust/pgp_keys.asc?fingerprint=108f66205eaeb0aaa8dd5e1c85ab96e6fa1be5fe'
