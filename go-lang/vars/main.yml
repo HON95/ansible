@@ -1,0 +1,12 @@
+go_architecture_map:
+  i386: '386'
+  x86_64: 'amd64'
+  aarch64: 'arm64'
+  armv6l: 'armv6l'
+go_architecture: "{{ go_architecture_map[ansible_architecture] }}"
+
+go_install_path: /usr/local/go
+go_binary_path: /usr/local/go/bin/go
+go_download_url: 'https://golang.org/dl/go{{ go_version }}.linux-{{ go_architecture }}.tar.gz'
+go_download_sig_url: '{{ go_download_url }}.asc'
+go_download_pubkey_url: 'https://dl.google.com/dl/linux/linux_signing_key.pub'

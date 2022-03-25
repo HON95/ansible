@@ -1,0 +1,112 @@
+# Check if currently installed, if up-to-date and remove if not
+
+- name: Check if it's currently installed
+  stat:
+    path: '{{ go_binary_path }}'
+  register: go_check_exists
+
+- name: Check the current version
+  when: 'go_check_exists.stat.exists'
+  shell: '{{ go_binary_path }} version 2>&1 | grep -Po1 "(?<=version go)[^ ]+(?= )"'
+  register: go_check_version
+  failed_when: 'go_check_version.stdout == ""'
+  changed_when: no
+
+- name: Remove existing installation (remove outdated version)
+  when: 'go_check_exists.stat.exists and go_check_version.stdout != go_version'
+  file:
+    path: '{{ go_install_path }}'
+    state: absent
+
+# Install (fresh or update)
+
+- name: Check if it's currently installed (again)
+  stat:
+    path: '{{ go_binary_path }}'
+  register: go_check_exists
+
+- name: Download and install (block)
+  when: 'not go_check_exists.stat.exists'
+  block:
+    - name: Make sure directory doesn't exist
+      file:
+        path: '{{ go_install_path }}'
+        state: absent
+
+    - name: Create temporary archive file
+      tempfile:
+        state: file
+      register: go_create_archive_tmpfile
+
+    - name: Download archive
+      get_url:
+        url: '{{ go_download_url }}'
+        dest: '{{ go_create_archive_tmpfile.path }}'
+        force: yes
+
+    - name: Verify GPG signature of archive
+      vars:
+        file_path: '{{ go_create_archive_tmpfile.path }}'
+        pubkey_url: '{{ go_download_pubkey_url }}'
+        signature_url: '{{ go_download_sig_url }}'
+      import_tasks: gpg-verify-file.yml
+
+    - name: Create install parent dir
+      file:
+        path: '{{ go_install_path | dirname }}'
+        state: directory
+
+    - name: Create temporary parent directory
+      tempfile:
+        state: directory
+      register: go_create_parent_tmpdir
+
+    - name: Unarchive to install directory
+      unarchive:
+        src: '{{ go_create_archive_tmpfile.path }}'
+        dest: '{{ go_create_parent_tmpdir.path }}'
+        remote_src: yes
+
+    - name: Find the extracted directory
+      find:
+        paths: '{{ go_create_parent_tmpdir.path }}'
+        file_type: directory
+      register: go_list_extracted_files
+      failed_when: 'go_list_extracted_files.files | length != 1'
+
+    - name: Move the extracted directory to the right place
+      vars:
+        extracted_dir: '{{ go_list_extracted_files.files[0].path }}'
+      command: 'mv {{ extracted_dir }} {{ go_install_path }}'
+
+  always:
+    - name: Delete temporary archive file
+      when: 'go_create_archive_tmpfile is defined'
+      file:
+        path: '{{ go_create_archive_tmpfile.path }}'
+        state: absent
+
+    - name: Delete temporary parent directory
+      when: 'rust_create_parent_tmpdir is defined'
+      file:
+        path: '{{ rust_create_parent_tmpdir.path }}'
+        state: absent
+
+- name: Add to PATH
+  copy:
+    content: "export PATH=$PATH:{{ go_install_path }}/bin\n"
+    dest: '/etc/profile.d/golang_path.sh'
+
+# Verify install
+
+- name: Check if it's currently installed (verify install)
+  stat:
+    path: '{{ go_binary_path }}'
+  register: go_check_exists
+  failed_when: 'not go_check_exists.stat.exists'
+
+- name: Check the current version (verify install)
+  shell: '{{ go_binary_path }} version 2>&1 | grep -Po1 "(?<=version go)[^ ]+(?= )"'
+  register: go_check_version
+  failed_when: 'go_check_version.stdout != go_version'
+  changed_when: no

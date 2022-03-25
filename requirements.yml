@@ -1,0 +1,10 @@
+# Dependencies for the roles, provided in a single file for convenience.
+# Usage: ansible-galaxy collection install -r requirements.yml
+
+# Other requirements:
+# netaddr (Python/Pip)
+
+collections:
+  - name: ansible.netcommon
+  - name: community.docker
+  - name: containers.podman

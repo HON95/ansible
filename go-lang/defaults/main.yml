@@ -1,2 +1,2 @@
 # Go version to install
-go_version: "1.17.1"
+go_version: '1.18'

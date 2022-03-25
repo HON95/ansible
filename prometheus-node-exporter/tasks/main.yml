@@ -56,7 +56,7 @@
 
     - name: Download
       unarchive:
-        src: 'https://github.com/prometheus/node_exporter/releases/download/v{{ prom_node_exp_version }}/node_exporter-{{ prom_node_exp_version }}.linux-{{ architecture }}.tar.gz'
+        src: 'https://github.com/prometheus/node_exporter/releases/download/v{{ prom_node_exp_version }}/node_exporter-{{ prom_node_exp_version }}.linux-{{ prom_architecture }}.tar.gz'
         remote_src: yes
         dest: '{{ prom_node_exp_create_tmpdir.path }}'
 
