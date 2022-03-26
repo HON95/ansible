@@ -41,28 +41,14 @@
       register: rust_create_extraction_tmpdir
 
     - name: Unarchive
-      unarchive:
-        src: '{{ rust_create_archive_tmpfile.path }}'
-        dest: '{{ rust_create_extraction_tmpdir.path }}'
-        remote_src: yes
-
-    - name: Find the extracted directory
-      find:
-        paths: '{{ rust_create_extraction_tmpdir.path }}'
-        file_type: directory
-      register: rust_list_extracted_files
-      failed_when: 'rust_list_extracted_files.files | length != 1'
+      shell: 'tar xvf "{{ rust_create_archive_tmpfile.path }}" -C "{{ rust_create_extraction_tmpdir.path }}" --strip-components=1'
 
     - name: Run the uninstaller to remove the old version
       when: 'rust_check_exists.stat.exists and rust_check_version.stdout != rust_version'
-      vars:
-        extracted_dir: '{{ rust_list_extracted_files.files[0].path }}'
-      command: '{{ extracted_dir }}/install.sh --prefix={{ rust_install_prefix_path }} --uninstall'
+      command: '{{ rust_create_extraction_tmpdir.path }}/install.sh --prefix={{ rust_install_prefix_path }} --uninstall'
 
     - name: Run the installer
-      vars:
-        extracted_dir: '{{ rust_list_extracted_files.files[0].path }}'
-      command: '{{ extracted_dir }}/install.sh --prefix={{ rust_install_prefix_path }}'
+      command: '{{ rust_create_extraction_tmpdir.path }}/install.sh --prefix={{ rust_install_prefix_path }}'
 
   always:
     - name: Delete temporary archive file

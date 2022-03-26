@@ -11,6 +11,7 @@ Dependencies that may be used by some roles.
 Installation (user): `ansible-galaxy collection install <collection>`
 
 - `ansible.netcommon`
+- `ansible.utils.ipaddr`
 - `community.docker`
 
 ### Python Packages
