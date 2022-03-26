@@ -109,8 +109,8 @@
   when: 'podman_network_default_exists_result.rc != 0 or podman_network_force_update'
   vars:
     - name: podman
-    - subnet_ipv4: '{{ podman_network_default_ipv4_subnet | ansible.netcommon.ipaddr("network/prefix") }}'
-    - subnet_ipv6: '{{ podman_network_default_ipv6_subnet | ansible.netcommon.ipaddr("network/prefix") }}'
+    - subnet_ipv4: '{{ podman_network_default_ipv4_subnet | ansible.utils.ipaddr("network/prefix") }}'
+    - subnet_ipv6: '{{ podman_network_default_ipv6_subnet | ansible.utils.ipaddr("network/prefix") }}'
     - mtu: '{{ podman_network_mtu | int }}'
   shell: 'podman network create --driver=bridge --ipv6 --opt=mtu={{ mtu }} --subnet={{ subnet_ipv4 }} --subnet={{ subnet_ipv6 }} {{ name }}'
 
@@ -124,8 +124,8 @@
   vars:
     - internal: '{{ item.internal | default(false) }}'
     - name: '{{ item.name }}'
-    - subnet_ipv4: '{{ item.ipv4_subnet | ansible.netcommon.ipaddr("network/prefix") }}'
-    - subnet_ipv6: '{{ item.ipv6_subnet | ansible.netcommon.ipaddr("network/prefix") }}'
+    - subnet_ipv4: '{{ item.ipv4_subnet | ansible.utils.ipaddr("network/prefix") }}'
+    - subnet_ipv6: '{{ item.ipv6_subnet | ansible.utils.ipaddr("network/prefix") }}'
     - mtu: '{{ podman_network_mtu | int }}'
   shell: 'podman network create --driver=bridge --internal={{ internal | bool }} --opt=mtu={{ mtu }} --subnet={{ subnet_ipv4 }} --ipv6 --subnet={{ subnet_ipv6 }} {{ name }}'
   changed_when: no
@@ -149,8 +149,8 @@
 #       parent: '{{ item.parent_interface }}'
 #     enable_ipv6: true
 #     ipam_config:
-#       - subnet: '{{ item.ipv4_subnet | ansible.netcommon.ipaddr("network/prefix") }}'
-#       - subnet: '{{ item.ipv6_subnet | ansible.netcommon.ipaddr("network/prefix") }}'
+#       - subnet: '{{ item.ipv4_subnet | ansible.utils.ipaddr("network/prefix") }}'
+#       - subnet: '{{ item.ipv6_subnet | ansible.utils.ipaddr("network/prefix") }}'
 
 # Verify
 

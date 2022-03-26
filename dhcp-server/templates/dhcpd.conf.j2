@@ -45,12 +45,12 @@ ddns-update-style none;
 {%- if network.ipv4_dhcp | default(false) %}
 
 # [{{ network.vlan_id }}] {{ network.id }}
-subnet {{ network.ipv4_subnet | ansible.netcommon.ipaddr('network') }} netmask {{ network.ipv4_subnet | ansible.netcommon.ipaddr('netmask') }} {
-    option subnet-mask {{ network.ipv4_subnet | ansible.netcommon.ipaddr('netmask') }};
-    {%- if network.ipv4_subnet | ansible.netcommon.ipaddr('prefix') == 31 %}
-    option routers {{ network.ipv4_subnet | ansible.netcommon.ipaddr('0') | ansible.netcommon.ipaddr('address') }};
+subnet {{ network.ipv4_subnet | ansible.utils.ipaddr('network') }} netmask {{ network.ipv4_subnet | ansible.utils.ipaddr('netmask') }} {
+    option subnet-mask {{ network.ipv4_subnet | ansible.utils.ipaddr('netmask') }};
+    {%- if network.ipv4_subnet | ansible.utils.ipaddr('prefix') == 31 %}
+    option routers {{ network.ipv4_subnet | ansible.utils.ipaddr('0') | ansible.utils.ipaddr('address') }};
     {%- else %}
-    option routers {{ network.ipv4_subnet | ansible.netcommon.ipaddr('1') | ansible.netcommon.ipaddr('address') }};
+    option routers {{ network.ipv4_subnet | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }};
     {%- endif %}
     {%- for dns_server in network.ipv4_dns | default([]) %}
     option domain-name-servers {{ dns_server }};
@@ -62,12 +62,12 @@ subnet {{ network.ipv4_subnet | ansible.netcommon.ipaddr('network') }} netmask {
         {%- if network.allowed_class is defined %}
         allow members of "{{ network.allowed_class }}";
         {%- endif %}
-        {%- if network.ipv4_subnet | ansible.netcommon.ipaddr('prefix') == 31 %}
-        range {{ network.ipv4_subnet | ansible.netcommon.ipaddr('1') | ansible.netcommon.ipaddr('address') }} {{ network.ipv4_subnet | ansible.netcommon.ipaddr('1') | ansible.netcommon.ipaddr('address') }};
-        {%- elif network.ipv4_subnet | ansible.netcommon.ipaddr('prefix') == 30 %}
-        range {{ network.ipv4_subnet | ansible.netcommon.ipaddr('2') | ansible.netcommon.ipaddr('address') }} {{ network.ipv4_subnet | ansible.netcommon.ipaddr('2') | ansible.netcommon.ipaddr('address') }};
+        {%- if network.ipv4_subnet | ansible.utils.ipaddr('prefix') == 31 %}
+        range {{ network.ipv4_subnet | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }} {{ network.ipv4_subnet | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }};
+        {%- elif network.ipv4_subnet | ansible.utils.ipaddr('prefix') == 30 %}
+        range {{ network.ipv4_subnet | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }} {{ network.ipv4_subnet | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }};
         {%- else %}
-        range {{ network.ipv4_subnet | ansible.netcommon.ipaddr(network.ipv4_dhcp_range_begin | default(2)) | ansible.netcommon.ipaddr('address') }} {{ network.ipv4_subnet | ansible.netcommon.ipaddr('-2') | ansible.netcommon.ipaddr('address') }};
+        range {{ network.ipv4_subnet | ansible.utils.ipaddr(network.ipv4_dhcp_range_begin | default(2)) | ansible.utils.ipaddr('address') }} {{ network.ipv4_subnet | ansible.utils.ipaddr('-2') | ansible.utils.ipaddr('address') }};
         {%- endif %}
     }
 }
@@ -77,7 +77,7 @@ subnet {{ network.ipv4_subnet | ansible.netcommon.ipaddr('network') }} netmask {
 
 host {{ host.id }} {
     hardware ethernet {{ host.mac_address }};
-    fixed-address {{ host.ipv4_address | ansible.netcommon.ipaddr }};
+    fixed-address {{ host.ipv4_address | ansible.utils.ipaddr }};
 }
 {%- endif %}
 {%- endfor %}

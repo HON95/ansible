@@ -40,7 +40,7 @@ ddns-update-style none;
 {%- if network.ipv6_dhcp | default(false) %}
 
 # [{{ network.vlan_id }}] {{ network.id }}
-subnet6 {{ network.ipv6_subnet | ansible.netcommon.ipaddr('network/prefix') }} {
+subnet6 {{ network.ipv6_subnet | ansible.utils.ipaddr('network/prefix') }} {
     {%- for dns_server in network.ipv6_dns | default([]) %}
     option dhcp6.name-servers {{ dns_server }};
     {%- endfor %}
@@ -48,10 +48,10 @@ subnet6 {{ network.ipv6_subnet | ansible.netcommon.ipaddr('network/prefix') }} {
         {%- if network.allowed_class is defined %}
         allow members of "{{ network.allowed_class }}";
         {%- endif %}
-        {%- if network.ipv6_subnet | ansible.netcommon.ipaddr('prefix') == 127 %}
-        range6 {{ network.ipv6_subnet | ansible.netcommon.ipaddr('network') }}1 {{ network.ipv6_subnet | ansible.netcommon.ipaddr('network') }}1;
+        {%- if network.ipv6_subnet | ansible.utils.ipaddr('prefix') == 127 %}
+        range6 {{ network.ipv6_subnet | ansible.utils.ipaddr('network') }}1 {{ network.ipv6_subnet | ansible.utils.ipaddr('network') }}1;
         {%- else %}
-        range6 {{ network.ipv6_subnet | ansible.netcommon.ipaddr('network') }}1:0/116;
+        range6 {{ network.ipv6_subnet | ansible.utils.ipaddr('network') }}1:0/116;
         {%- endif %}
     }
 }
@@ -61,7 +61,7 @@ subnet6 {{ network.ipv6_subnet | ansible.netcommon.ipaddr('network/prefix') }} {
 
 host {{ host.id }} {
     hardware ethernet {{ host.mac_address }};
-    fixed-address6 {{ host.ipv6_address | ansible.netcommon.ipaddr }};
+    fixed-address6 {{ host.ipv6_address | ansible.utils.ipaddr }};
 }
 {%- endif %}
 {%- endfor %}
