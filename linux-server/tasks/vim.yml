@@ -1,7 +1,5 @@
 # Setup VIM
 
-# HON preferences
-
 - name: Install
   apt: name=vim
 
