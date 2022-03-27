@@ -18,7 +18,6 @@
     dest: '{{ app.srv_path }}/docker-compose.yml'
   notify: Restart app
 
-# Create new dirs
 - name: Add dirs (new)
   loop: '{{ app.dirs | default([]) }}'
   file:
@@ -29,7 +28,12 @@
     mode: '{{ item.mode | default(omit) }}'
   notify: Restart app
 
-# Create new files
+- name: Create directories for files
+  loop: '{{ app.files | default([]) }}'
+  file:
+    path: '{{ app.srv_path }}/{{ item.path | dirname }}'
+    state: directory
+
 - name: Add files (new)
   loop: '{{ app.files | default([]) }}'
   when: 'item.type == "touch"'
@@ -42,7 +46,6 @@
     mode: '{{ item.mode | default(omit) }}'
   notify: Restart app
 
-# Copy single files, from file or supplied content
 - name: Add files (copy)
   loop: '{{ app.files | default([]) }}'
   when: 'item.type == "copy"'
@@ -57,6 +60,8 @@
   notify: Restart app
 
 # Synchronize file or dir to remote (requires rsync)
+# Prompts for SSH key password for every file if using passworded key.
+# Doesn't work if using sudo with password (i.e. --ask-become-pass).
 - name: Add files (synchronize)
   loop: '{{ app.files | default([]) }}'
   when: 'item.type == "synchronize"'
@@ -69,7 +74,6 @@
     perms: false
   notify: Restart app
 
-# Use template files
 - name: Add files (template)
   loop: '{{ app.files | default([]) }}'
   when: 'item.type == "template"'
@@ -81,3 +85,7 @@
     mode: '{{ item.mode | default(omit) }}'
     backup: '{{ item.backup | default(omit) }}'
   notify: Restart app
+
+- name: Start app
+  community.docker.docker_compose:
+    project_src: '{{ app.srv_path }}'
