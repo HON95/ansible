@@ -39,7 +39,7 @@
 - meta: flush_handlers
 - import_tasks: banner.yml
 - meta: flush_handlers
-- import_tasks: sshd.yml
+- import_tasks: ssh.yml
 - meta: flush_handlers
 - import_tasks: vim.yml
   when: 'linux_server_vim_setup'
