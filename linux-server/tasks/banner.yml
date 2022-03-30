@@ -1,23 +1,25 @@
 # Setup MOTD
 
 - name: Add /etc/motd
-  when: 'linux_server_banner_motd_path is defined'
+  when: 'not linux_server_banner_motd_ignore and linux_server_banner_motd_path is defined'
   copy:
     src: '{{ linux_server_banner_motd_path }}'
     dest: '/etc/motd'
 
 - name: Remove /etc/motd
-  when: 'linux_server_banner_motd_path is not defined'
+  when: 'not linux_server_banner_motd_ignore and linux_server_banner_motd_path is not defined'
   file:
     path: '/etc/motd'
     state: absent
 
 - name: Remove /etc/issue
+  when: 'not linux_server_banner_issue_ignore'
   file:
     path: '/etc/issue'
     state: absent
 
 - name: Remove /etc/issue.net
+  when: 'not linux_server_banner_issue_net_ignore'
   file:
     path: '/etc/issue.net'
     state: absent

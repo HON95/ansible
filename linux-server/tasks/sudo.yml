@@ -1,8 +1,7 @@
 # Setup sudo
 
-# Warning: This assumes the current user is the ansible user and does not remove entries for old ansible users.
-
 - name: Disable password for ansible user
+  when: 'linux_server_ansible_user_sudo_no_pass'
   lineinfile:
     path: '/etc/sudoers'
     backup: yes

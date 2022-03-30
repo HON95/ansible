@@ -1,6 +1,6 @@
 # Setup network interface
 
-# Warning: Changing network managers requires a system reboot, as prompted by one of the tasks if necessary.
+# Warning: Changing network managers requires a system reboot.
 
 - name: Check if interface exists
   when: 'linux_server_networking_method != "ignore"'
@@ -50,28 +50,11 @@
     enabled: yes
   register: linux_server_networking_systemd_enable
 
-# Wait until after prompt to stup services to avoid breaking networking while the playbook is running
+# Warn about network changes, but don't do anything
 - name: Prompt to change to reboot system and break playbook
   when: 'linux_server_networking_systemd_config_change.changed
     or linux_server_networking_disable_dhcpcd.changed
     or linux_server_networking_systemd_enable.changed'
   fail:
-    msg: 'Planned failure: The network config was significantly changed, please reboot the system before re-running the playbook'
-
-- name: Stop ifupdown service
-  when: 'linux_server_networking_method != "ignore" and "networking.service" in service_facts.ansible_facts.services'
-  systemd:
-    name: networking.service
-    state: stopped
-
-- name: Stop dhcpcd service
-  when: 'linux_server_networking_method != "ignore" and "dhcpcd.service" in service_facts.ansible_facts.services'
-  systemd:
-    name: dhcpcd.service
-    state: stopped
-
-- name: Start systemd-networkd service (systemd-networkd)
-  when: 'linux_server_networking_method == "systemd"'
-  systemd:
-    name: systemd-networkd.service
-    state: started
+    msg: 'The network config was significantly changed, please reboot the system ASAP'
+  ignore_errors: yes

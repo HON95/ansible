@@ -1,3 +1,7 @@
+# Enable to leave MOTD files as-is (e.g. if managed by something else)
+linux_server_banner_motd_ignore: false
+linux_server_banner_issue_ignore: false
+linux_server_banner_issue_net_ignore: false
 # Post-login banner (/etc/motd) (define to enable)
 #linux_server_banner_motd_path: motd.txt
 # Enable pretty MOTD with dynamic system info (requires extra scripts and packages)

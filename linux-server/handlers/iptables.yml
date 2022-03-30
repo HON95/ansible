@@ -9,5 +9,5 @@
   loop: '{{ services }}'
   when: 'iptables_config.changed and item + ".service" in service_facts.ansible_facts.services and service_facts.ansible_facts.services[item + ".service"].state == "running"'
   service:
-    name: '{{ item }}.service'
+    name: '{{ item }}.service'
     state: restarted

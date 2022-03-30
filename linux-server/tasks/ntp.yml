@@ -41,13 +41,12 @@
 
 # chrony
 
-- name: Purge systemd-timesyncd (chrony)
-  when: 'linux_server_ntp_method == "chrony"'
-  apt:
-    name:
-      - systemd-timesyncd
-    state: absent
-    purge: yes
+- name: Disable and stop systemd-timesyncd, if installed (chrony)
+  when: 'linux_server_ntp_method == "chrony" and "systemd-timesync.service" in service_facts.ansible_facts.services'
+  service:
+    name: systemd-timesyncd
+    enabled: false
+    state: stopped
 
 - name: Install Chrony (chrony)
   when: 'linux_server_ntp_method == "chrony"'
