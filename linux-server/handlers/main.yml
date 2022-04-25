@@ -3,4 +3,4 @@
 - import_tasks: l10n.yml
 - import_tasks: logging.yml
 - import_tasks: ntp.yml
-- import_tasks: sshd.yml
+- import_tasks: ssh.yml

@@ -62,6 +62,7 @@
 # Synchronize file or dir to remote (requires rsync)
 # Prompts for SSH key password for every file if using passworded key.
 # Doesn't work if using sudo with password (i.e. --ask-become-pass).
+# TODO Replace this with something better
 - name: Add files (synchronize)
   loop: '{{ app.files | default([]) }}'
   when: 'item.type == "synchronize"'

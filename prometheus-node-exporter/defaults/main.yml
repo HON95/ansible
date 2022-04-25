@@ -8,9 +8,11 @@ prom_node_exp_args: []
 # Textfile collectors to add and accompanying cron jobs
 prom_node_exp_textfile_collectors_custom: []
 # prom_node_exp_textfile_collectors_custom:
-#   apt:
-#     bin_src: 'general/prometheus-textfile-collectors/apt.sh'
-#     cron_job: '0 * * * * root /opt/prometheus/node-exporter/textfile-collectors/apt | sponge /var/lib/prometheus/node-exporter/apt.prom'
+#   xxx:
+#     bin_src: 'xxx.sh'
+#     cron_job: '0 * * * * root /opt/prometheus/node-exporter/textfile-collectors/xxx | sponge /var/lib/prometheus/node-exporter/textfile-collectors/xxx.prom'
 prom_node_exp_textfile_collectors_enabled: []
 # prom_node_exp_textfile_collectors_enabled:
 #   - apt
+#   - zfs
+#   - zpool

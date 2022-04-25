@@ -1,0 +1,4 @@
+# If hidepid=2 should be enabled, such that only root and users in the hidepid group may see all system processes.
+# Note that this is not completely compatible with systemd and is therefore disabled by default here now.
+# Disabling it does not automatically remove it from systems it's already enabled on.
+linux_server_hidepid_enable: no

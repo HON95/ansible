@@ -56,7 +56,7 @@
 
     - name: Download
       unarchive:
-        src: 'https://github.com/prometheus/node_exporter/releases/download/v{{ prom_node_exp_version }}/node_exporter-{{ prom_node_exp_version }}.linux-{{ prom_architecture }}.tar.gz'
+        src: '{{ prom_node_exp_download_url }}'
         remote_src: yes
         dest: '{{ prom_node_exp_create_tmpdir.path }}'
 
@@ -93,7 +93,7 @@
 - name: Add config file
   template:
     src: 'config.j2'
-    dest: '/etc/default/prometheus-node-exporter'
+    dest: '{{ prom_node_exp_env_path }}'
 
 - name: Create textfile output directory
   file:
@@ -101,8 +101,8 @@
     state: directory
 
 - name: Add service file
-  copy:
-    src: '{{ prom_node_exp_service }}'
+  template:
+    src: '{{ prom_node_exp_service }}.j2'
     dest: '/etc/systemd/system/{{ prom_node_exp_service }}'
   register: prom_node_exp_add_service_file
 

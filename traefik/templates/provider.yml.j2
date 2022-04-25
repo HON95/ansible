@@ -1,0 +1,32 @@
+#jinja2: trim_blocks:False
+# Managed
+
+http:
+  routers:
+    api:
+      entryPoints: [api]
+      #tls: {}
+      rule: 'PathPrefix(`/`)'
+      service: api@internal
+
+    metrics:
+      entryPoints: [metrics]
+      #tls: {}
+      rule: 'PathPrefix(`/`)'
+      service: prometheus@internal
+
+    slash-redirect:
+      entryPoints: [https]
+      tls: {}
+      rule: 'Path(`/{a:.*[^/]}`)'
+      priority: 1
+      middlewares:
+        - slash-redirect-redirect
+      service: noop@internal
+
+  middlewares:
+    slash-redirect-redirect:
+      redirectRegex:
+        regex: "(.*)"
+        replacement: "${1}/"
+        permanent: true

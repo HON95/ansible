@@ -6,11 +6,20 @@ prom_architecture_map:
   armv6l: 'armv6'
 prom_architecture: "{{ prom_architecture_map[ansible_architecture] }}"
 
+prom_node_exp_download_url: 'https://github.com/prometheus/node_exporter/releases/download/v{{ prom_node_exp_version }}/node_exporter-{{ prom_node_exp_version }}.linux-{{ prom_architecture }}.tar.gz'
+# TODO this should be in "/usr/local/bin"
 prom_node_exp_binary_path: /usr/bin/prometheus-node-exporter
+prom_node_exp_env_path: /etc/default/prometheus-node-exporter
 prom_node_exp_service: prometheus-node-exporter.service
-prom_node_exp_textfile_output_path: /var/lib/prometheus/node-exporter
+prom_node_exp_textfile_output_path: /var/lib/prometheus/node-exporter/textfile-collectors
 prom_node_exp_textfile_collectors_path: /opt/prometheus/node-exporter/textfile-collectors
 prom_node_exp_textfile_collectors_provided:
   apt:
     bin_src: 'textfile-collectors/apt.sh'
-    cron_job: '0 * * * * root /opt/prometheus/node-exporter/textfile-collectors/apt | sponge /var/lib/prometheus/node-exporter/apt.prom'
+    cron_job: '0 * * * * root /opt/prometheus/node-exporter/textfile-collectors/apt | sponge /var/lib/prometheus/node-exporter/textfile-collectors/apt.prom'
+  zfs:
+    bin_src: 'textfile-collectors/zfs.sh'
+    cron_job: '* * * * * root /usr/sbin/zfs list -Hp | /opt/prometheus/node-exporter/textfile-collectors/zfs | sponge /var/lib/prometheus/node-exporter/textfile-collectors/zfs.prom'
+  zpool:
+    bin_src: 'textfile-collectors/zpool.sh'
+    cron_job: '* * * * * root /usr/sbin/zpool list -Hp | /opt/prometheus/node-exporter/textfile-collectors/zpool | sponge /var/lib/prometheus/node-exporter/textfile-collectors/zpool.prom'

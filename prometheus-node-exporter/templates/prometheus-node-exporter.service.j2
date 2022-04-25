@@ -5,8 +5,8 @@ Documentation=https://github.com/prometheus/node_exporter
 [Service]
 Restart=always
 User=prometheus
-EnvironmentFile=/etc/default/prometheus-node-exporter
-ExecStart=/usr/bin/prometheus-node-exporter $ARGS
+EnvironmentFile={{ prom_node_exp_env_path }}
+ExecStart={{ prom_node_exp_binary_path }} $ARGS
 ExecReload=/bin/kill -HUP $MAINPID
 TimeoutStopSec=20s
 SendSIGKILL=no

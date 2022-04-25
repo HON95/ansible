@@ -20,8 +20,8 @@ docker_networks: []
 #   - name: apps-general
 #     driver: macvlan
 #     parent_interface: '{{ networking_main_interface.name }}'
-#     ipv4_subnet: '{{ networking_main_interface.ipv4_address | ansible.utils.ipaddr("network/prefix") }}'
-#     ipv6_subnet: '{{ networking_main_interface.name | ansible.utils.ipaddr("network/prefix") }}'
+#     ipv4_subnet: '{{ networking_main_interface.ipv4_address | ansible.netcommon.ipaddr("network/prefix") }}'
+#     ipv6_subnet: '{{ networking_main_interface.name | ansible.netcommon.ipaddr("network/prefix") }}'
 #   - name: test2
 #     driver: bridge
 #     ipv4_subnet: 10.95.99.0/22

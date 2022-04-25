@@ -1,0 +1,15 @@
+[Unit]
+Description=Traefik reverse proxy
+Documentation=https://traefik.io
+
+[Service]
+Restart=always
+User=traefik
+EnvironmentFile={{ traefik_env_path }}
+ExecStart={{ traefik_binary_path }} $ARGS
+ExecReload=/bin/kill -HUP $MAINPID
+TimeoutStopSec=20s
+SendSIGKILL=no
+
+[Install]
+WantedBy=multi-user.target

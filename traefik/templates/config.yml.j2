@@ -1,0 +1,64 @@
+#jinja2: trim_blocks:False
+# Managed
+
+experimental:
+  http3: true
+
+pilot:
+  dashboard: false
+
+log:
+  filePath: '{{ traefik_log_dir }}/error.log'
+  #format: json
+  level: error
+
+accessLog:
+  filePath: '{{ traefik_log_dir }}/access.log'
+  #format: json
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: '{{ traefik_acme_webmaster }}'
+      storage: '{{ traefik_acme_path }}'
+      {% if traefik_use_staging_server %}
+      # Staging server
+      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+      {% endif %}
+      httpChallenge:
+        entryPoint: http
+
+entryPoints:
+  http:
+    address: ':80'
+    http3: {}
+    http:
+      redirections:
+        entryPoint:
+          to: https
+          scheme: https
+          permanent: true
+  https:
+    address: ':443'
+    http3: {}
+  api:
+    address: ':8081'
+    http3: {}
+  metrics:
+    address: ':8082'
+    http3: {}
+
+api:
+  dashboard: true
+
+metrics:
+  prometheus:
+    manualRouting: true
+
+providers:
+  file:
+    directory: '{{ traefik_provider_config_dir }}'
+  {% if traefil_provider_docker_enable %}
+  docker:
+    exposedbydefault: false
+  {% endif %}

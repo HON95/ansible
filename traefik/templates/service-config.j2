@@ -1,0 +1,1 @@
+ARGS="--configfile='{{ traefik_config_path }}'{% for arg in traefik_args %} {{ arg }}{% endfor %}"
