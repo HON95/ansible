@@ -1,0 +1,24 @@
+traefik_architecture_map:
+  i386: '386'
+  x86_64: 'amd64'
+  aarch64: 'arm64'
+  armv7l: 'armv7'
+  armv6l: 'armv6'
+traefik_architecture: "{{ traefik_architecture_map[ansible_architecture] }}"
+
+traefik_download_url: 'https://github.com/traefik/traefik/releases/download/v{{ traefik_version }}/traefik_v{{ traefik_version }}_linux_{{ traefik_architecture }}.tar.gz'
+traefik_binary_path: /usr/local/bin/traefik
+traefik_env_path: /etc/default/traefik
+traefik_config_path: /etc/traefik/config.yml
+traefik_acme_path: /etc/traefik/acme.json
+traefik_log_dir: /var/log/traefik
+traefik_service: traefik.service
+traefik_logrotate_config_path: /etc/logrotate.d/traefik
+
+traefik_provider_config_dir: /etc/traefik/provider
+traefik_provider_configs_main:
+  - type: template
+    src: 'provider-traefik.yml.j2'
+    dst: 'traefik.yml'
+traefik_provider_configs_all: '{{ traefik_provider_configs_main + traefik_provider_configs_extra }}'
+traefik_provider_configs_dst_files: '{{ traefik_provider_configs_all | map(attribute="dst") }}'

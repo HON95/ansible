@@ -1,0 +1,43 @@
+# Default values for VMs to create using templates.
+# Assumes the templates are created by this role.
+# Only the network interface net0 is managed, other added interfaces are not touched.
+pve_vm_default_cpu_type: '{{ pve_template_vm_cpu_type }}'
+pve_vm_default_cpu_sockets: '{{ pve_template_vm_cpu_sockets }}'
+pve_vm_default_cpu_cores: '{{ pve_template_vm_cpu_cores }}'
+pve_vm_default_memory_mb: '{{ pve_template_vm_memory_mb }}'
+pve_vm_default_network_bridge: '{{ pve_template_vm_network_bridge }}'
+pve_vm_default_disk_storage: '{{ pve_storage_default_image_rootdir_name }}'
+pve_vm_default_protection: false
+pve_vm_default_onboot: false
+pve_vm_default_qemu_agent: false
+pve_vm_default_disk_size: '20G'
+pve_vm_default_cloudinit_user: 'ansible'
+# (Required) SSH pubkeys, one per line
+#pve_vm_default_cloudinit_ssh_pubkeys: 'TODO'
+
+# VMs to create, based on templates.
+# Required fields: vmid, name, template_vmid, network_* (not vlanid)
+pve_vms: []
+# pve_vms:
+#   - vmid: 200
+#     name: yolo
+#     description: ''
+#     template_vmid: 1000
+#     cloudinit_user: ansible
+#     cloudinit_ssh_pubkeys: ''
+#     cpu_type: 'host'
+#     cpu_sockets: 1
+#     cpu_cores: 2
+#     memory_mb: 2048
+#     disk_size: '20G'
+#     disk_storage: 'local-lvm'
+#     network_bridge: 'vmbr0'
+#     network_vlanid: 10
+#     network_ipv4_address: '192.168.1.5/24'
+#     network_ipv4_gateway: '192.168.1.1'
+#     network_ipv6_address: '2001:db8::5/64'
+#     network_ipv6_gateway: '2001:db8::1'
+#     protection: false
+#     onboot: false
+#     qemu_agent: false
+#     startup_order: 1

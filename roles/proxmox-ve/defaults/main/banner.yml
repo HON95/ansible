@@ -1,0 +1,9 @@
+# What to do with pre-login banners (ignore, empty or logo)
+linux_server_banner_issue_state: logo
+linux_server_banner_issue_net_state: logo
+# What to do with post-login banner (ignore, motd)
+linux_server_banner_motd_state: motd
+# Post-login banner
+#linux_server_banner_motd_path: motd.txt
+# Enable pretty MOTD with dynamic system info (requires extra scripts and packages)
+linux_server_banner_dmotd_enable: false

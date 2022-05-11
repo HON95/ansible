@@ -1,0 +1,9 @@
+# Manage the PVE firewall
+pve_firewall_setup_enable: false
+# Path the cluster and host firewall configs (template)
+pve_firewall_cluster_config_path: pve/cluster.fw.j2
+pve_firewall_host_config_path: pve/host.fw.j2
+# Extra rules (raw)
+# Consider creating it in the GUI and then copying it over here
+pve_firewall_cluster_extra_rules: []
+pve_firewall_host_extra_rules: []

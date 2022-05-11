@@ -1,21 +1,7 @@
-# Ansible Roles
+# Ansible Stuff
 
-Random mess of Ansible roles.
+Collection of my Ansible roles and stuff.
 
-## Possible Requirements
+## Dependencies
 
-Dependencies that may be used by some roles.
-
-### Ansible Collections
-
-Installation (user): `ansible-galaxy collection install <collection>`
-
-- `ansible.netcommon`
-- `ansible.utils.ipaddr`
-- `community.docker`
-
-### Python Packages
-
-Installation (global): `sudo pip3 install <deps>`
-
-- `netaddr`
+Run `requirements-install.sh` or see `requirements-*`.

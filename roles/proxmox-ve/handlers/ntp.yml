@@ -1,0 +1,9 @@
+- name: Restart systemd-timesyncd.service
+  service:
+    name: systemd-timesyncd.service
+    state: restarted
+
+- name: Restart chronyd.service
+  service:
+    name: chronyd.service
+    state: restarted

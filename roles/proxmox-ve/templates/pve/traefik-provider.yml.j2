@@ -1,0 +1,31 @@
+# Managed
+
+http:
+  routers:
+    pve:
+      entryPoints: [https]
+{% if pve_traefik_letsencrypt_enable %}
+      tls:
+        certResolver: letsencrypt
+{% else %}
+      tls: {}
+{% endif %}
+      # Hostname for TLS cert, wildcard for alternative access with IP address
+      rule: 'Host(`{{ inventory_hostname }}`) || PathPrefix(`/`)'
+      service: pve-internal
+
+  services:
+    pve-internal:
+      loadbalancer:
+        serversTransport: pve-internal-transport
+        servers:
+          - url: 'https://localhost:8006'
+        healthCheck:
+          path: /
+          followRedirects: false
+          interval: "10s"
+          timeout: "1s"
+
+  serversTransports:
+    pve-internal-transport:
+      insecureSkipVerify: true

@@ -1,0 +1,13 @@
+- name: Run IPTables script
+  command: '/etc/iptables/config.sh'
+
+- name: Restart IPTables-related services
+  vars:
+    services:
+      - docker.service
+      - fail2ban.service
+  loop: '{{ services }}'
+  when: 'iptables_config.changed and item in service_facts.ansible_facts.services and service_facts.ansible_facts.services[item].state == "running"'
+  service:
+    name: '{{ item }}.service'
+    state: restarted

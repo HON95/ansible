@@ -1,0 +1,6 @@
+# Setup PVE storage config
+
+- name: Set PVE storage config
+  template:
+    src: '{{ pve_storage_config_path }}'
+    dest: '/etc/pve/storage.cfg'

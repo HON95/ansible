@@ -1,0 +1,60 @@
+# Setup single template VM
+# Called by pve-templates.yml.
+
+- name: 'Setup VM template'
+  debug:
+    msg: '{{ template.name }} ({{ template.vmid }})'
+
+- name: Create the VM
+  command: >-
+    qm create {{ template.vmid }}
+    --name {{ template.name }}
+    --description "{{ template.description | default(omit) }}"
+    --ostype l26
+    --numa 1
+    --cpu cputype={{ pve_template_vm_cpu_type }}
+    --sockets {{ pve_template_vm_cpu_sockets }}
+    --cores {{ pve_template_vm_cpu_cores }}
+    --memory {{ pve_template_vm_memory_mb }}
+    --scsihw virtio-scsi-pci
+    --ide2 {{ pve_storage_default_image_rootdir_name }}:vm-{{ template.vmid }}-cloudinit
+    --net0 virtio,bridge={{ pve_template_vm_network_bridge }},firewall=1
+    --serial0 socket
+    --vga serial0
+    --boot c
+    --bootdisk scsi0
+    --nameserver "{{ linux_server_dns_servers | join(" ") }}"
+    --searchdomain ""
+    --onboot no
+
+- name: Download and import template VM image
+  block:
+    - name: Create temporary disk file
+      tempfile: {}
+      register: pve_template_vm_create_tmpfile
+
+    - name: Download
+      get_url:
+        url: '{{ template.image_download_url }}'
+        dest: '{{ pve_template_vm_create_tmpfile.path }}'
+        checksum: '{{ template.image_checksum | default(omit) }}'
+        timeout: 600
+
+    - name: Import the disk image
+      command: 'qm importdisk {{ template.vmid }} {{ pve_template_vm_create_tmpfile.path }} {{ pve_storage_default_image_rootdir_name }}'
+
+  always:
+    - name: Delete temporary download file
+      when: 'pve_template_vm_create_tmpfile is defined'
+      file:
+        path: "{{ pve_template_vm_create_tmpfile.path }}"
+        state: absent
+
+- name: Attach the disk image
+  command: 'qm set {{ template.vmid }} --scsi0 {{ pve_storage_default_image_rootdir_name }}:vm-{{ template.vmid }}-disk-0'
+
+- name: Protect the VM
+  command: 'qm set {{ template.vmid }} --protection 1'
+
+- name: Make the VM a template
+  command: 'qm template {{ template.vmid }}'

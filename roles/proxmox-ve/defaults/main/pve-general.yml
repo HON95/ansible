@@ -1,0 +1,2 @@
+# (Required) Which interface PVE has an IP address on (used e.g. by the firewall rules)
+#pve_network_mgmt_interface: vmbr0

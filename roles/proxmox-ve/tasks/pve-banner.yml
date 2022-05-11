@@ -1,0 +1,7 @@
+# Disable the PVE banner
+
+- name: Disable the PVE banner
+  systemd:
+    name: pvebanner.service
+    enabled: false
+    state: stopped

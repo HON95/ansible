@@ -1,0 +1,9 @@
+# Supported methods:
+# - ignore: Don't touch it.
+# - systemd: Setup the local systemd client.
+# - chrony: Setup Chrony as a client.
+linux_server_ntp_method: chrony
+# NTP servers or pools
+linux_server_ntp_servers: [no.pool.ntp.org]
+# Allow external clients to query the Chrony server
+linux_server_ntp_chrony_server_mode: false

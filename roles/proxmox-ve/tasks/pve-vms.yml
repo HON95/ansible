@@ -1,0 +1,17 @@
+# Setup PVE VMs
+
+- name: Get VM list
+  command: 'jq -r ".ids | keys_unsorted[]" /etc/pve/.vmlist'
+  changed_when: false
+  failed_when: false
+  register: pve_vms_vmlist_result
+
+- name: Setup VMs
+  loop: '{{ pve_vms }}'
+  loop_control:
+    loop_var: vm
+    label: '{{ vm.name }} ({{ vm.vmid }})'
+  vars:
+    vmids: '{{ pve_vms_vmlist_result.stdout_lines | map("int") }}'
+  when: 'not vm.vmid in vmids'
+  include_tasks: pve-vms-internal.yml

@@ -1,0 +1,11 @@
+[OPTIONS]
+
+tcpflags: 1
+enable: 1
+ndp: 0
+
+[RULES]
+
+{% for rule in pve_firewall_host_extra_rules %}
+{{ rule }}
+{% endfor %}

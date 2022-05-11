@@ -1,0 +1,11 @@
+# Setup Traefik config provider for PVE
+
+- name: Create Traefik provider config dir
+  file:
+    path: '{{ pve_traefik_provider_dst_path | dirname }}'
+    state: directory
+
+- name: Add the Traefik provider config for PVE
+  template:
+    src: '{{ pve_traefik_provider_src_path }}'
+    dest: '{{ pve_traefik_provider_dst_path }}'

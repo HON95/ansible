@@ -1,0 +1,12 @@
+# Setup PVE firewall configs
+
+- name: Set PVE cluster firewall config
+  template:
+    src: '{{ pve_firewall_cluster_config_path }}'
+    dest: '/etc/pve/firewall/cluster.fw'
+
+- name: Set PVE host firewall config
+  template:
+    src: '{{ pve_firewall_host_config_path }}'
+    dest: '/etc/pve/local/host.fw'
+    follow: true

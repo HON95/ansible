@@ -1,0 +1,43 @@
+# Setup PVE template VMs
+
+- name: Download ISO images
+  loop: '{{ pve_iso_images }}'
+  loop_control:
+    loop_var: image
+    label: '{{ image.name }}'
+  vars:
+    dest: '{{ pve_storage_default_iso_vztmpl_path }}/template/iso/{{ image.download_url | basename }}'
+  get_url:
+    url: '{{ image.download_url }}'
+    dest: '{{ dest }}'
+    checksum: '{{ image.checksum | default(omit) }}'
+    timeout: 600
+
+- name: Download CT templates
+  loop: '{{ pve_ct_templates }}'
+  loop_control:
+    loop_var: template
+    label: '{{ template.name }}'
+  vars:
+    dest: '{{ pve_storage_default_iso_vztmpl_path }}/template/cache/{{ template.image_download_url | basename }}'
+  get_url:
+    url: '{{ template.image_download_url }}'
+    dest: '{{ dest }}'
+    checksum: '{{ template.image_checksum | default(omit) }}'
+    timeout: 600
+
+- name: Get VM list
+  command: 'jq -r ".ids | keys_unsorted[]" /etc/pve/.vmlist'
+  changed_when: false
+  failed_when: false
+  register: pve_templates_vmlist_result
+
+- name: Setup VM templates
+  loop: '{{ pve_vm_templates }}'
+  loop_control:
+    loop_var: template
+    label: '{{ template.name }} ({{ template.vmid }})'
+  vars:
+    vmids: '{{ pve_templates_vmlist_result.stdout_lines | map("int") }}'
+  when: 'not template.vmid in vmids'
+  include_tasks: pve-templates-internal-vm.yml

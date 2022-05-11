@@ -1,0 +1,7 @@
+# Ansible dependencies provided in a single file for convenience.
+
+collections:
+  - name: ansible.netcommon
+  - name: community.general
+  - name: community.docker
+  - name: containers.podman

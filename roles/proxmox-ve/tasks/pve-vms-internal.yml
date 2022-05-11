@@ -1,0 +1,64 @@
+# Setup single template VM
+# Called by pve-vms.yml.
+
+- name: 'Setup VM'
+  debug:
+    msg: '{{ vm.name }} ({{ vm.vmid }})'
+
+- name: Clone from a template
+  command: >-
+    qm clone {{ vm.template_vmid }} {{ vm.vmid }}
+    --name {{ vm.name }}
+    --description "{{ vm.description | default(omit) }}"
+    --storage {{ vm.disk_storage | default(pve_vm_default_disk_storage) }}
+    --full
+
+- name: Set VM options
+  vars:
+    network_bridge: '{{ vm.network_bridge | default(pve_vm_default_network_bridge) }}'
+    network_string: '{% if vm.network_vlanid is defined %}virtio,bridge={{ network_bridge }},tag={{ vm.network_vlanid }},firewall=1{% else %}virtio,bridge={{ network_bridge }},firewall=1{% endif %}'
+    ipconfig_ip: '{{ vm.network_ipv4_address }}'
+    ipconfig_gw: '{{ vm.network_ipv4_gateway }}'
+    ipconfig_ip6: '{{ vm.network_ipv6_address }}'
+    ipconfig_gw6: '{{ vm.network_ipv6_gateway }}'
+    ipconfig_string: 'ip={{ ipconfig_ip }},gw={{ ipconfig_gw }},ip6={{ ipconfig_ip6 }},gw6={{ ipconfig_gw6 }}'
+    startup_string: '{% if vm.startup_order is defined %}order={{ vm.startup_order }}{% endif %}'
+  command: >-
+    qm set {{ vm.vmid }}
+    --ciuser {{ vm.cloudinit_user | default(pve_vm_default_cloudinit_user) }}
+    --cpu cputype={{ vm.cpu_type | default(pve_vm_default_cpu_type) }}
+    --sockets {{ vm.cpu_sockets | default(pve_vm_default_cpu_sockets) }}
+    --cores {{ vm.cpu_cores | default(pve_vm_default_cpu_cores) }}
+    --memory {{ vm.memory_mb | default(pve_vm_default_memory_mb) }}
+    --net0 {{ network_string }}
+    --ipconfig0 {{ ipconfig_string }}
+    --nameserver "{{ linux_server_dns_servers | join(" ") }}"
+    --searchdomain ""
+    --protection {{ vm.protection | default(pve_vm_default_protection) }}
+    --onboot {{ vm.onboot | default(pve_vm_default_onboot) }}
+    --agent enabled={{ vm.qemu_agent | default(pve_vm_default_qemu_agent) }}
+    --startup {{ startup_string }}
+
+- name: Resize the disk
+  command: 'qm resize {{ vm.vmid }} scsi0 {{ vm.disk_size | default(pve_vm_default_disk_size) }}'
+
+- name: Add SSH pubkeys
+  block:
+    - name: Create temporary file
+      tempfile: {}
+      register: pve_vms_create_tmpfile
+
+    - name: Add SSH pubkey to file
+      copy:
+        content: '{{ vm.cloudinit_ssh_pubkeys | default(pve_vm_default_cloudinit_ssh_pubkeys) }}'
+        dest: '{{ pve_vms_create_tmpfile.path }}'
+
+    - name: Add SSH pubkeys to VM
+      command: 'qm set {{ vm.vmid }} --sshkeys "{{ pve_vms_create_tmpfile.path }}"'
+
+  always:
+    - name: Delete temporary file
+      when: 'pve_vms_create_tmpfile is defined'
+      file:
+        path: "{{ pve_vms_create_tmpfile.path }}"
+        state: absent

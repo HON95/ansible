@@ -1,0 +1,54 @@
+# Setup PVE repos and packages
+
+- name: Disable the PVE enterprise repo
+  lineinfile:
+    path: /etc/apt/sources.list.d/pve-enterprise.list
+    backrefs: true
+    regexp: '^([^#].+)'
+    line: '# \1'
+  register: pve_packages_ent_repo_changed
+
+- name: Enable the PVE no-subscription repo
+  copy:
+    dest: /etc/apt/sources.list.d/pve-no-subscription.list
+    content: "{{ pve_repo_no_sub_content }}\n"
+  register: pve_packages_nosub_repo_changed
+
+- name: Update cache (APT)
+  when: 'pve_packages_ent_repo_changed.changed or pve_packages_nosub_repo_changed.changed'
+  apt:
+    update_cache: true
+
+- name: Install basic packages (APT)
+  apt:
+    name:
+      - python3
+      - python3-pip
+      - ca-certificates
+      - software-properties-common
+      - curl
+      - vim
+      - htop
+      - screen
+      - tree
+      - bash-completion
+      - rsync
+      - jq
+
+- name: Install packages for physical servers (APT)
+  apt:
+    name:
+      # Don't install anything firmware-related on PVE, it may remove PVE stuff
+      #- firmware-linux
+      - smartmontools
+      - lm-sensors
+
+- name: Install packages for PVE (APT)
+  apt:
+    name:
+      - openvswitch-switch
+
+- name: Install Proxmoxer (Pip)
+  pip:
+    name:
+      - proxmoxer

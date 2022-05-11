@@ -1,0 +1,43 @@
+# Default ISO images to download, mainly for new VMs.
+# The name is just for info purposes, it's not used for the file name.
+pve_iso_images_default:
+  - name: debian-11
+    download_url: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-11.3.0-amd64-netinst.iso'
+    checksum: 'sha512:2810f894afab9ac2631ddd097599761c1481b85e629d6a3197fe1488713af048d37241eb85def681ba86e62b406dd9b891ee1ae7915416335b6bb000d57c1e53'
+  - name: vyos-1.4-rolling
+    download_url: 'https://s3.amazonaws.com/s3-us.vyos.io/rolling/current/vyos-1.4-rolling-202205100602-amd64.iso'
+    #checksum: ''
+pve_iso_images: '{{ pve_iso_images_default }}'
+
+# Default CT templates to set up.
+# The aplinfo files contain info like the checksum.
+# The name is just for info purposes, it's not used for the file name.
+pve_ct_templates_default:
+  - name: debian-11
+    image_download_url: 'http://download.proxmox.com/images/system/debian-11-standard_11.3-1_amd64.tar.zst'
+    image_checksum: 'sha512:da331993ba1a62a67ffff316dee361019491e48aa227ccb90db417095f7ff63c4c61ace3817573fc21567cd7a16f3dbd04c2966b21d1418864e037daec908143'
+  - name: ubuntu-22.04
+    image_download_url: 'http://download.proxmox.com/images/system/ubuntu-22.04-standard_22.04-1_amd64.tar.zst'
+    image_checksum: 'sha512:cf617c11232c3fbce1ba9f7146ac194561411c292c445b2a5c9affe5f09729f5c38315619de4d649ff63e31dd5b536ea081fdde1b7792e6e521d1694ac7c9cb8'
+  - name: alpine-3.15
+    image_download_url: 'http://download.proxmox.com/images/system/alpine-3.15-default_20211202_amd64.tar.xz'
+    image_checksum: 'sha512:6fa966787de6f18fc502016cd3516bcac0a5de0dfa5e906aa08a1c0cc51b51b0df08d9efbe221e0914dbece295d1b32ccae14909a04fbfc263b8e0ecd4831491'
+pve_ct_templates: '{{ pve_ct_templates_default }}'
+
+# Default VM templates to set up.
+pve_vm_templates_default:
+  - vmid: 1000
+    name: template-debian-11-cloudgeneric
+    # TODO
+    #type: linux-server
+    #os: debian
+    image_download_url: 'https://cloud.debian.org/images/cloud/bullseye/20220503-998/debian-11-genericcloud-amd64-20220503-998.qcow2'
+    image_checksum: 'sha512:1ce494ac4a587a7d92177930b3cb4b93f412f00f2da2812fb80659fd51ff0a416d7e22476ab548fcef41461cfdc89c1f4b5d672c56412bfc3267f4b2b95f84f6'
+pve_vm_templates: '{{ pve_vm_templates_default }}'
+
+# Defaults for VM templates
+pve_template_vm_cpu_type: 'host'
+pve_template_vm_cpu_sockets: 1
+pve_template_vm_cpu_cores: 2
+pve_template_vm_memory_mb: 2048
+pve_template_vm_network_bridge: 'vmbr0'

@@ -1,0 +1,62 @@
+# Setup MOTD
+
+- name: Clear /etc/motd
+  when: 'linux_server_banner_motd_state == "empty"'
+  copy:
+    path: '/etc/motd'
+    content: ''
+
+- name: Set /etc/motd
+  when: 'linux_server_banner_motd_state == "motd" and linux_server_banner_motd_path is defined'
+  copy:
+    src: '{{ linux_server_banner_motd_path }}'
+    dest: '/etc/motd'
+
+- name: Clear /etc/issue
+  when: 'linux_server_banner_issue_state == "empty"'
+  copy:
+    path: '/etc/issue'
+    content: ''
+
+- name: Clear /etc/issue.net
+  when: 'linux_server_banner_issue_net_state == "empty"'
+  copy:
+    dest: '/etc/issue.net'
+    content: ''
+
+- name: Setting /etc/issue to logo
+  when: 'linux_server_banner_issue_state == "logo" and linux_server_ascii_logo_path is defined'
+  copy:
+    src: '{{ linux_server_ascii_logo_path }}'
+    dest: '/etc/issue'
+
+- name: Setting /etc/issue.net to logo
+  when: 'linux_server_banner_issue_state == "logo" and linux_server_ascii_logo_path is defined'
+  copy:
+    src: '{{ linux_server_ascii_logo_path }}'
+    dest: '/etc/issue.net'
+
+- name: Install packages for DMOTD
+  when: 'linux_server_banner_dmotd_enable'
+  apt:
+    name:
+      - neofetch
+      - lolcat
+
+- name: Add logo for DMOTD
+  when: 'linux_server_banner_dmotd_enable and linux_server_ascii_logo_path is defined'
+  copy:
+    src: '{{ linux_server_ascii_logo_path }}'
+    dest: '/etc/logo'
+
+- name: Add DMOTD script
+  when: 'linux_server_banner_dmotd_enable'
+  copy:
+    src: 'dmotd.sh'
+    dest: '/etc/profile.d/dmotd.sh'
+
+- name: Remove DMOTD script
+  when: 'not linux_server_banner_dmotd_enable'
+  file:
+    path: '/etc/profile.d/dmotd.sh'
+    state: absent
