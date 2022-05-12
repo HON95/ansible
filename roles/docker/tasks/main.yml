@@ -121,8 +121,8 @@
       parent: '{{ item.parent_interface }}'
     enable_ipv6: true
     ipam_config:
-      - subnet: '{{ item.ipv4_subnet | ansible.netcommon.ipaddr("network/prefix") }}'
-      - subnet: '{{ item.ipv6_subnet | ansible.netcommon.ipaddr("network/prefix") }}'
+      - subnet: '{{ item.ipv4_subnet | ansible.utils.ipaddr("subnet") }}'
+      - subnet: '{{ item.ipv6_subnet | ansible.utils.ipaddr("subnet") }}'
 
 - name: Setup Docker bridge networks
   loop: '{{ docker_networks }}'
@@ -136,5 +136,5 @@
       com.docker.network.driver.mtu: '{{ docker_network_mtu | int }}'
     enable_ipv6: true
     ipam_config:
-      - subnet: '{{ item.ipv4_subnet | ansible.netcommon.ipaddr("network/prefix") }}'
-      - subnet: '{{ item.ipv6_subnet | ansible.netcommon.ipaddr("network/prefix") }}'
+      - subnet: '{{ item.ipv4_subnet | ansible.utils.ipaddr("subnet") }}'
+      - subnet: '{{ item.ipv6_subnet | ansible.utils.ipaddr("subnet") }}'

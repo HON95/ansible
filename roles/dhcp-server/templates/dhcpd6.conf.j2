@@ -40,7 +40,7 @@ ddns-update-style none;
 {%- if network.ipv6_dhcp | default(false) %}
 
 # [{{ network.vlan_id }}] {{ network.id }}
-subnet6 {{ network.ipv6_subnet | ansible.utils.ipaddr('network/prefix') }} {
+subnet6 {{ network.ipv6_subnet | ansible.utils.ipaddr('subnet') }} {
     {%- for dns_server in network.ipv6_dns | default([]) %}
     option dhcp6.name-servers {{ dns_server }};
     {%- endfor %}

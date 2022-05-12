@@ -17,10 +17,10 @@
   vars:
     network_bridge: '{{ vm.network_bridge | default(pve_vm_default_network_bridge) }}'
     network_string: '{% if vm.network_vlanid is defined %}virtio,bridge={{ network_bridge }},tag={{ vm.network_vlanid }},firewall=1{% else %}virtio,bridge={{ network_bridge }},firewall=1{% endif %}'
-    ipconfig_ip: '{{ vm.network_ipv4_address }}'
-    ipconfig_gw: '{{ vm.network_ipv4_gateway }}'
-    ipconfig_ip6: '{{ vm.network_ipv6_address }}'
-    ipconfig_gw6: '{{ vm.network_ipv6_gateway }}'
+    ipconfig_ip: '{{ vm.network_ipv4_address | ansible.utils.ipaddr("host") }}'
+    ipconfig_gw: '{{ vm.network_ipv4_gateway | ansible.utils.ipaddr("address") }}'
+    ipconfig_ip6: '{{ vm.network_ipv6_address | ansible.utils.ipaddr("host") }}'
+    ipconfig_gw6: '{{ vm.network_ipv6_gateway | ansible.utils.ipaddr("address") }}'
     ipconfig_string: 'ip={{ ipconfig_ip }},gw={{ ipconfig_gw }},ip6={{ ipconfig_ip6 }},gw6={{ ipconfig_gw6 }}'
     startup_string: '{% if vm.startup_order is defined %}order={{ vm.startup_order }}{% endif %}'
   command: >-
@@ -39,10 +39,10 @@
     --agent enabled={{ vm.qemu_agent | default(pve_vm_default_qemu_agent) }}
     --startup {{ startup_string }}
 
-- name: Resize the disk
+- name: Resize the VM disk
   command: 'qm resize {{ vm.vmid }} scsi0 {{ vm.disk_size | default(pve_vm_default_disk_size) }}'
 
-- name: Add SSH pubkeys
+- name: Add VM SSH pubkeys
   block:
     - name: Create temporary file
       tempfile: {}
@@ -62,3 +62,13 @@
       file:
         path: "{{ pve_vms_create_tmpfile.path }}"
         state: absent
+
+- name: Create VM firewall file
+  file:
+    path: '/etc/pve/firewall/{{ vm.vmid }}.fw'
+    state: touch
+
+- name: Add VM firewall rules
+  template:
+    src: 'pve/vm.fw.j2'
+    dest: '/etc/pve/firewall/{{ vm.vmid }}.fw'

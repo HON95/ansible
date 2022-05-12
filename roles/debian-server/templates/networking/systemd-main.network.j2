@@ -9,13 +9,13 @@ MTUBytes={{ linux_server_networking_mtu }}
 [Network]
 {# IPv4 #}
 {% if linux_server_networking_ipv4_addressing == 'static' %}
-Address={{ linux_server_networking_static_ipv4_address | ansible.netcommon.ipaddr("address/prefix") }}
+Address={{ linux_server_networking_static_ipv4_address | ansible.utils.ipaddr("host") }}
 {% if linux_server_networking_static_ipv4_gateway is defined %}
-Gateway={{ linux_server_networking_static_ipv4_gateway | ansible.netcommon.ipaddr("address") }}
-{% elif linux_server_networking_static_ipv4_address | ansible.netcommon.ipaddr('prefix') == 31 %}
-Gateway={{ linux_server_networking_static_ipv4_address | ansible.netcommon.ipaddr(0) | ansible.netcommon.ipaddr("address") }}
+Gateway={{ linux_server_networking_static_ipv4_gateway | ansible.utils.ipaddr("address") }}
+{% elif linux_server_networking_static_ipv4_address | ansible.utils.ipaddr('prefix') == 31 %}
+Gateway={{ linux_server_networking_static_ipv4_address | ansible.utils.ipaddr(0) | ansible.utils.ipaddr("address") }}
 {% else %}
-Gateway={{ linux_server_networking_static_ipv4_address | ansible.netcommon.ipaddr(1) | ansible.netcommon.ipaddr("address") }}
+Gateway={{ linux_server_networking_static_ipv4_address | ansible.utils.ipaddr(1) | ansible.utils.ipaddr("address") }}
 {% endif %}
 {% elif linux_server_networking_ipv4_addressing == 'dhcp' %}
 DHCP=ipv4
@@ -23,13 +23,13 @@ DHCP=ipv4
 {# IPv6 #}
 {% if linux_server_networking_ipv6_addressing == 'static' %}
 IPv6AcceptRA=no
-Address={{ linux_server_networking_static_ipv6_address | ansible.netcommon.ipaddr("address/prefix") }}
+Address={{ linux_server_networking_static_ipv6_address | ansible.utils.ipaddr("host") }}
 {% if linux_server_networking_static_ipv6_gateway is defined %}
-Gateway={{ linux_server_networking_static_ipv6_gateway | ansible.netcommon.ipaddr("address") }}
-{% elif linux_server_networking_static_ipv6_address | ansible.netcommon.ipaddr('prefix') == 127 %}
-Gateway={{ linux_server_networking_static_ipv6_address | ansible.netcommon.ipaddr(0) | ansible.netcommon.ipaddr("address") }}
+Gateway={{ linux_server_networking_static_ipv6_gateway | ansible.utils.ipaddr("address") }}
+{% elif linux_server_networking_static_ipv6_address | ansible.utils.ipaddr('prefix') == 127 %}
+Gateway={{ linux_server_networking_static_ipv6_address | ansible.utils.ipaddr(0) | ansible.utils.ipaddr("address") }}
 {{ else }}
-Gateway={{ linux_server_networking_static_ipv6_address | ansible.netcommon.ipaddr(1) | ansible.netcommon.ipaddr("address") }}
+Gateway={{ linux_server_networking_static_ipv6_address | ansible.utils.ipaddr(1) | ansible.utils.ipaddr("address") }}
 {% endif %}
 {% elif linux_server_networking_ipv6_addressing == 'slaac' %}
 {# Will SLAAC or DHCPv6 #}

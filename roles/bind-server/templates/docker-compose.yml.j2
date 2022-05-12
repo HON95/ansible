@@ -121,10 +121,10 @@ networks:
     ipam:
       config:
         {%- if bind_primary %}
-        - subnet: {{ bind_internal_network.ipv4_subnet_primary | ansible.utils.ipaddr("network/prefix") }}
-        - subnet: {{ bind_internal_network.ipv6_subnet_primary | ansible.utils.ipaddr("network/prefix") }}
+        - subnet: {{ bind_internal_network.ipv4_subnet_primary | ansible.utils.ipaddr("subnet") }}
+        - subnet: {{ bind_internal_network.ipv6_subnet_primary | ansible.utils.ipaddr("subnet") }}
         {%- else %}
-        - subnet: {{ bind_internal_network.ipv4_subnet_secondary | ansible.utils.ipaddr("network/prefix") }}
-        - subnet: {{ bind_internal_network.ipv6_subnet_secondary | ansible.utils.ipaddr("network/prefix") }}
+        - subnet: {{ bind_internal_network.ipv4_subnet_secondary | ansible.utils.ipaddr("subnet") }}
+        - subnet: {{ bind_internal_network.ipv6_subnet_secondary | ansible.utils.ipaddr("subnet") }}
         {%- endif %}
   {%- endif %}
