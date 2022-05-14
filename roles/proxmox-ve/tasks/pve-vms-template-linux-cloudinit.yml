@@ -1,0 +1,87 @@
+# Setup single template VM
+# Called by pve-vms.yml.
+
+# Template assumptions:
+# - The template is based on a Linux cloud image with Cloud-Init installed.
+# - Using legacy BIOS.
+# - "--scsi0" contains the boot disk.
+# - "--ide2" contains the Cloud-Init disk.
+# - Using a serial console (if it matters).
+
+- name: 'Setup VM'
+  debug:
+    msg: '{{ vm.name }} ({{ vm_id }})'
+
+- name: Clone from a template
+  vars:
+    template_id: '{{ pve_vm_name_id_list[vm.template_name] }}'
+  command: >-
+    qm clone "{{ template_id }}" "{{ vm_id }}"
+    --name "{{ vm.name }}"
+    --description "{{ vm.description | default(omit) }}"
+    --storage "{{ vm.disk_storage | default(pve_vm_default_disk_storage) }}"
+    --full
+
+- name: Set VM options
+  vars:
+    network_bridge: '{{ vm.network_bridge | default(pve_vm_default_network_bridge) }}'
+    network_string: '{% if vm.network_vlanid is defined %}virtio,bridge={{ network_bridge }},tag={{ vm.network_vlanid }},firewall=1{% else %}virtio,bridge={{ network_bridge }},firewall=1{% endif %}'
+    ipconfig_ip: '{{ vm.network_ipv4_address | ansible.utils.ipaddr("host") }}'
+    ipconfig_gw: '{{ vm.network_ipv4_gateway | ansible.utils.ipaddr("address") }}'
+    ipconfig_ip6: '{{ vm.network_ipv6_address | ansible.utils.ipaddr("host") }}'
+    ipconfig_gw6: '{{ vm.network_ipv6_gateway | ansible.utils.ipaddr("address") }}'
+    ipconfig_string: 'ip={{ ipconfig_ip }},gw={{ ipconfig_gw }},ip6={{ ipconfig_ip6 }},gw6={{ ipconfig_gw6 }}'
+    startup_string: '{% if vm.startup_order is defined %}order={{ vm.startup_order }}{% endif %}'
+  command: >-
+    qm set "{{ vm_id }}"
+    --cpu "cputype={{ vm.cpu_type | default(pve_vm_default_cpu_type) }}"
+    --sockets "{{ vm.cpu_sockets | default(pve_vm_default_cpu_sockets) }}"
+    --cores "{{ vm.cpu_cores | default(pve_vm_default_cpu_cores) }}"
+    --numa "1"
+    --memory "{{ vm.memory_mb | default(pve_vm_default_memory_mb) }}"
+    --net0 "{{ network_string }}"
+    --ipconfig0 "{{ ipconfig_string }}"
+    --nameserver "{{ vm.dns_servers | default(pve_vm_default_dns_servers) | join(" ") }}"
+    --searchdomain "{{ vm.domain | default("") }}"
+    --protection "{{ vm.protection | default(pve_vm_default_protection) }}"
+    --onboot "{{ vm.onboot | default(pve_vm_default_onboot) }}"
+    --agent "enabled={{ vm.qemu_agent | default(pve_vm_default_qemu_agent) }}"
+    --startup "{{ startup_string }}"
+    --ciuser "{{ vm.cloudinit_user | default(pve_vm_default_cloudinit_user) }}"
+
+- name: Set VM SSH pubkeys
+  block:
+    - name: Create temporary file
+      tempfile: {}
+      register: pve_vms_create_tmpfile
+
+    - name: Add SSH pubkey to file
+      copy:
+        content: '{{ vm.cloudinit_ssh_pubkeys | default(pve_vm_default_cloudinit_ssh_pubkeys) }}'
+        dest: '{{ pve_vms_create_tmpfile.path }}'
+
+    - name: Add SSH pubkeys to VM
+      command: 'qm set "{{ vm_id }}" --sshkeys "{{ pve_vms_create_tmpfile.path }}"'
+
+  always:
+    - name: Delete temporary file
+      when: 'pve_vms_create_tmpfile is defined'
+      file:
+        path: "{{ pve_vms_create_tmpfile.path }}"
+        state: absent
+
+- name: Resize the VM disk
+  command: 'qm resize "{{ vm_id }}" scsi0 "{{ vm.disk_size | default(pve_vm_default_disk_size) }}"'
+
+- name: Create VM firewall file
+  file:
+    path: '/etc/pve/firewall/{{ vm_id }}.fw'
+    state: touch
+
+- name: Add VM firewall rules
+  template:
+    src: 'pve/vm.fw.j2'
+    dest: '/etc/pve/firewall/{{ vm_id }}.fw'
+
+- name: Update VM lists
+  include_tasks: pve-update-vms.yml

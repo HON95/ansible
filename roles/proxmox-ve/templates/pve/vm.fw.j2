@@ -8,5 +8,5 @@ policy_out: REJECT
 
 [RULES]
 OUT ACCEPT -source fe80::/10 -log nolog # Allow IPv6 LL local source
-OUT ACCEPT -source {{ vm.network_ipv4_address | ansible.utils.ipaddr("address") }} -log nolog # Verify IPv4 local source
-OUT ACCEPT -source {{ vm.network_ipv6_address | ansible.utils.ipaddr("address") }} -log nolog # Verify IPv6 GUA/ULA local source
+OUT ACCEPT -i net0 -source {{ vm.network_ipv4_address | ansible.utils.ipaddr("address") }} -log nolog # Verify IPv4 local source
+OUT ACCEPT -i net0 -source {{ vm.network_ipv6_address | ansible.utils.ipaddr("address") }} -log nolog # Verify IPv6 GUA/ULA local source
