@@ -7,5 +7,5 @@ pve_vmid_normal_range_end: 1999
 pve_vmid_template_range_start: 9000
 pve_vmid_template_range_end: 9999
 
-# (Required) Which interface PVE has an IP address on (used e.g. by the firewall rules)
+# (Required) Which interface PVE has an IP address on (used e.g. by the firewall rules).
 #pve_network_mgmt_interface: vmbr0

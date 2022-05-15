@@ -1,0 +1,16 @@
+# Update the config var for the current VM.
+# Called repeatedly whenever it should be updated, with vm_id set.
+
+- name: Get VM config
+  command: 'qm config "{{ vm_id }}"'
+  register: pve_vms_config_result
+  changed_when: false
+  failed_when: false
+
+- name: Save VM config
+  vars:
+    empty_dict: {}
+    result_output: '{{ pve_vms_config_result.stdout }}'
+    pve_vms_current_vm_config_local: '{% if result_output | length > 0 %}{{ result_output | from_yaml }}{% else %}{{ empty_dict }}{% endif %}'
+  set_fact:
+    pve_vms_current_vm_config: '{{ pve_vms_current_vm_config_local }}'

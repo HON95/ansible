@@ -1,87 +1,91 @@
-# Setup single template VM
-# Called by pve-vms.yml.
+# Setup a Linux VM template from a Cloud-Init-enabled image.
 
-# Template assumptions:
-# - The template is based on a Linux cloud image with Cloud-Init installed.
-# - Using legacy BIOS.
-# - "--scsi0" contains the boot disk.
-# - "--ide2" contains the Cloud-Init disk.
-# - Using a serial console (if it matters).
-
-- name: 'Setup VM'
+- name: 'Setup VM template'
   debug:
     msg: '{{ vm.name }} ({{ vm_id }})'
 
-- name: Clone from a template
+- name: Create the VM
+  when: 'vm_new'
   vars:
-    template_id: '{{ pve_vm_name_id_list[vm.template_name] }}'
-  command: >-
-    qm clone "{{ template_id }}" "{{ vm_id }}"
-    --name "{{ vm.name }}"
-    --description "{{ vm.description | default(omit) }}"
-    --storage "{{ vm.disk_storage | default(pve_vm_default_disk_storage) }}"
-    --full
+    cloudinit_disk: '{{ pve_storage_default_image_rootdir_name }}:vm-{{ vm_id }}-cloudinit'
+  command: 'qm create "{{ vm_id }}" --name="{{ vm.name }}" --ide2="{{ cloudinit_disk }}"'
 
-- name: Set VM options
-  vars:
-    network_bridge: '{{ vm.network_bridge | default(pve_vm_default_network_bridge) }}'
-    network_string: '{% if vm.network_vlanid is defined %}virtio,bridge={{ network_bridge }},tag={{ vm.network_vlanid }},firewall=1{% else %}virtio,bridge={{ network_bridge }},firewall=1{% endif %}'
-    ipconfig_ip: '{{ vm.network_ipv4_address | ansible.utils.ipaddr("host") }}'
-    ipconfig_gw: '{{ vm.network_ipv4_gateway | ansible.utils.ipaddr("address") }}'
-    ipconfig_ip6: '{{ vm.network_ipv6_address | ansible.utils.ipaddr("host") }}'
-    ipconfig_gw6: '{{ vm.network_ipv6_gateway | ansible.utils.ipaddr("address") }}'
-    ipconfig_string: 'ip={{ ipconfig_ip }},gw={{ ipconfig_gw }},ip6={{ ipconfig_ip6 }},gw6={{ ipconfig_gw6 }}'
-    startup_string: '{% if vm.startup_order is defined %}order={{ vm.startup_order }}{% endif %}'
-  command: >-
-    qm set "{{ vm_id }}"
-    --cpu "cputype={{ vm.cpu_type | default(pve_vm_default_cpu_type) }}"
-    --sockets "{{ vm.cpu_sockets | default(pve_vm_default_cpu_sockets) }}"
-    --cores "{{ vm.cpu_cores | default(pve_vm_default_cpu_cores) }}"
-    --numa "1"
-    --memory "{{ vm.memory_mb | default(pve_vm_default_memory_mb) }}"
-    --net0 "{{ network_string }}"
-    --ipconfig0 "{{ ipconfig_string }}"
-    --nameserver "{{ vm.dns_servers | default(pve_vm_default_dns_servers) | join(" ") }}"
-    --searchdomain "{{ vm.domain | default("") }}"
-    --protection "{{ vm.protection | default(pve_vm_default_protection) }}"
-    --onboot "{{ vm.onboot | default(pve_vm_default_onboot) }}"
-    --agent "enabled={{ vm.qemu_agent | default(pve_vm_default_qemu_agent) }}"
-    --startup "{{ startup_string }}"
-    --ciuser "{{ vm.cloudinit_user | default(pve_vm_default_cloudinit_user) }}"
+- name: Update current VM config variable
+  include_tasks: pve-update-current-vm-config.yml
 
-- name: Set VM SSH pubkeys
+- name: Download and import template VM image
+  when: 'vm_new'
   block:
-    - name: Create temporary file
+    - name: Create temporary disk file
       tempfile: {}
-      register: pve_vms_create_tmpfile
+      register: pve_template_vm_create_tmpfile
 
-    - name: Add SSH pubkey to file
-      copy:
-        content: '{{ vm.cloudinit_ssh_pubkeys | default(pve_vm_default_cloudinit_ssh_pubkeys) }}'
-        dest: '{{ pve_vms_create_tmpfile.path }}'
+    - name: Download the disk image
+      get_url:
+        url: '{{ vm.image_download_url }}'
+        dest: '{{ pve_template_vm_create_tmpfile.path }}'
+        checksum: '{{ vm.image_checksum | default(omit) }}'
+        timeout: '{{ pve_download_timeout_s }}'
 
-    - name: Add SSH pubkeys to VM
-      command: 'qm set "{{ vm_id }}" --sshkeys "{{ pve_vms_create_tmpfile.path }}"'
+    - name: Import the disk image
+      command: 'qm importdisk "{{ vm_id }}" "{{ pve_template_vm_create_tmpfile.path }}" "{{ pve_storage_default_image_rootdir_name }}"'
 
   always:
-    - name: Delete temporary file
-      when: 'pve_vms_create_tmpfile is defined'
+    - name: Delete temporary download file
+      when: 'pve_template_vm_create_tmpfile is defined'
       file:
-        path: "{{ pve_vms_create_tmpfile.path }}"
+        path: "{{ pve_template_vm_create_tmpfile.path }}"
         state: absent
 
-- name: Resize the VM disk
-  command: 'qm resize "{{ vm_id }}" scsi0 "{{ vm.disk_size | default(pve_vm_default_disk_size) }}"'
+- name: Attach the disk image
+  when: 'vm_new'
+  command: 'qm set "{{ vm_id }}" --scsi0 "{{ pve_storage_default_image_rootdir_name }}:vm-{{ vm_id }}-disk-0,cache=writeback"'
 
-- name: Create VM firewall file
-  file:
-    path: '/etc/pve/firewall/{{ vm_id }}.fw'
-    state: touch
+- name: Update the VM config (new)
+  when: 'vm_new'
+  vars:
+    qm_params:
+      scsihw: "virtio-scsi-pci"
+      boot: "order=scsi0;ide2"
+  loop: '{{ qm_params | list }}'
+  command: 'qm set "{{ vm_id }}" --{{ item }} "{{ qm_params[item] }}"'
 
-- name: Add VM firewall rules
-  template:
-    src: 'pve/vm.fw.j2'
-    dest: '/etc/pve/firewall/{{ vm_id }}.fw'
+- name: Update the VM config (general)
+  vars:
+    qm_params:
+      description: "{{ vm.description | default('') }}"
+      ostype: "l26"
+      cpu: "cputype={{ vm.cpu_type | default(pve_vm_default_cpu_type) }}"
+      sockets: "{{ vm.cpu_sockets | default(pve_vm_default_cpu_sockets) | int }}"
+      cores: "{{ vm.cpu_cores | default(pve_vm_default_cpu_cores) | int }}"
+      numa: "1"
+      memory: "{{ vm.memory_mb | default(pve_vm_default_memory_mb) | int }}"
+      serial0: "socket"
+      vga: "{{ vm.display | default(pve_vm_default_display) }}"
+      protection: "{{ vm.protection | default(pve_vm_default_protection) | int }}"
+      onboot: "{{ vm.autostart | default(pve_vm_default_autostart) | int }}"
+      agent: "enabled={{ vm.qemu_agent | default(pve_vm_default_qemu_agent) | int }}"
+      startup: "order={{ vm.startup_order | default(pve_vm_default_startup_order) | int }}"
+      nameserver: "{{ vm.dns_servers | default(pve_vm_default_dns_servers) | join(' ') }}"
+      searchdomain: "{{ vm.domain | default(pve_vm_default_domain) }}"
+  loop: '{{ qm_params | list }}'
+  when: 'pve_vms_current_vm_config[item] | default("") | string != qm_params[item] | string'
+  command: 'qm set "{{ vm_id }}" --{{ item }} "{{ qm_params[item] }}"'
+
+- name: Update the VM config (network)
+  when: 'vm_network_enable'
+  vars:
+    network_bridge: '{{ vm.network_bridge | default(pve_vm_default_network_bridge) }}'
+    network_string: 'virtio,bridge={{ network_bridge }}{% if vm.network_vlanid is defined %},tag={{ vm.network_vlanid }}{% endif %},firewall=1'
+    qm_params:
+      net0: "{{ network_string }}"
+  loop: '{{ qm_params | list }}'
+  command: 'qm set "{{ vm_id }}" --{{ item }} "{{ qm_params[item] }}"'
+
+- name: Make the VM a template
+  when: 'vm_new'
+  command: 'qm template "{{ vm_id }}"'
 
 - name: Update VM lists
+  when: 'vm_new'
   include_tasks: pve-update-vms.yml

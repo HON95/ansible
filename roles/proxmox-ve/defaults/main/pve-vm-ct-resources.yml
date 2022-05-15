@@ -26,19 +26,3 @@ pve_ct_templates_default:
     image_download_url: 'http://download.proxmox.com/images/system/alpine-3.15-default_20211202_amd64.tar.xz'
     image_checksum: 'sha512:6fa966787de6f18fc502016cd3516bcac0a5de0dfa5e906aa08a1c0cc51b51b0df08d9efbe221e0914dbece295d1b32ccae14909a04fbfc263b8e0ecd4831491'
 pve_ct_templates: '{{ pve_ct_templates_default }}'
-
-# Default VM templates to set up.
-pve_vm_templates_default:
-  - name: template-debian-11-cloudgeneric
-    type: linux-cloudinit
-    image_download_url: 'https://cloud.debian.org/images/cloud/bullseye/20220503-998/debian-11-genericcloud-amd64-20220503-998.qcow2'
-    image_checksum: 'sha512:1ce494ac4a587a7d92177930b3cb4b93f412f00f2da2812fb80659fd51ff0a416d7e22476ab548fcef41461cfdc89c1f4b5d672c56412bfc3267f4b2b95f84f6'
-pve_vm_templates: '{{ pve_vm_templates_default }}'
-
-# Defaults for VM templates
-pve_template_vm_cpu_type: 'host'
-pve_template_vm_cpu_sockets: 1
-pve_template_vm_cpu_cores: 2
-pve_template_vm_memory_mb: 2048
-pve_template_vm_network_bridge: 'vmbr0'
-pve_template_vm_dns_servers: '{{ linux_server_dns_servers }}'

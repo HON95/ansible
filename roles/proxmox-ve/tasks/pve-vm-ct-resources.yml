@@ -28,13 +28,3 @@
 
 - name: Update VM lists
   include_tasks: pve-update-vms.yml
-
-- name: Setup VM templates
-  loop: '{{ pve_vm_templates }}'
-  loop_control:
-    loop_var: template
-    label: '{{ template.name }} ({{ template.type }})'
-  vars:
-    template_id: '{{ pve_vmid_template_next }}'
-  when: '(not template_id in pve_vm_ids) and (not template.name in pve_vm_names)'
-  include_tasks: pve-templates-vm-{{ template.type }}.yml

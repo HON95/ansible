@@ -1,12 +1,25 @@
 [OPTIONS]
 enable: 1
 ndp: 1
-dhcp: 0
+dhcp: 1
 radv: 0
-policy_in: ACCEPT
-policy_out: REJECT
+policy_in: {{ "REJECT" if firewall_block_inbound else "ACCEPT" }}
+policy_out: {{ "REJECT" if firewall_verify_source else "ACCEPT" }}
 
 [RULES]
+{% if firewall_prevent_dhcp_server %}
+OUT REJECT -p udp -sport 67 -log nolog # Prevent rogue DHCPv4 server
+OUT REJECT -p udp -sport 547 -log nolog # Prevent rogue DHCPv6 server
+{% endif %}
+{% if firewall_verify_source %}
 OUT ACCEPT -source fe80::/10 -log nolog # Allow IPv6 LL local source
+{% if vm.network_ipv4_address is defined %}
 OUT ACCEPT -i net0 -source {{ vm.network_ipv4_address | ansible.utils.ipaddr("address") }} -log nolog # Verify IPv4 local source
+{% endif %}
+{% if vm.network_ipv6_address is defined %}
 OUT ACCEPT -i net0 -source {{ vm.network_ipv6_address | ansible.utils.ipaddr("address") }} -log nolog # Verify IPv6 GUA/ULA local source
+{% endif %}
+{% endif %}
+{% for rule in vm.firewall_extra_rules | default([]) %}
+{{ rule }}
+{% endfor %}
