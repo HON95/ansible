@@ -3,8 +3,8 @@
 - name: Clear /etc/motd
   when: 'linux_server_banner_motd_state == "empty"'
   copy:
-    path: '/etc/motd'
     content: ''
+    dest: '/etc/motd'
 
 - name: Set /etc/motd
   when: 'linux_server_banner_motd_state == "motd" and linux_server_banner_motd_path is defined'
@@ -15,14 +15,14 @@
 - name: Clear /etc/issue
   when: 'linux_server_banner_issue_state == "empty"'
   copy:
-    path: '/etc/issue'
     content: ''
+    dest: '/etc/issue'
 
 - name: Clear /etc/issue.net
   when: 'linux_server_banner_issue_net_state == "empty"'
   copy:
-    dest: '/etc/issue.net'
     content: ''
+    dest: '/etc/issue.net'
 
 - name: Setting /etc/issue to logo
   when: 'linux_server_banner_issue_state == "logo" and linux_server_ascii_logo_path is defined'

@@ -1,7 +1,7 @@
 # Setup packages
 
 - name: Disable unattended upgrades
-  when: '"unattended-upgrades.service" in service_facts.ansible_facts.services'
+  when: '"unattended-upgrades.service" in ansible_facts.services'
   systemd:
     name: unattended-upgrades.service
     state: stopped

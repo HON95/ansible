@@ -8,7 +8,6 @@
 
 - name: Get service facts
   service_facts: {}
-  register: service_facts
 
 - import_tasks: sudo.yml
 - meta: flush_handlers

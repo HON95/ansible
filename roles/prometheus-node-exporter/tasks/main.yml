@@ -1,3 +1,6 @@
+- name: Get service facts
+  service_facts: {}
+
 - name: Install required packages
   apt:
     name:
@@ -22,12 +25,8 @@
     - name: Remove if wrong version
       when: 'prom_node_exp_check_version.stdout != prom_node_exp_version'
       block:
-        - name: Get service info to check if running (remove outdated version)
-          service_facts: {}
-          register: service_facts
-
         - name: Stop existing service (remove outdated version)
-          when: 'prom_node_exp_service in service_facts.ansible_facts.services'
+          when: 'prom_node_exp_service in ansible_facts.services'
           systemd:
             name: '{{ prom_node_exp_service }}'
             state: stopped

@@ -42,7 +42,7 @@
 # chrony
 
 - name: Disable and stop systemd-timesyncd, if installed (chrony)
-  when: 'linux_server_ntp_method == "chrony" and "systemd-timesync.service" in service_facts.ansible_facts.services'
+  when: 'linux_server_ntp_method == "chrony" and "systemd-timesync.service" in ansible_facts.services'
   service:
     name: systemd-timesyncd.service
     enabled: false

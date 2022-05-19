@@ -28,7 +28,7 @@
   register: linux_server_networking_systemd_config_change
 
 - name: Disable ifupdown service
-  when: 'linux_server_networking_method != "ignore" and "networking.service" in service_facts.ansible_facts.services'
+  when: 'linux_server_networking_method != "ignore" and "networking.service" in ansible_facts.services'
   systemd:
     name: networking.service
     enabled: no
@@ -36,7 +36,7 @@
   register: linux_server_networking_disable_ifupdown
 
 - name: Disable dhcpcd service
-  when: 'linux_server_networking_method != "ignore" and "dhcpcd.service" in service_facts.ansible_facts.services'
+  when: 'linux_server_networking_method != "ignore" and "dhcpcd.service" in ansible_facts.services'
   systemd:
     name: dhcpcd.service
     enabled: no
