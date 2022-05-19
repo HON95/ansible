@@ -1,0 +1,31 @@
+# Setup banners.
+
+- name: 'Set pre-login banner'
+  when: 'vyos_banner_prelogin_path is defined'
+  vyos.vyos.vyos_banner:
+    banner: pre-login
+    state: present
+    text: '{{ lookup("file", vyos_banner_prelogin_path) }}'
+  notify: Save config
+
+- name: 'Remove pre-login banner'
+  when: 'vyos_banner_prelogin_path is not defined'
+  vyos.vyos.vyos_banner:
+    banner: pre-login
+    state: absent
+  notify: Save config
+
+- name: 'Set post-login banner'
+  when: 'vyos_banner_postlogin_path is defined'
+  vyos.vyos.vyos_banner:
+    banner: post-login
+    state: present
+    text: '{{ lookup("file", vyos_banner_postlogin_path) }}'
+  notify: Save config
+
+- name: 'Remove post-login banner'
+  when: 'vyos_banner_postlogin_path is not defined'
+  vyos.vyos.vyos_banner:
+    banner: post-login
+    state: absent
+  notify: Save config

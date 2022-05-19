@@ -1,0 +1,41 @@
+# Setup firewall.
+
+- name: 'Set firewall global config and groups'
+  vyos.vyos.vyos_firewall_global:
+    state: replaced
+    config:
+      config_trap: false
+      validation: strict
+      log_martians: false
+      syn_cookies: true
+      twa_hazards_protection: true
+      ping:
+        all: true
+        broadcast: false
+      route_redirects:
+        - afi: ipv4
+          ip_src_route: false
+          icmp_redirects:
+            receive: false
+        - afi: ipv6
+          ip_src_route: false
+          icmp_redirects:
+            receive: false
+      state_policy:
+        - connection_type: established
+          action: accept
+        - connection_type: related
+          action: accept
+        - connection_type: invalid
+          action: drop
+      group:
+        network_group: '{{ vyos_firewall_network_groups_all }}'
+        address_group: '{{ vyos_firewall_address_groups_all }}'
+        port_group: '{{ vyos_firewall_port_groups_all }}'
+  notify: Save config
+
+- name: 'Set firewall rules'
+  vyos.vyos.vyos_firewall_rules:
+    state: overridden
+    config: '{{ vyos_firewall_rule_sets_all_transformed }}'
+  notify: Save config

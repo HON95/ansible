@@ -1,0 +1,13 @@
+- name: Check if supported net OS
+  when: 'not (
+    (ansible_net_version is match("VyOS 1.4-.*"))
+    )'
+  fail:
+    msg: 'Unsupported OS: {{ net_version }}'
+
+- name: Get service facts
+  service_facts: {}
+
+- import_tasks: firewall.yml
+- import_tasks: banner.yml
+- meta: flush_handlers

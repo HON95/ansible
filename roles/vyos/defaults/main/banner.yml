@@ -1,0 +1,3 @@
+# Pre- and post-login banners (define to enable)
+# vyos_banner_prelogin_path: pre-banner.txt
+# vyos_banner_postlogin_path: post-banner.txt
