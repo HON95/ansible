@@ -1,17 +1,29 @@
 # Setup PVE template VMs
 
-- name: Download ISO images
+- name: Find existing VM images
+  shell: 'ls -1 {{ pve_storage_default_iso_vztmpl_path }}/template/iso/'
+  changed_when: false
+  register: pve_vm_image_files_result
+
+- name: Download VM images
   loop: '{{ pve_iso_images }}'
   loop_control:
     loop_var: image
     label: '{{ image.name }}'
   vars:
-    dest: '{{ pve_storage_default_iso_vztmpl_path }}/template/iso/{{ image.download_url | basename }}'
+    dest_filename: '{{ image.download_url | basename }}'
+    dest: '{{ pve_storage_default_iso_vztmpl_path }}/template/iso/{{ dest_filename }}'
+  when: 'dest_filename not in pve_vm_image_files_result.stdout_lines'
   get_url:
     url: '{{ image.download_url }}'
     dest: '{{ dest }}'
     checksum: '{{ image.checksum | default(omit) }}'
     timeout: '{{ pve_download_timeout_s }}'
+
+- name: Find existing container templates
+  shell: 'ls -1 {{ pve_storage_default_iso_vztmpl_path }}/template/cache/'
+  changed_when: false
+  register: pve_ct_tmpl_files_result
 
 - name: Download CT templates
   loop: '{{ pve_ct_templates }}'
@@ -19,12 +31,11 @@
     loop_var: template
     label: '{{ template.name }}'
   vars:
-    dest: '{{ pve_storage_default_iso_vztmpl_path }}/template/cache/{{ template.image_download_url | basename }}'
+    dest_filename: '{{ template.image_download_url | basename }}'
+    dest: '{{ pve_storage_default_iso_vztmpl_path }}/template/cache/{{ dest_filename }}'
+  when: 'dest_filename not in pve_ct_tmpl_files_result.stdout_lines'
   get_url:
     url: '{{ template.image_download_url }}'
     dest: '{{ dest }}'
     checksum: '{{ template.image_checksum | default(omit) }}'
     timeout: '{{ pve_download_timeout_s }}'
-
-- name: Update VM lists
-  include_tasks: pve-update-vms.yml

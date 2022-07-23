@@ -108,15 +108,29 @@
   when: 'pve_vms_current_vm_config[item] | default("") | string != qm_params[item] | string'
   command: 'qm set "{{ vm_id }}" --{{ item }} "{{ qm_params[item] }}"'
 
-- name: Update the VM config (network)
+# Get directly since pve_vms_current_vm_config is outdated
+- name: Get VM network config
   when: 'vm_network_enable'
+  shell: 'qm config 9000 | egrep "^net0:"'
+  register: pve_vm_net_config_result
+  changed_when: false
+  failed_when: 'pve_vm_net_config_result.stdout == ""'
+
+- name: Get VM MAC address
+  when: 'vm_network_enable'
+  shell: 'echo "{{ pve_vm_net_config_result.stdout }}" | grep -Po "(?<=virtio=)[0-9a-fA-F:]{17}"'
+  register: pve_vm_mac_address_result
+  changed_when: false
+  failed_when: 'pve_vm_mac_address_result.stdout == ""'
+
+- name: Update VM network config
   vars:
+    old_network_string: '{{ pve_vm_net_config_result.stdout | default("")}}'
+    mac_address: '{{ pve_vm_mac_address_result.stdout | default("") }}'
     network_bridge: '{{ vm.network_bridge | default(pve_vm_default_network_bridge) }}'
-    network_string: 'virtio,bridge={{ network_bridge }}{% if vm.network_vlanid is defined %},tag={{ vm.network_vlanid }}{% endif %},firewall=1'
-    qm_params:
-      net0: "{{ network_string }}"
-  loop: '{{ qm_params | list }}'
-  command: 'qm set "{{ vm_id }}" --{{ item }} "{{ qm_params[item] }}"'
+    network_string: 'virtio={{ mac_address }},bridge={{ network_bridge }}{% if vm.network_vlanid is defined %},tag={{ vm.network_vlanid }}{% endif %},firewall=1'
+  when: 'vm_network_enable and network_string != old_network_string'
+  command: 'qm set "{{ vm_id }}" --net0 "{{ network_string }}"'
 
 - name: Create VM firewall file
   when: 'vm_firewall_enable'
