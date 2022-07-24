@@ -1,0 +1,18 @@
+# Managed
+
+{% for username in nut_server_users %}
+{% with user=nut_server_users[username] %}
+[{{ username }}]
+    password = "{{ user.password }}"
+{% for action in user.actions | default([]) %}
+    actions = {{ action }}
+{% endfor %}
+{% for cmd in user.instant_cmds | default([]) %}
+    instcmds = {{ cmd }}
+{% endfor %}
+{% if user.upsmon is defined %}
+    upsmon {% if user.upsmon == "primary" %}master{% else %}slave{% endif %}
+{% endif %}
+
+{% endwith %}
+{% endfor %}

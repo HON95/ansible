@@ -1,0 +1,39 @@
+# Managed
+
+{% for ups in nut_monitor_upses %}
+MONITOR {{ ups.name }}@{{ ups.host | default("localhost") }}:{{ ups.port | default(3493) }} {{ ups.powervalue | default(1) }} "{{ ups.username }}" "{{ ups.password }}" {% if ups.primary | default(true) %}master{% else %}slave{% endif %}
+{% endfor %}
+
+MINSUPPLIES {{ nut_monitor_min_supplies }}
+POLLFREQ {{ nut_monitor_poll_freq_normal }}
+POLLFREQALERT {{ nut_monitor_poll_freq_alert }}
+DEADTIME {{ nut_monitor_dead_delay }}
+HOSTSYNC {{ nut_monitor_hostsync_delay }}
+FINALDELAY {{ nut_monitor_final_delay }}
+POWERDOWNFLAG /etc/killpower
+NOTIFYCMD "{{ nut_monitor_notify_cmd }}"
+SHUTDOWNCMD "{{ nut_monitor_shutdown_cmd }}"
+NOCOMMWARNTIME {{ nut_monitor_no_com_warn_interval }}
+RBWARNTIME {{ nut_monitor_battery_replacement_warn_interval }}
+
+NOTIFYMSG ONLINE      "UPS on line power (%s)"
+NOTIFYMSG ONBATT      "UPS on battery (%s)"
+NOTIFYMSG LOWBATT     "UPS battery is low (%s)"
+NOTIFYMSG FSD         "UPS forced shutdown in progress (%s)"
+NOTIFYMSG COMMOK      "Communications with UPS established (%s)"
+NOTIFYMSG COMMBAD     "Communications with UPS lost (%s)"
+NOTIFYMSG SHUTDOWN    "Auto shutdown proceeding"
+NOTIFYMSG REPLBATT    "UPS battery needs to be replaced (%s)"
+NOTIFYMSG NOCOMM      "UPS is unavailable (%s)"
+NOTIFYMSG NOPARENT    "upsmon parent process died, shutdown impossible"
+
+NOTIFYFLAG ONLINE       SYSLOG
+NOTIFYFLAG ONBATT       SYSLOG+WALL+EXEC
+NOTIFYFLAG LOWBATT      SYSLOG+WALL+EXEC
+NOTIFYFLAG FSD          SYSLOG+EXEC
+NOTIFYFLAG COMMOK       SYSLOG
+NOTIFYFLAG COMMBAD      SYSLOG+EXEC
+NOTIFYFLAG SHUTDOWN     SYSLOG+WALL+EXEC
+NOTIFYFLAG REPLBATT     SYSLOG
+NOTIFYFLAG NOCOMM       SYSLOG+EXEC
+NOTIFYFLAG NOPARENT     SYSLOG+EXEC

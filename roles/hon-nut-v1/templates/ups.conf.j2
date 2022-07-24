@@ -1,0 +1,38 @@
+# Managed
+
+maxretry = {{ nut_driver_retry_count | int }}
+retrydelay = {{ nut_driver_retry_delay | int }}
+
+{% for ups_name in nut_driver_upses %}
+{% with ups=nut_driver_upses[ups_name] %}
+[{{ ups_name }}]
+    desc = "{{ ups.description | default("") }}"
+    sdorder = {{ ups.shutdown_order | default(0) }}
+    driver = "{{ ups.driver }}"
+{% if ups.driver == "usbhid-ups" %}
+    port = "auto"
+{% if ups.vendor is defined %}
+    vendor = "{{ ups.vendor }}"
+{% endif %}
+{% if ups.product is defined %}
+    product = "{{ ups.product }}"
+{% endif %}
+{% if ups.vendor_id is defined %}
+    vendorid = "{{ ups.vendor_id }}"
+{% endif %}
+{% if ups.product_id is defined %}
+    productid = "{{ ups.product_id }}"
+{% endif %}
+{% if ups.serial is defined %}
+    serial = "{{ ups.serial }}"
+{% endif %}
+{% if ups.shutdown_delay is defined %}
+    offdelay = "{{ ups.shutdown_delay }}"
+{% endif %}
+{% if ups.startup_delay is defined %}
+    ondelay = "{{ ups.startup_delay }}"
+{% endif %}
+{% endif %}{# usbhid-ups #}
+
+{% endwith %}
+{% endfor %}

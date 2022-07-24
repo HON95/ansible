@@ -1,0 +1,114 @@
+# If this system has a UPS directly connected through serial/USB/whatever.
+# If secondary (not primary), the driver and server services will not be started.
+nut_primary: true
+
+# Number of times to retry driver start.
+nut_driver_retry_count: 3
+# Delay between retries (seconds).
+nut_driver_retry_delay: 5
+# Local UPSes to pick up through the driver.
+# usbhid-ups driver info: https://networkupstools.org/docs/man/usbhid-ups.html
+# Detect UPSes: nut-scanner
+# Make sure to specify vendor/product/serial info if you have more than one.
+nut_driver_upses: []
+# nut_driver_upses:
+#   # Name
+#   ups1:
+#     # (Optional) Description.
+#     description: "Main UPS"
+#     # Shutdown order (-1 to not shutdown, 0 to shutdown first, highest number to shutdown last).
+#     shutdown_order: 0
+#     # (Required) Driver.
+#     driver: usbhid-ups
+#     # (Optional) Vendor string regex.
+#     vendor: "TODO"
+#     # (Optional) Product string regex.
+#     product: "TODO"
+#     # (Optional) Vendor ID (4 hexidecimals) (use quotes to avoid number interpretation!).
+#     vendor_id: "0000"
+#     # (Optional) Product ID (4 hexidecimals) (use quotes to avoid number interpretation!).
+#     product_id: "0000"
+#     # (Optional) Serial.
+#     serial: "0123456789"
+#     # (Optional) Delay from power-off command to power cut (ups.delay.shutdown).
+#     shutdown_delay: 60
+#     # (Optional) Delay from power detection to power-on (ups.delay.start).
+#     startup_delay: 500
+
+# Server listen address.
+# Use e.g. "::" and "0.0.0.0" for all or "::1" and "127.0.0.1" for localhost.
+nut_server_listen_addresses: ["::1", "127.0.0.1"]
+# Server listen port.
+nut_server_listen_port: 3493
+# Server users.
+# User info: https://networkupstools.org/docs/man/upsd.users.html
+nut_server_users: []
+# nut_server_users:
+#   # Name
+#   admin:
+#     # (Required) Password.
+#     password: "yolo1234"
+#     # (Optional) Allowed actions.
+#     # "set" allows setting values, "fsd" allows starting forced shutdowns (FSD).
+#     actions: [set, all]
+#     # (Optional) Allowed instant commands ("all" for all).
+#     instant_cmds: [all]
+#   upsmon_local:
+#     password: "yolo1234"
+#     # (Optional) Add the required actins for upsmon to work.
+#     # Use "primary" if the server if the UPS is locally connected (gives more control) or "secondary" for remote clients.
+#     upsmon: primary
+#   upsmon_remote:
+#     password: "yolo1234"
+#     upsmon: secondary
+
+# Monitoring info:
+# - https://networkupstools.org/docs/man/upsmon.html
+# - https://networkupstools.org/docs/man/upsmon.conf.html
+# All durations are in seconds.
+# Number of supplies to before we're shutting down (see powervalues).
+nut_monitor_min_supplies: 1
+# Polling frequency (normal and on battery).
+nut_monitor_poll_freq_normal: 5
+nut_monitor_poll_freq_alert: 5
+# Duration from losing connection to a UPS to when it should be marked as dead.
+# Should be at least 3 times larger than POLLFREQ.
+# Might cause a shutdown if the UPS was on battery when it died.
+nut_monitor_dead_delay: 20
+# How long to wait between the UPS going critical and this system shutting down.
+# Can be set to 0 if there's no need to wait for sending local shutdown messages.
+nut_monitor_final_delay: 5
+# How long the primary should wait for secondaries to disconnect when the primary sets the FSD flag on the UPS,
+# before the primary begins to shut down.
+# Secondaries will wait this long to shutdown if the UPS is critical but the primary has NOT set the FSD flag.
+nut_monitor_hostsync_delay: 20
+# Command for NOTIFY events that have EXEC set with NOTIFYFLAG.
+nut_monitor_notify_cmd: /usr/bin/true
+# Command for shutting down this system.
+nut_monitor_shutdown_cmd: '/sbin/shutdown -h +0'
+# How often to warn about no communication (3600s = 1h).
+nut_monitor_no_com_warn_interval: 3600
+# How often to warn about battery replacement (604800s = 1w).
+nut_monitor_battery_replacement_warn_interval: 604800
+# UPSes to monitor, using users configured on those servers.
+nut_monitor_upses: []
+# nut_monitor_upses:
+#     # UPS Name
+#   - name: alpha
+#     # (Optional) Server address (defaults to localhost).
+#     host: localhost
+#     # (Optional) Server port (defaults to 3493).
+#     port: 3493
+#     # Username.
+#     username: upsmon_local
+#     # Password.
+#     password: yolo1234
+#     # How many power supplies the UPS feeds to this system.
+#     # Use 1 for single-PSU servers, 2 for dual-PSU servers etc.
+#     # Use 0 to only monitor the PSU and not shutdown if it goes offline.
+#     powervalue: 1
+#     # If this monitor/server should take responsibility of setting the FSD flag on the UPS when it reaches critical level,
+#     # signaling that both this server and remote servers (clients) should shut down immediately before the UPS cuts power after a delay.
+#     # Only the local server should use this, with all remote servers (clients) acting as secondaries.
+#     # Must match the configured server user.
+#     primary: true

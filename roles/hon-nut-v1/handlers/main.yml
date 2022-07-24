@@ -1,0 +1,16 @@
+- name: Restart nut-driver.service
+  when: 'nut_primary'
+  service:
+    name: nut-driver.service
+    state: restarted
+
+- name: Restart nut-server.service
+  when: 'nut_primary'
+  service:
+    name: nut-server.service
+    state: restarted
+
+- name: Restart nut-monitor.service
+  service:
+    name: nut-monitor.service
+    state: restarted

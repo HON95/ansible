@@ -1,0 +1,78 @@
+- name: Install NUT
+  apt:
+    name:
+      - nut
+
+- name: Setup nut.conf
+  template:
+    src: nut.conf.j2
+    dest: /etc/nut/nut.conf
+  notify:
+    - Restart nut-driver.service
+    - Restart nut-server.service
+    - Restart nut-monitor.service
+
+- name: Setup ups.conf
+  when: 'nut_primary'
+  template:
+    src: ups.conf.j2
+    dest: /etc/nut/ups.conf
+  notify:
+    - Restart nut-driver.service
+    - Restart nut-server.service
+    - Restart nut-monitor.service
+
+- name: Setup upsd.conf
+  when: 'nut_primary'
+  template:
+    src: upsd.conf.j2
+    dest: /etc/nut/upsd.conf
+    mode: '0660'
+    group: nut
+  notify:
+    - Restart nut-server.service
+    - Restart nut-monitor.service
+
+- name: Setup upsd.users
+  when: 'nut_primary'
+  template:
+    src: upsd.users.j2
+    dest: /etc/nut/upsd.users
+    mode: '0660'
+    group: nut
+  notify:
+    - Restart nut-server.service
+    - Restart nut-monitor.service
+
+- name: Setup upsmon.conf
+  template:
+    src: upsmon.conf.j2
+    dest: /etc/nut/upsmon.conf
+    mode: '0660'
+    group: nut
+  notify:
+    - Restart nut-monitor.service
+
+- name: Enable/disable driver
+  systemd:
+    name: nut-driver.service
+    enabled: '{{ nut_primary }}'
+    state: '{% if nut_primary %}started{% else %}stopped{% endif %}'
+  notify:
+    - Restart nut-driver.service
+
+- name: Enable/disable server
+  systemd:
+    name: nut-server.service
+    enabled: '{{ nut_primary }}'
+    state: '{% if nut_primary %}started{% else %}stopped{% endif %}'
+  notify:
+    - Restart nut-server.service
+
+- name: Enable/disable monitor
+  systemd:
+    name: nut-monitor.service
+    enabled: yes
+    state: started
+  notify:
+    - Restart nut-monitor.service

@@ -1,0 +1,5 @@
+# Managed
+
+{% for address in nut_server_listen_addresses %}
+LISTEN {{ address }} {{ nut_server_listen_port }}
+{% endfor %}
