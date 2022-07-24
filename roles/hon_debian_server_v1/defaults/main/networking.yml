@@ -1,0 +1,20 @@
+# WARNING: Changing network configs (esp. when replacing network managers) typically requires a full system reboot.
+
+# Network manager:
+# - ignore: Don't touch anything.
+# - systemd: Use systemd-networkd.
+linux_server_networking_method: ignore
+# Use a specific MTU (1280 is minimum for IPv6, 1500 is the default, 9000 is jumbo)
+linux_server_networking_mtu: 1500
+# IPv4 addressing method: none, static, dhcp
+linux_server_networking_ipv4_addressing: dhcp
+# IPv6 addressing method: none, static, slaac (uses DHCPv6 if necessary)
+linux_server_networking_ipv6_addressing: slaac
+# Main network interface:
+# linux_server_networking_interface: eth0
+# Static addressing parameters (v4 and/or v6):
+# Note: The gateway defaults to the first address in the subnet (supports v4/31 and v6/127).
+# linux_server_networking_static_ipv4_address: 10.95.12.10/22
+# linux_server_networking_static_ipv4_gateway: 10.95.12.1
+# linux_server_networking_static_ipv6_address: fd87:d8aa:222:10::10/64
+# linux_server_networking_static_ipv6_gateway: fd87:d8aa:222:10::1

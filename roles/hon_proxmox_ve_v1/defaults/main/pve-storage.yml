@@ -1,0 +1,8 @@
+# If storage should be configured
+pve_storage_setup_enable: false
+# (Required) Path to the storage config to copy.
+# pve_storage_config_path: example/storage.cfg
+# (Required) Storage names or dirs to use for different content types.
+# pve_storage_default_iso_vztmpl_name: local
+# pve_storage_default_iso_vztmpl_path: /var/lib/vz
+# pve_storage_default_image_rootdir_name: local-lvm

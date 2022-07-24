@@ -1,0 +1,19 @@
+- name: Check for failed units
+  shell: 'set -o pipefail; systemctl list-units -t service --full --all --plain --no-legend | egrep "^\S+\s+\S+\s+failed\s+" | cut -d" " -f1'
+  register: _result
+  changed_when: false
+  failed_when: '_result.stdout != ""'
+
+- name: Check if AppArmor is operational (Debian)
+  when: 'ansible_facts["os_family"] == "Debian"
+      and not linux_status_ignore_apparmor'
+  command: '/usr/sbin/apparmor_status --enabled'
+  changed_when: false
+
+- name: Check if reboot file present (Debian)
+  when: 'ansible_facts["os_family"] == "Debian"
+      and not linux_status_ignore_reboot_required'
+  stat:
+    path: /var/run/reboot-required
+  register: linux_status_check_reboot_required
+  failed_when: 'linux_status_check_reboot_required.stat.exists'

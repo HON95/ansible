@@ -1,0 +1,35 @@
+# Update VM lists and stuff.
+# Called repeatedly whenever they should be updated.
+
+- name: Get VM name-ID list
+  shell: |
+    set -eu -o pipefail
+    for x in $(ls -1 /etc/pve/qemu-server/); do
+        vm_id="$(echo -n "$x" | egrep -o "[0-9]+")"
+        vm_name="$(cat "/etc/pve/local/qemu-server/$x" | egrep -m1 "^name:" | cut -d" " -f2 | tr -d "\n")"
+        echo "${vm_name:-UNKNOWN}: $vm_id"
+    done
+  register: pve_vms_name_id_list_result
+  changed_when: false
+
+- name: Save VM name-ID list
+  vars:
+    empty_dict: {}
+    result_output: '{{ pve_vms_name_id_list_result.stdout }}'
+    pve_vm_name_id_list_local: '{% if result_output | length > 0 %}{{ result_output | from_yaml }}{% else %}{{ empty_dict }}{% endif %}'
+  set_fact:
+    pve_vm_name_id_list: '{{ pve_vm_name_id_list_local }}'
+    pve_vm_names: '{{ pve_vm_name_id_list_local | list }}'
+    pve_vm_ids: '{{ pve_vm_name_id_list_local.values() | list | sort }}'
+
+- name: Find next available normal VM ID
+  vars:
+    vmid_range: '{{ lookup("sequence", "start={{ pve_vmid_normal_range_start }} end={{ pve_vmid_normal_range_end }}", wantlist=True) | map("int") }}'
+  set_fact:
+    pve_vmid_normal_next: '{{ (vmid_range | difference(pve_vm_ids))[0] }}'
+
+- name: Find next available template VM ID
+  vars:
+    vmid_range: '{{ lookup("sequence", "start={{ pve_vmid_template_range_start }} end={{ pve_vmid_template_range_end }}", wantlist=True) | map("int") }}'
+  set_fact:
+    pve_vmid_template_next: '{{ (vmid_range | difference(pve_vm_ids))[0] }}'

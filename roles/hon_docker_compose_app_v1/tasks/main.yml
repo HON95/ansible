@@ -1,0 +1,95 @@
+- name: Setup server dir
+  file:
+    path: '{{ app.srv_path }}'
+    state: directory
+    mode: '700'
+
+- name: Add docker-compose.yml (copy)
+  when: 'not app.dc_file.template | default(false)'
+  copy:
+    src: '{{ app.dc_file.path }}'
+    dest: '{{ app.srv_path }}/docker-compose.yml'
+    mode: '0644'
+  notify: Restart app
+
+- name: Add docker-compose.yml (template)
+  when: 'app.dc_file.template | default(false)'
+  template:
+    src: '{{ app.dc_file.path }}'
+    dest: '{{ app.srv_path }}/docker-compose.yml'
+    mode: '0644'
+  notify: Restart app
+
+- name: Add dirs (new)
+  loop: '{{ app.dirs | default([]) }}'
+  file:
+    path: '{{ app.srv_path }}/{{ item.path }}'
+    state: directory
+    owner: '{{ item.owner | default("root") }}'
+    group: '{{ item.group | default("root") }}'
+    mode: '{{ item.mode | default("0755") }}'
+  notify: Restart app
+
+- name: Create directories for files
+  loop: '{{ app.files | default([]) }}'
+  file:
+    path: '{{ app.srv_path }}/{{ item.path | dirname }}'
+    state: directory
+    mode: '0755'
+
+- name: Add files (new)
+  loop: '{{ app.files | default([]) }}'
+  when: 'item.type == "touch"'
+  copy:
+    dest: '{{ app.srv_path }}/{{ item.path }}'
+    content: ''
+    force: false
+    owner: '{{ item.owner | default("root") }}'
+    group: '{{ item.group | default("root") }}'
+    mode: '{{ item.mode | default("0644") }}'
+  notify: Restart app
+
+- name: Add files (copy)
+  loop: '{{ app.files | default([]) }}'
+  when: 'item.type == "copy"'
+  copy:
+    dest: '{{ app.srv_path }}/{{ item.path }}'
+    src: '{{ item.src | default(omit) }}'
+    content: '{{ item.content | default(omit) }}'
+    owner: '{{ item.owner | default("root") }}'
+    group: '{{ item.group | default("root") }}'
+    mode: '{{ item.mode | default("0644") }}'
+    backup: '{{ item.backup | default(omit) }}'
+  notify: Restart app
+
+# Synchronize file or dir to remote (requires rsync)
+# Prompts for SSH key password for every file if using passworded key.
+# Doesn't work if using sudo with password (i.e. --ask-become-pass).
+# TODO Replace this with something better
+- name: Add files (synchronize)
+  loop: '{{ app.files | default([]) }}'
+  when: 'item.type == "synchronize"'
+  synchronize:
+    dest: '{{ app.srv_path }}/{{ item.path }}'
+    src: '{{ item.src | default(omit) }}'
+    mode: push
+    owner: false
+    group: false
+    perms: false
+  notify: Restart app
+
+- name: Add files (template)
+  loop: '{{ app.files | default([]) }}'
+  when: 'item.type == "template"'
+  template:
+    dest: '{{ app.srv_path }}/{{ item.path }}'
+    src: '{{ item.src | default(omit) }}'
+    owner: '{{ item.owner | default("root") }}'
+    group: '{{ item.group | default("root") }}'
+    mode: '{{ item.mode | default("0644") }}'
+    backup: '{{ item.backup | default(omit) }}'
+  notify: Restart app
+
+- name: Start app
+  community.docker.docker_compose:
+    project_src: '{{ app.srv_path }}'

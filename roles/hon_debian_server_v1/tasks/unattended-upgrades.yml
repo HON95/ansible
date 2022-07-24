@@ -1,0 +1,45 @@
+# Setup APT unattended upgrades
+
+- name: Install unattended upgrades
+  apt:
+    name:
+      - unattended-upgrades
+
+- name: Enable unattended upgrades service
+  systemd:
+    name: unattended-upgrades.service
+    enabled: true
+    state: started
+
+- name: Enable APT periodic
+  lineinfile:
+    path: /etc/apt/apt.conf.d/20auto-upgrades
+    regexp: '^APT::Periodic::Enable '
+    line: 'APT::Periodic::Enable "1";'
+    mode: '0644'
+  notify: Restart unattended-upgrades.service
+
+- name: Enable unattended package updates
+  lineinfile:
+    path: /etc/apt/apt.conf.d/20auto-upgrades
+    regexp: '^APT::Periodic::Update-Package-Lists '
+    line: 'APT::Periodic::Update-Package-Lists "1";'
+    mode: '0644'
+  notify: Restart unattended-upgrades.service
+
+- name: Enable unattended package security upgrades
+  lineinfile:
+    path: /etc/apt/apt.conf.d/20auto-upgrades
+    regexp: '^APT::Periodic::Unattended-Upgrade '
+    line: 'APT::Periodic::Unattended-Upgrade "1";'
+    mode: '0644'
+  notify: Restart unattended-upgrades.service
+
+- name: Enable unattended package auto-cleaning
+  lineinfile:
+    path: /etc/apt/apt.conf.d/20auto-upgrades
+    regexp: '^APT::Periodic::AutocleanInterval '
+    # Days
+    line: 'APT::Periodic::AutocleanInterval "7";'
+    mode: '0644'
+  notify: Restart unattended-upgrades.service

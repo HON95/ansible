@@ -1,7 +1,0 @@
-- name: Restart docker.service
-  service:
-    name: docker.service
-    state: restarted
-
-- name: Update GRUB
-  command: update-grub

@@ -1,0 +1,82 @@
+- name: Gather package facts
+  package_facts:
+    manager: apt
+
+- name: Install APT prerequisites
+  apt:
+    name:
+      - ca-certificates
+      - gnupg
+      - lsb-release
+      - curl
+
+- name: Install (block)
+  when: '"nvidia-container-runtime" not in ansible_facts.packages'
+  block:
+    - name: Get the distribution for NCT
+      shell: '. /etc/os-release; echo $ID$VERSION_ID'
+      changed_when: false
+      register: nvidia_container_runtime_distribution_result
+
+    - name: Add NCT GPG keyring
+      shell: 'set -o pipefail; curl -sSf https://nvidia.github.io/nvidia-container-runtime/gpgkey | gpg --dearmor > {{ nvidia_container_runtime_repo_keyring_path }}'
+      args:
+        warn: false
+      changed_when: true
+
+    - name: Add NCT APT repo
+      vars:
+        distribution: '{{ nvidia_container_runtime_distribution | default(nvidia_container_runtime_distribution_result.stdout_lines[0]) }}'
+      get_url:
+        url: 'https://nvidia.github.io/nvidia-container-runtime/{{ distribution }}/nvidia-container-runtime.list'
+        dest: '{{ nvidia_container_runtime_repo_path }}'
+        mode: '0644'
+
+    - name: Add keyring to repo file
+      replace:
+        path: '{{ nvidia_container_runtime_repo_path }}'
+        regexp: '^(.*)(deb|deb-src) +(http.*)$'
+        replace: '\1\2 [signed-by={{ nvidia_container_runtime_repo_keyring_path }}] \3'
+
+    - name: Update cache
+      apt:
+        update_cache: true
+
+- name: Install NCT
+  apt:
+    name:
+      - nvidia-container-runtime
+
+- name: Remove the older nvidia-docker2, if found
+  apt:
+    state: absent
+    name:
+      - nvidia-docker2
+  notify: Restart docker.service
+
+# Bugfix, see https://github.com/NVIDIA/nvidia-docker/issues/1399
+- name: Fix the ldconfig bug (Debian)
+  when: 'ansible_distribution == "Debian"'
+  community.general.ini_file:
+    path: /etc/nvidia-container-runtime/config.toml
+    section: nvidia-container-cli
+    option: ldconfig
+    value: '"/sbin/ldconfig"'
+    mode: '0644'
+
+# Bugfix
+- name: Add missing OCI hook (Debian) (1)
+  when: 'ansible_distribution == "Debian"'
+  file:
+    path: '{{ nvidia_container_runtime_oci_hook_dir }}'
+    state: directory
+    recurse: true
+    mode: '0755'
+
+# Bugfix
+- name: Add missing OCI hook (Debian) (2)
+  when: 'ansible_distribution == "Debian"'
+  copy:
+    src: 'oci-nvidia-hook.json'
+    dest: '{{ nvidia_container_runtime_oci_hook_dir }}/oci-nvidia-hook.json'
+    mode: '0644'

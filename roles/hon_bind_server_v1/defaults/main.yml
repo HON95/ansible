@@ -1,0 +1,95 @@
+timezone: "Europe/Oslo"
+locale: "en_US.UTF-8"
+
+# Primary or secondary server
+# May be specified as a task var to reuse the same config file for both primary and secondary.
+# "secondary" variables may generally be omitted if no secondary server is used.
+bind_primary: true
+
+# (At least one required, ish) If the server is authoritative and/or recursive server (preferably exactly one)
+bind_authoritative: false
+bind_recursive: false
+
+# (Required) Directory to put server in
+# bind_srv_path_primary: /srv/bind-recursive-primary
+# bind_srv_path_secondary: /srv/bind-recursive-secondary
+
+# (Required) Site-facing network interface (must already exist)
+# bind_external_network:
+#   name: private-apps-general
+#   ipv4_address_primary: 10.95.12.11
+#   ipv6_address_primary: fd87:d8aa:222:10::11
+#   ipv4_address_secondary: 10.95.12.12
+#   ipv6_address_secondary: fd87:d8aa:222:10::12
+
+# (Optional-ish) Internal network for communication between containers (automatically created)
+# bind_internal_network:
+#   ipv4_subnet_primary: 172.31.0.0/24
+#   ipv6_subnet_primary: fd97:af91:2abd:4169::/64
+#   ipv4_subnet_secondary: 172.31.1.0/24
+#   ipv6_subnet_secondary: fd97:af91:2abd:4170::/64
+
+# Cache settings for recursive servers
+# Max cache size ("m" for MB)
+bind_cache_max_size: 50m
+# Limit record TTL
+bind_cache_max_ttl: 300
+# Limit negative response TTL
+bind_cache_max_nttl: 300
+
+# DNS-over-HTTPS for privacy through a Cloudflare DoH proxy (uses internal network only")
+bind_cloudflare_doh_enable: false
+
+# Automatically generate DNSSEC keys and sign zones (for authoritative servers)
+# Requires that you extract the generated DS record and add it to the parent zone.
+bind_dnssec_signing_default: false
+
+# Log queries
+bind_log_query_enable: false
+
+# Use Prometheus exporter (requires both external and internal network)
+bind_prometheus_exporter_enable: false
+# Static addresses to use for external network
+# bind_prometheus_exporter_external_network:
+#   ipv4_address_primary: 10.95.12.13
+#   ipv6_address_primary: fd87:d8aa:222:10::13
+#   ipv4_address_secondary: 10.95.12.14
+#   ipv6_address_secondary: fd87:d8aa:222:10::14
+
+# Local configs included in named.conf
+bind_local_configs: []
+# bind_local_configs:
+#   - filename: zones.conf
+#     src: srv1/bind-recursive/zones.conf
+#     primary: true
+#     secondary: true
+
+# Zone files to include in primary (not automatically referenced/included in config)
+bind_zone_files: []
+# bind_zone_files:
+#   - filename: abc.db
+#     src: srv1/bind-authoritative/abc.db
+
+# (Required for authoritative) Config to build local zone
+# infra_names:
+#   zone: home.hon.systems.
+#   hostmaster: hostmaster.hon.one.
+#   ns1_name: ns1
+#   ns2_name: ns2
+#   ttl: 3600
+#   networks:
+#     - family: IPv4
+#       prefix: 10.95.0.0/16
+#       zone: 95.10.in-addr.arpa.
+#     - family: IPv6
+#       prefix: fd87:d8aa:222::/48
+#       zone: 2.2.2.0.a.a.8.d.7.8.d.f.ip6.arpa.
+#   # ALWAYS INCREMENT ON CHANGES!
+#   serial: 1
+#   names:
+#     - name: warp
+#       a: 10.95.12.101
+#       aaaa: fd87:d8aa:222:10::101
+#       add_reverse: true
+#     - name: prometheus
+#       cname_short: warp

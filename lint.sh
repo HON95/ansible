@@ -6,5 +6,6 @@ set -eu -o pipefail
 
 the_dir="$(dirname $0)"
 
-# Lint roles
 ansible-lint "$the_dir/roles/"*
+
+echo "OK!"

@@ -1,0 +1,187 @@
+# Check if currently installed, if up-to-date and remove if not
+
+- name: Get service facts
+  service_facts: {}
+
+- name: Check if it's currently installed
+  stat:
+    path: '{{ traefik_binary_path }}'
+  register: traefik_check_exists
+
+- name: Check current version, remove if wrong version
+  when: 'traefik_check_exists.stat.exists'
+  block:
+    - name: Check the current version
+      shell: "set -o pipefail; {{ traefik_binary_path }} version 2>&1 | grep -Po1 '(?<=Version:)\\s*[^ ]+' | awk '{$1=$1};1'"
+      register: traefik_check_version
+      failed_when: 'traefik_check_version.stdout == ""'
+      changed_when: false
+
+    - name: Remove if wrong version
+      when: 'traefik_check_version.stdout != traefik_version'
+      block:
+        - name: Stop existing service (remove outdated version)
+          when: 'traefik_service in ansible.services'
+          systemd:
+            name: '{{ traefik_service }}'
+            state: stopped
+            enabled: false
+
+        - name: Remove existing binary (remove outdated version)
+          file:
+            path: '{{ traefik_binary_path }}'
+            state: absent
+
+# Install (fresh or update)
+
+- name: Check if it's currently installed (again)
+  stat:
+    path: '{{ traefik_binary_path }}'
+  register: traefik_check_exists
+
+- name: Download binary
+  when: 'not traefik_check_exists.stat.exists'
+  block:
+    - name: Create temporary download directory
+      tempfile:
+        state: directory
+        suffix: build
+      register: traefik_create_tmpdir
+
+    - name: Download
+      unarchive:
+        src: '{{ traefik_download_url }}'
+        remote_src: true
+        dest: '{{ traefik_create_tmpdir.path }}'
+
+    - name: Find path of downloaded binary
+      command: 'ls -1 {{ traefik_create_tmpdir.path }}/traefik'
+      changed_when: false
+      register: traefik_find_downloaded_binary_path
+
+    - name: Move binary to final destination
+      copy:
+        src: '{{ traefik_find_downloaded_binary_path.stdout }}'
+        remote_src: true
+        dest: '{{ traefik_binary_path }}'
+        owner: root
+        group: root
+        mode: '0755'
+
+  always:
+    - name: Delete temporary download directory
+      when: 'traefik_create_tmpdir is defined'
+      file:
+        path: "{{ traefik_create_tmpdir.path }}"
+        state: absent
+
+- name: Grant port bind capability
+  community.general.capabilities:
+    path: '{{ traefik_binary_path }}'
+    capability: cap_net_bind_service=eip
+  changed_when: false
+
+- name: Add system user
+  user:
+    name: traefik
+    system: true
+    create_home: false
+    home: /nonexistent
+    shell: /usr/sbin/nologin
+
+- name: Add service file
+  template:
+    src: '{{ traefik_service }}.j2'
+    dest: '/etc/systemd/system/{{ traefik_service }}'
+    mode: '0644'
+  register: traefik_add_service_file
+
+- name: Add service config file
+  template:
+    src: 'service-config.j2'
+    dest: '{{ traefik_env_path }}'
+    mode: '0644'
+  notify: Restart traefik.service
+
+- name: Create log dir
+  file:
+    path: '{{ traefik_log_dir }}'
+    state: directory
+    owner: traefik
+    group: adm
+    mode: '0700'
+
+- name: Enable service
+  systemd:
+    name: '{{ traefik_service }}'
+    enabled: true
+    daemon_reload: '{{ traefik_add_service_file.changed }}'
+  notify: Restart traefik.service
+
+# Add configs
+
+- name: Create config dir
+  file:
+    path: '{{ traefik_config_path | dirname }}'
+    state: directory
+    mode: '0755'
+
+- name: Add main config file
+  template:
+    src: 'config.yml.j2'
+    dest: '{{ traefik_config_path }}'
+    mode: '0644'
+  notify: Restart traefik.service
+
+- name: Create ACME file
+  copy:
+    dest: '{{ traefik_acme_path }}'
+    owner: traefik
+    mode: '0600'
+    content: ''
+    force: false
+
+- name: Create provider config dir
+  file:
+    path: '{{ traefik_provider_config_dir }}'
+    state: directory
+    mode: '0755'
+
+- name: Find existing file provider configs
+  command: 'ls -1 {{ traefik_provider_config_dir }}'
+  changed_when: false
+  register: traefik_find_file_provider_configs
+
+- name: Add extra file provider configs (copy)
+  loop: '{{ traefik_provider_configs_all }}'
+  when: 'item.type == "copy"'
+  copy:
+    src: '{{ item.src }}'
+    dest: '{{ traefik_provider_config_dir }}/{{ item.dst }}'
+    mode: '0644'
+  notify: Restart traefik.service
+
+- name: Add extra file provider configs (template)
+  loop: '{{ traefik_provider_configs_all }}'
+  when: 'item.type == "template"'
+  template:
+    src: '{{ item.src }}'
+    dest: '{{ traefik_provider_config_dir }}/{{ item.dst }}'
+    mode: '0644'
+  notify: Restart traefik.service
+
+- name: Remove old file provider configs
+  loop: '{{ traefik_find_file_provider_configs.stdout_lines }}'
+  when: 'item not in traefik_provider_configs_dst_files'
+  file:
+    path: '{{ traefik_provider_config_dir }}/{{ item }}'
+    state: absent
+  notify: Restart traefik.service
+
+# Setup log rotation
+
+- name: Setup logrotate config
+  template:
+    src: logrotate.conf
+    dest: '{{ traefik_logrotate_config_path }}'
+    mode: '0644'

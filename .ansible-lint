@@ -1,0 +1,6 @@
+skip_list:
+  - fqcn-builtins
+  - no-handler
+  - unnamed-task
+  - ignore-errors
+  - yaml[line-length]

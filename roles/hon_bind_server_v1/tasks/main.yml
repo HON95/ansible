@@ -1,0 +1,91 @@
+- name: Setup server dirs
+  file:
+    path: '{{ bind_srv_path }}'
+    state: directory
+    mode: '0700'
+
+- name: Add Docker Compose file
+  template:
+    src: 'docker-compose.yml.j2'
+    dest: '{{ bind_srv_path }}/docker-compose.yml'
+    mode: '0644'
+  notify: Restart BIND
+
+- name: Create mountable dirs
+  vars:
+    dirs:
+      - etc
+      - etc/local
+      - zones
+      - data
+      - cache
+      - log
+  loop: "{{ dirs }}"
+  file:
+    path: '{{ bind_srv_path }}/{{ item }}'
+    state: directory
+    mode: '0777'
+  notify: Restart BIND
+
+- name: Add standard BIND configs
+  vars:
+    configs:
+      - named.conf
+      - default-zones.conf
+  loop: "{{ configs }}"
+  template:
+    src: '{{ item }}.j2'
+    dest: '{{ bind_srv_path }}/etc/{{ item }}'
+    mode: '0644'
+  notify: Restart BIND
+
+- name: Add local BIND configs
+  loop: "{{ bind_local_configs }}"
+  when: 'bind_primary and item.primary | default(true) or not bind_primary and item.secondary | default(true)'
+  copy:
+    src: '{{ item.src }}'
+    dest: '{{ bind_srv_path }}/etc/local/{{ item.filename }}'
+    mode: '0644'
+  notify: Restart BIND
+
+- name: Add BIND config for main zones (authoritative primary)
+  when: 'bind_authoritative and bind_primary'
+  template:
+    src: 'main-zones-primary.conf.j2'
+    dest: '{{ bind_srv_path }}/etc/main-zones.conf'
+    mode: '0644'
+  notify: Restart BIND
+
+- name: Add BIND config for main zones (authoritative secondary)
+  when: 'bind_authoritative and not bind_primary'
+  template:
+    src: 'main-zones-secondary.conf.j2'
+    dest: '{{ bind_srv_path }}/etc/main-zones.conf'
+    mode: '0644'
+  notify: Restart BIND
+
+- name: Add main normal BIND zone (authoritative primary)
+  when: 'bind_authoritative and bind_primary'
+  template:
+    src: 'normal.db.j2'
+    dest: '{{ bind_srv_path }}/zones/{{ infra_names.zone }}db'
+    mode: '0644'
+  notify: Restart BIND
+
+- name: Add BIND main reverse zones (authoritative primary)
+  when: 'bind_authoritative and bind_primary'
+  loop: '{{ infra_names.networks }}'
+  template:
+    src: 'reverse.db.j2'
+    dest: '{{ bind_srv_path }}/zones/{{ item.zone }}db'
+    mode: '0644'
+  notify: Restart BIND
+
+- name: Add extra BIND zones (primary)
+  loop: '{{ bind_zone_files }}'
+  when: 'bind_primary'
+  template:
+    src: '{{ item.src }}'
+    dest: '{{ bind_srv_path }}/zones/{{ item.filename }}'
+    mode: '0644'
+  notify: Restart BIND

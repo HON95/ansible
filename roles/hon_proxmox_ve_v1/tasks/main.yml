@@ -1,0 +1,76 @@
+- name: Check if supported OS
+  when: 'not (
+    (ansible_distribution == "Debian" and ansible_distribution_version == "10")
+    or (ansible_distribution == "Debian" and ansible_distribution_version == "11")
+    )'
+  fail:
+    msg: 'Unsupported OS: {{ ansible_distribution }} {{ ansible_distribution_version }}'
+
+- name: Get service facts
+  service_facts: {}
+
+- import_tasks: pve-packages.yml
+- meta: flush_handlers
+
+- import_tasks: unattended-upgrades.yml
+- meta: flush_handlers
+
+- import_tasks: dns.yml
+- meta: flush_handlers
+
+- import_tasks: ntp.yml
+- meta: flush_handlers
+
+- import_tasks: pve-users.yml
+- meta: flush_handlers
+
+- import_tasks: pve-auth.yml
+  when: 'pve_auth_setup_enable'
+- meta: flush_handlers
+
+- import_tasks: sudo.yml
+- meta: flush_handlers
+
+- import_tasks: ssh.yml
+- meta: flush_handlers
+
+- import_tasks: fail2ban.yml
+  when: 'linux_server_fail2ban_enable'
+- meta: flush_handlers
+
+- import_tasks: pve-firewall.yml
+  when: 'pve_firewall_setup_enable'
+- meta: flush_handlers
+
+- import_tasks: pve-storage.yml
+  when: 'pve_storage_setup_enable'
+- meta: flush_handlers
+
+- import_tasks: logging.yml
+- meta: flush_handlers
+
+- import_tasks: l10n.yml
+- meta: flush_handlers
+
+- import_tasks: pve-banner.yml
+- meta: flush_handlers
+
+- import_tasks: banner.yml
+- meta: flush_handlers
+
+- import_tasks: vim.yml
+  when: 'linux_server_vim_setup_enable'
+- meta: flush_handlers
+
+- import_tasks: pve-traefik.yml
+  when: 'pve_traefik_provider_setup_enable'
+- meta: flush_handlers
+
+- import_tasks: pve-vm-ct-resources.yml
+- meta: flush_handlers
+
+- import_tasks: pve-vms.yml
+- meta: flush_handlers
+
+- import_tasks: misc.yml
+- meta: flush_handlers

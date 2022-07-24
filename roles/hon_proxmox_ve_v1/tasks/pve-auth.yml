@@ -1,0 +1,20 @@
+# Setup PVE groups, users and permissions
+
+- name: Setup PVE groups, users, tokens and permissions
+  template:
+    src: 'pve/user.cfg.j2'
+    dest: '/etc/pve/user.cfg'
+    mode: '0640'
+
+- name: Check if an Ansible token was provided
+  when: 'not pve_user_token_ansible_id in pve_user_tokens'
+  fail:
+    msg: 'No PVE API token was provided for ansible ("{{ pve_user_token_ansible_id }}")'
+
+- name: Setup PVE token secrets
+  no_log: true
+  template:
+    src: 'pve/token.cfg.j2'
+    dest: '/etc/pve/priv/token.cfg'
+    owner: root
+    mode: '0600'

@@ -1,0 +1,67 @@
+- name: Install dependencies from APT
+  apt:
+    name: [gnupg2]
+
+- name: Verify file with GPG pubkey and signature (block)
+  block:
+    - name: Create temporary publisher key file
+      tempfile:
+        state: file
+      register: gpg_create_pubkey_tmpfile
+
+    - name: Create temporary signature file
+      tempfile:
+        state: file
+      register: gpg_create_signature_tmpfile
+
+    - name: Create temporary keyring file
+      tempfile:
+        state: file
+      register: gpg_create_keyring_tmpfile
+
+    - name: Download publisher pubkey
+      get_url:
+        url: '{{ pubkey_url }}'
+        dest: '{{ gpg_create_pubkey_tmpfile.path }}'
+        force: true
+        mode: '0644'
+
+    - name: Download archive signature
+      get_url:
+        url: '{{ signature_url }}'
+        dest: '{{ gpg_create_signature_tmpfile.path }}'
+        force: true
+        mode: '0644'
+
+    - name: Create keyring from publisher key
+      command: 'gpg --no-default-keyring --keyring {{ gpg_create_keyring_tmpfile.path }} --import {{ gpg_create_pubkey_tmpfile.path }}'
+      changed_when: true
+
+    - name: Verify archive using signature
+      command: 'gpg --no-default-keyring --keyring {{ gpg_create_keyring_tmpfile.path }} --verify {{ gpg_create_signature_tmpfile.path }} {{ file_path }}'
+      changed_when: false
+
+  always:
+    - name: Delete temporary publisher pubkey file
+      when: 'gpg_create_pubkey_tmpfile is defined'
+      file:
+        path: '{{ gpg_create_pubkey_tmpfile.path }}'
+        state: absent
+
+    - name: Delete temporary signature file
+      when: 'gpg_create_signature_tmpfile is defined'
+      file:
+        path: '{{ gpg_create_signature_tmpfile.path }}'
+        state: absent
+
+    - name: Delete temporary keyring file
+      when: 'gpg_create_keyring_tmpfile is defined'
+      file:
+        path: '{{ gpg_create_keyring_tmpfile.path }}'
+        state: absent
+
+    - name: Delete temporary keyring backup file
+      when: 'gpg_create_keyring_tmpfile is defined'
+      file:
+        path: '{{ gpg_create_keyring_tmpfile.path }}~'
+        state: absent

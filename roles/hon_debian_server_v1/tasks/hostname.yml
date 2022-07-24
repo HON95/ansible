@@ -1,0 +1,19 @@
+# Setup hostname
+
+- name: Check if the short hostname is correct
+  shell: 'set -o pipefail; hostname | egrep "^{{ inventory_hostname_short }}$"'
+  register: short_hostname_result
+  changed_when: false
+  failed_when: false
+  ignore_errors: true
+
+- name: Update hostname
+  when: 'short_hostname_result.rc != 0'
+  command: 'hostnamectl set-hostname {{ inventory_hostname_short }}'
+  changed_when: true
+
+- name: Update /etc/hosts
+  template:
+    src: 'hostname/hosts.j2'
+    dest: '/etc/hosts'
+    mode: '0644'

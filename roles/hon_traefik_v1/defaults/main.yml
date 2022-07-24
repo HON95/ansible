@@ -1,0 +1,22 @@
+# You may want to override this to pin it.
+traefik_version: '2.6.3'
+# Extra args to pass to the binary.
+traefik_args: []
+# Email address to use for ACME (required).
+# traefik_acme_webmaster: example@example.net
+# If we should use the staging server while testing to avoid getting rate limited by the production server.
+traefik_use_staging_server: false
+# If the Docker provider should be enabled.
+traefik_provider_docker_enable: false
+
+# Extra file provider config templates to add.
+# The dst path should only include the filename itself, not path prefix.
+# The src path is required if the type is template or copy.
+# The keep type is for when the file is managed externally, so we don't remove it.
+traefik_provider_configs_extra: []
+# traefik_provider_configs_extra:
+#   - type: keep
+#     dst: pve.yml
+#   - type: template
+#     src: ../pve_servers/traefik/yolo.yml
+#     dst: yolo.yml

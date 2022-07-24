@@ -1,0 +1,104 @@
+# Setup DNS (resolv.conf or systemd-resolved)
+
+- name: Check resolv.conf status
+  when: 'linux_server_dns_method != "ignore"'
+  stat:
+    path: '/etc/resolv.conf'
+  register: resolv_conf_stat
+
+# Basic method
+
+- name: Remove resolv.conf if not regular file (basic)
+  when: 'linux_server_dns_method == "basic" and resolv_conf_stat.stat.exists and not resolv_conf_stat.stat.isreg'
+  file:
+    path: '/etc/resolv.conf'
+    state: absent
+
+- name: Manually setup resolv.conf (basic)
+  when: 'linux_server_dns_method == "basic"'
+  template:
+    src: 'dns/resolv.conf.j2'
+    dest: '/etc/resolv.conf'
+    mode: '0644'
+    backup: true
+  register: update_resolv_conf
+
+- name: Disable systemd-resolved (basic)
+  when: 'linux_server_dns_method == "basic"'
+  service:
+    name: systemd-resolved.service
+    enabled: false
+    state: stopped
+
+# systemd method
+
+- name: Set DNS servers (systemd)
+  when: 'linux_server_dns_method == "systemd"'
+  lineinfile:
+    path: /etc/systemd/resolved.conf
+    regexp: '^#?DNS='
+    line: 'DNS={% for server in linux_server_dns_servers_ipv4 + linux_server_dns_servers_ipv6 %}{% if loop.index >= 2 %} {% endif %}{{ server }}{% endfor %}'
+    mode: '0644'
+  notify: Restart systemd-resolved.service
+
+- name: Set the domain (systemd)
+  when: 'linux_server_dns_method == "systemd"'
+  lineinfile:
+    path: /etc/systemd/resolved.conf
+    regexp: '^#?Domains='
+    line: 'Domains={{ domain }}'
+    mode: '0644'
+  notify: Restart systemd-resolved.service
+
+- name: Enable stub listener (systemd)
+  when: 'linux_server_dns_method == "systemd" and linux_server_dns_systemd_stublistener'
+  lineinfile:
+    path: /etc/systemd/resolved.conf
+    regexp: '^#?DNSStubListener='
+    line: 'DNSStubListener=yes'
+    mode: '0644'
+  notify: Restart systemd-resolved.service
+
+- name: Disable stub listener (systemd)
+  when: 'linux_server_dns_method == "systemd" and not linux_server_dns_systemd_stublistener'
+  lineinfile:
+    path: /etc/systemd/resolved.conf
+    regexp: '^#?DNSStubListener='
+    line: 'DNSStubListener=no'
+    mode: '0644'
+  notify: Restart systemd-resolved.service
+
+- name: Enable DNSSEC (systemd)
+  when: 'linux_server_dns_method == "systemd" and linux_server_dns_systemd_dnssec'
+  lineinfile:
+    path: /etc/systemd/resolved.conf
+    regexp: '^#?DNSSEC='
+    line: 'DNSSEC=yes'
+    mode: '0644'
+  notify: Restart systemd-resolved.service
+
+- name: Disable DNSSEC (systemd)
+  when: 'linux_server_dns_method == "systemd" and not linux_server_dns_systemd_dnssec'
+  lineinfile:
+    path: /etc/systemd/resolved.conf
+    regexp: '^#?DNSSEC='
+    line: 'DNSSEC=no'
+    mode: '0644'
+  notify: Restart systemd-resolved.service
+
+- name: Point resolv.conf to systemd (systemd)
+  when: 'linux_server_dns_method == "systemd"'
+  file:
+    path: '/etc/resolv.conf'
+    src: '/run/systemd/resolve/stub-resolv.conf'
+    state: link
+    follow: false
+    force: true
+    mode: '0644'
+
+- name: Enable systemd-resolved (systemd)
+  when: 'linux_server_dns_method == "systemd"'
+  service:
+    name: systemd-resolved.service
+    enabled: true
+    state: started

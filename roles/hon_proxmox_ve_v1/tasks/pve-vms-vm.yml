@@ -1,0 +1,169 @@
+# Setup a VM.
+
+# TODO
+# New options: cloud_init_enable
+# Removed options: type
+# If template_name is set, clone from template.
+# ide2 used by both CI and CDROM, skip CDROM if CI enabled. During creation only.
+
+- name: 'Setup VM'
+  debug:
+    msg: '{{ vm.name }} ({{ vm_id }})'
+
+- name: Create new VM
+  when: 'vm_new and not vm_clone'
+  vars:
+    scsi0: "{{ vm.disk_storage | default(pve_vm_default_disk_storage) }}:{{ vm.disk_size_gb | default(pve_vm_default_disk_size_gb) }},cache=writeback"
+  command: 'qm create "{{ vm_id }}" --name="{{ vm.name }}" --scsi0="{{ scsi0 }}"'
+  changed_when: true
+
+- name: Clone VM from a template
+  when: 'vm_new and vm_clone'
+  vars:
+    template_id: '{{ pve_vm_name_id_list[vm.template_name] }}'
+    storage: '{{ vm.disk_storage | default(pve_vm_default_disk_storage) }}'
+  command: 'qm clone "{{ template_id }}" "{{ vm_id }}" --name "{{ vm.name }}" --storage "{{ storage }}" --full'
+  changed_when: true
+
+- name: Update current VM config variable
+  include_tasks: pve-update-current-vm-config.yml
+
+- name: Resize VM disk
+  when: 'vm_new and vm_clone and vm.disk_resize | default(pve_vm_default_disk_resize)'
+  command: 'qm resize "{{ vm_id }}" scsi0 "{{ vm.disk_size_gb | default(pve_vm_default_disk_size_gb) }}G"'
+  changed_when: true
+
+- name: Update VM config (non-Cloud-Init) (new)
+  when: 'vm_new and not vm_cloud_init_enable'
+  vars:
+    cdrom_string: '{% if vm.cdrom_file is defined %}{{ pve_storage_default_iso_vztmpl_name }}:iso/{{ vm.cdrom_file }}{% else %}none{% endif %},media=cdrom'
+    qm_params:
+      ide2: "{{ cdrom_string }}"
+  loop: '{{ qm_params | list }}'
+  command: 'qm set "{{ vm_id }}" --{{ item }} "{{ qm_params[item] }}"'
+  changed_when: true
+
+- name: Update VM config (Cloud-Init) (new)
+  when: 'vm_new and vm_cloud_init_enable'
+  vars:
+    ipconfig_ip: '{{ vm.network_ipv4_address | default("192.0.2.2/24") | ansible.utils.ipaddr("host") }}'
+    ipconfig_gw: '{{ vm.network_ipv4_gateway | default("192.0.2.1") | ansible.utils.ipaddr("address") }}'
+    ipconfig_ip6: '{{ vm.network_ipv6_address | default("2001:db8::2/64 ") | ansible.utils.ipaddr("host") }}'
+    ipconfig_gw6: '{{ vm.network_ipv6_gateway | default("2001:db8::1 ") | ansible.utils.ipaddr("address") }}'
+    ipconfig_string: 'ip={{ ipconfig_ip }},gw={{ ipconfig_gw }},ip6={{ ipconfig_ip6 }},gw6={{ ipconfig_gw6 }}'
+    qm_params:
+      ipconfig0: "{{ ipconfig_string }}"
+      nameserver: "{{ vm.dns_servers | default(pve_vm_default_dns_servers) | join(' ') }}"
+      searchdomain: "{{ vm.domain | default(pve_vm_default_domain) }}"
+      ciuser: "{{ vm.ci_user | default(pve_vm_default_ci_user) }}"
+  loop: '{{ qm_params | list }}'
+  command: 'qm set "{{ vm_id }}" --{{ item }} "{{ qm_params[item] }}"'
+  changed_when: true
+
+- name: Update VM config (general) (new)
+  when: 'vm_new'
+  vars:
+    qm_params:
+      scsihw: "virtio-scsi-pci"
+      boot: "order=scsi0;ide2"
+  loop: '{{ qm_params | list }}'
+  command: 'qm set "{{ vm_id }}" --{{ item }} "{{ qm_params[item] }}"'
+  changed_when: true
+
+- name: Update VM SSH pubkeys (Cloud-Init) (new)
+  when: 'vm_new and vm_cloud_init_enable'
+  block:
+
+    - name: Create temporary file
+      tempfile: {}
+      register: pve_vms_create_tmpfile
+
+    - name: Add SSH pubkey to file
+      copy:
+        content: '{{ vm.ci_ssh_pubkeys | default(pve_vm_default_ci_ssh_pubkeys) }}'
+        dest: '{{ pve_vms_create_tmpfile.path }}'
+        mode: '0644'
+
+    - name: Add SSH pubkeys to VM
+      command: 'qm set "{{ vm_id }}" --sshkeys "{{ pve_vms_create_tmpfile.path }}"'
+      changed_when: true
+
+  always:
+
+    - name: Delete temporary file
+      when: 'pve_vms_create_tmpfile is defined'
+      file:
+        path: "{{ pve_vms_create_tmpfile.path }}"
+        state: absent
+
+- name: Update the VM config
+  vars:
+    qm_params:
+      description: "{{ vm.description | default('') }}"
+      ostype: "l26"
+      cpu: "cputype={{ vm.cpu_type | default(pve_vm_default_cpu_type) }}"
+      sockets: "{{ vm.cpu_sockets | default(pve_vm_default_cpu_sockets) | int }}"
+      cores: "{{ vm.cpu_cores | default(pve_vm_default_cpu_cores) | int }}"
+      numa: "1"
+      memory: "{{ vm.memory_mb | default(pve_vm_default_memory_mb) | int }}"
+      serial0: "socket"
+      vga: "{{ vm.display | default(pve_vm_default_display) }}"
+      protection: "{{ vm.protection | default(pve_vm_default_protection) | int }}"
+      onboot: "{{ vm.autostart | default(pve_vm_default_autostart) | int }}"
+      agent: "enabled={{ vm.qemu_agent | default(pve_vm_default_qemu_agent) | int }}"
+      startup: "order={{ vm.startup_order | default(pve_vm_default_startup_order) | int }}"
+  loop: '{{ qm_params | list }}'
+  when: 'pve_vms_current_vm_config[item] | default("") | string != qm_params[item] | string'
+  command: 'qm set "{{ vm_id }}" --{{ item }} "{{ qm_params[item] }}"'
+  changed_when: true
+
+# Get directly since pve_vms_current_vm_config is outdated
+- name: Get VM network config
+  when: 'vm_network_enable'
+  shell: 'set -o pipefail; qm config {{ vm_id }} | grep -Po "(?<=^net0: ).+"'
+  register: pve_vm_net_config_result
+  changed_when: false
+
+- name: Get VM MAC address
+  when: 'vm_network_enable'
+  shell: 'set -o pipefail; echo "{{ pve_vm_net_config_result.stdout }}" | grep -Po "(?<=virtio=)[0-9a-fA-F:]{17}"'
+  register: pve_vm_mac_address_result
+  changed_when: false
+
+- name: Update VM network config
+  vars:
+    old_network_string: '{{ pve_vm_net_config_result.stdout | default("") }}'
+    mac_address: '{{ pve_vm_mac_address_result.stdout | default("") }}'
+    network_bridge: '{{ vm.network_bridge | default(pve_vm_default_network_bridge) }}'
+    network_string: 'virtio={{ mac_address }},bridge={{ network_bridge }}{% if vm.network_vlanid is defined %},tag={{ vm.network_vlanid }}{% endif %},firewall=1'
+  when: 'vm_network_enable and network_string != old_network_string'
+  command: 'qm set "{{ vm_id }}" --net0 "{{ network_string }}"'
+  changed_when: true
+
+- name: Create VM firewall file
+  when: 'vm_firewall_enable'
+  file:
+    path: '/etc/pve/firewall/{{ vm_id }}.fw'
+    state: touch
+    mode: '0640'
+  changed_when: false
+
+- name: Add VM firewall rules
+  when: 'vm_firewall_enable'
+  vars:
+    firewall_verify_source: '{{ vm.firewall_verify_source | default(pve_vm_default_firewall_verify_source) }}'
+    firewall_block_inbound: '{{ vm.firewall_block_inbound | default(pve_vm_default_firewall_block_inbound) }}'
+    firewall_prevent_dhcp_server: '{{ vm.firewall_prevent_dhcp_server | default(pve_vm_default_firewall_prevent_dhcp_server) }}'
+  template:
+    src: 'pve/vm.fw.j2'
+    dest: '/etc/pve/firewall/{{ vm_id }}.fw'
+    mode: '0640'
+
+- name: Start the VM
+  when: 'vm_new and vm_start'
+  command: 'qm start "{{ vm_id }}"'
+  changed_when: true
+
+- name: Update VM lists
+  when: 'vm_new'
+  include_tasks: pve-update-vms.yml

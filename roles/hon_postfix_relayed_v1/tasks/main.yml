@@ -1,0 +1,39 @@
+- name: Install required packages
+  apt:
+    name:
+      - postfix
+      - libsasl2-modules
+      - mailutils
+
+- name: Update root alias
+  lineinfile:
+    path: '/etc/aliases'
+    regexp: '^root:'
+    line: 'root: {{ postfix_root_alias }}'
+  notify:
+    - Update aliases database
+    - Restart postfix.service
+
+- name: Update config file
+  template:
+    src: 'main.cf.j2'
+    dest: '/etc/postfix/main.cf'
+    mode: '0644'
+  notify: Restart postfix.service
+
+- name: Update SASL password file
+  when: 'postfix_relay_username is defined and postfix_relay_password is defined'
+  template:
+    src: 'sasl_passwd.j2'
+    dest: '{{ postfix_sasl_passwd_file }}'
+    mode: '0600'
+  no_log: true
+  notify:
+    - Update SASL password database
+    - Restart postfix.service
+
+- name: Enable and start service
+  systemd:
+    name: 'postfix.service'
+    state: started
+    enabled: true

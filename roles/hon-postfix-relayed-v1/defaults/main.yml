@@ -1,8 +1,0 @@
-# (Required) Hostname of the outbound relay service.
-#postfix_relay_host: smtp.eu.mailgun.org
-postfix_relay_port: 587
-# (Requred) Username and password for outbount relay service
-#postfix_relay_username: user@example.net
-#postfix_relay_password: password
-# (Required) Email address to forward root mail to
-#postfix_root_alias: hello@example.net
