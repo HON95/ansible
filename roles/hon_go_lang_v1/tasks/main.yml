@@ -62,6 +62,7 @@
       # command: 'tar xvf "{{ go_create_archive_tmpfile.path }}" -C "{{ go_install_path }}" --strip-components=1'
       unarchive:
         src: '{{ go_create_archive_tmpfile.path }}'
+        remote_src: true
         dest: '{{ go_install_path }}'
         extra_opts: [--strip-components=1]
       changed_when: true
