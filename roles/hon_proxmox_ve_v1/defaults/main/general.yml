@@ -1,5 +1,5 @@
 timezone: "Europe/Oslo"
 locale: "en_US.UTF-8"
 
-# PVE: Only physical makes sense here. Kept for compatibility with debian-server.
-linux_server_machine_type: physical
+# PVE: Only bare-metal makes sense here. Kept for compatibility with debian-server.
+linux_server_machine_type: bare-metal

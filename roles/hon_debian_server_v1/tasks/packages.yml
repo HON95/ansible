@@ -27,12 +27,19 @@
       - bash-completion
       - rsync
 
-- name: Install machine type-specific packages (physical)
-  when: 'linux_server_machine_type == "physical"'
+- name: Install machine type-specific packages (bare-metal)
+  when: 'linux_server_machine_type == "bare-metal"'
   apt:
     name:
       - firmware-linux
       - smartmontools
+      - lm-sensors
+
+- name: Install machine type-specific packages (raspi)
+  when: 'linux_server_machine_type == "raspi"'
+  apt:
+    name:
+      - firmware-linux
       - lm-sensors
 
 - name: Install machine type-specific packages (QEMU VM)

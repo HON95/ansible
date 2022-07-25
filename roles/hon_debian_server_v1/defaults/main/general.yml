@@ -1,5 +1,5 @@
 timezone: "Europe/Oslo"
 locale: "en_US.UTF-8"
 
-# (Required) Supports "physical", "qemu-vm", "generic-vm"
-# linux_server_machine_type: physical
+# (Required) Supports "bare-metal", "raspi", "qemu-vm", "generic-vm"
+# linux_server_machine_type: bare-metal

@@ -1,3 +1,13 @@
+- name: Check if supported machine type
+  when: 'not (
+    linux_server_machine_type == "bare-metal"
+    or linux_server_machine_type == "raspi"
+    or linux_server_machine_type == "qemu-vm"
+    or linux_server_machine_type == "generic-vm"
+    )'
+  fail:
+    msg: 'Unsupported OS: {{ ansible_distribution }} {{ ansible_distribution_version }}'
+
 - name: Check if supported OS
   when: 'not (
     (ansible_distribution == "Debian" and ansible_distribution_version == "10")
@@ -67,5 +77,6 @@
 # - Clout-Init: Uninstall, we don't need it any longer.
 # - Debian cloudgeneric: "/etc/resolv.conf: symbolic link to ../run/resolvconf/resolv.conf". Uninstall resolvconf. DNS is broken, but that is probably because it copied the (local) DNS entries from the host.
 
-- name: TODO
+- name: TODO Cloud-Init
+  when: 'linux_server_machine_type == "qemu-vm"'
   fail: msg='TODO'

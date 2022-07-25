@@ -2,8 +2,8 @@ traefik_architecture_map:
   i386: '386'
   x86_64: 'amd64'
   aarch64: 'arm64'
-  armv7l: 'armv7'
   armv6l: 'armv6'
+  armv7l: 'armv7'
 traefik_architecture: "{{ traefik_architecture_map[ansible_architecture] }}"
 
 traefik_download_url: 'https://github.com/traefik/traefik/releases/download/v{{ traefik_version }}/traefik_v{{ traefik_version }}_linux_{{ traefik_architecture }}.tar.gz'

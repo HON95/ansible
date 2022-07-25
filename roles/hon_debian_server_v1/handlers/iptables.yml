@@ -5,8 +5,8 @@
 - name: Restart IPTables-related services
   vars:
     services:
-      - docker.service
-      - fail2ban.service
+      - docker
+      - fail2ban
   loop: '{{ services }}'
   when: 'iptables_config.changed and item in ansible_facts.services and ansible_facts.services[item].state == "running"'
   service:

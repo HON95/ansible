@@ -1,2 +1,1 @@
 linux_server_sudo_no_pass: false
-linux_server_sudo_no_pass_ansible_user: false

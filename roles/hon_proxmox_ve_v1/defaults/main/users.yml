@@ -1,6 +1,4 @@
-linux_server_local_users: []
-
-# Example:
+# (Required) Linux users.
 # linux_server_local_users:
 #   root:
 #     groups: []

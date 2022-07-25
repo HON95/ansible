@@ -2,8 +2,8 @@ prom_architecture_map:
   i386: '386'
   x86_64: 'amd64'
   aarch64: 'arm64'
-  armv7l: 'armv7'
   armv6l: 'armv6'
+  armv7l: 'armv7'
 prom_architecture: "{{ prom_architecture_map[ansible_architecture] }}"
 
 prom_node_exp_download_url: 'https://github.com/prometheus/node_exporter/releases/download/v{{ prom_node_exp_version }}/node_exporter-{{ prom_node_exp_version }}.linux-{{ prom_architecture }}.tar.gz'

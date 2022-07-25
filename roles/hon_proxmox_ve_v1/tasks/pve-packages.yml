@@ -37,7 +37,7 @@
       - rsync
       - jq
 
-- name: Install packages for physical servers (APT)
+- name: Install packages for bare-metal servers (APT)
   apt:
     name:
       # Don't install anything firmware-related on PVE, it may remove PVE stuff

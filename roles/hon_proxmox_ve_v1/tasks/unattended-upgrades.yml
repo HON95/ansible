@@ -8,6 +8,7 @@
 - name: Enable unattended upgrades service
   systemd:
     name: unattended-upgrades.service
+    masked: false
     enabled: true
     state: started
 

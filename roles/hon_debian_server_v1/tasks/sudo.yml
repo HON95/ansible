@@ -12,7 +12,6 @@
     validate: 'visudo -c %s'
 
 - name: Disable password for ansible user
-  when: 'linux_server_sudo_no_pass_ansible_user'
   lineinfile:
     path: '/etc/sudoers'
     backup: true

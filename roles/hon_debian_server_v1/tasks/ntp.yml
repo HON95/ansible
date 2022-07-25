@@ -10,8 +10,9 @@
     state: absent
     purge: true
 
-- name: Install systemd-timesyncd (systemd)
-  when: 'linux_server_ntp_method == "systemd"'
+# Debian 11 provides systemd-timesyncd as a separate package, apparently.
+- name: Install systemd-timesyncd if missing (systemd)
+  when: 'linux_server_ntp_method == "systemd" and "systemd-timesync.service" in ansible_facts.services'
   apt:
     name:
       - systemd-timesyncd

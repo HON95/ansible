@@ -20,7 +20,7 @@
     - { key: XKBVARIANT, value: '{{ linux_server_l10n_keyboard.variant }}' }
     - { key: XKBOPTIONS, value: '{{ linux_server_l10n_keyboard.options }}' }
     - { key: BACKSPACE, value: '{{ linux_server_l10n_keyboard.backspace }}' }
-  when: 'linux_server_machine_type == "physical"'
+  when: 'linux_server_machine_type == "bare-metal" or linux_server_machine_type == "raspi"'
   lineinfile:
     path: /etc/default/keyboard
     regexp: '^{{ item.key }}='

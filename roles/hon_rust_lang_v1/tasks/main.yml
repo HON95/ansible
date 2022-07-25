@@ -45,6 +45,7 @@
       # command: 'tar xvf "{{ rust_create_archive_tmpfile.path }}" -C "{{ rust_create_extraction_tmpdir.path }}" --strip-components=1'
       unarchive:
         src: '{{ rust_create_archive_tmpfile.path }}'
+        remote_src: true
         dest: '{{ rust_create_extraction_tmpdir.path }}'
         extra_opts: [--strip-components=1]
 
