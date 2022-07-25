@@ -24,11 +24,11 @@ nut_driver_upses: []
 #     vendor: "TODO"
 #     # (Optional) Product string regex.
 #     product: "TODO"
-#     # (Optional) Vendor ID (4 hexidecimals) (use quotes to avoid number interpretation!).
+#     # (Optional) Vendor ID regex (4 hexidecimals) (use quotes to avoid number interpretation!).
 #     vendor_id: "0000"
-#     # (Optional) Product ID (4 hexidecimals) (use quotes to avoid number interpretation!).
+#     # (Optional) Product ID regex (4 hexidecimals) (use quotes to avoid number interpretation!).
 #     product_id: "0000"
-#     # (Optional) Serial.
+#     # (Optional) Serial regex.
 #     serial: "0123456789"
 #     # (Optional) Delay from power-off command to power cut (ups.delay.shutdown).
 #     shutdown_delay: 60

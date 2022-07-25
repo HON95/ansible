@@ -14,7 +14,7 @@
     - Restart nut-server.service
     - Restart nut-monitor.service
 
-- name: Setup ups.conf
+- name: Setup ups.conf (primary)
   when: 'nut_primary'
   template:
     src: ups.conf.j2
@@ -26,7 +26,7 @@
     - Restart nut-server.service
     - Restart nut-monitor.service
 
-- name: Setup upsd.conf
+- name: Setup upsd.conf (primary)
   when: 'nut_primary'
   template:
     src: upsd.conf.j2
@@ -37,7 +37,7 @@
     - Restart nut-server.service
     - Restart nut-monitor.service
 
-- name: Setup upsd.users
+- name: Setup upsd.users (primary)
   when: 'nut_primary'
   template:
     src: upsd.users.j2
@@ -57,23 +57,43 @@
   notify:
     - Restart nut-monitor.service
 
-- name: Enable/disable driver
+- name: Enable NUT driver (primary)
+  when: 'nut_primary'
   systemd:
     name: nut-driver.service
-    enabled: '{{ nut_primary }}'
-    state: '{% if nut_primary %}started{% else %}stopped{% endif %}'
+    enabled: true
+    masked: false
   notify:
     - Restart nut-driver.service
 
-- name: Enable/disable server
+- name: Disable NUT driver (secondary)
+  when: 'not nut_primary'
+  systemd:
+    name: nut-driver.service
+    state: stopped
+    enabled: false
+    masked: true
+  notify:
+    - Reset failed nut-driver.service
+
+- name: Enable NUT server (primary)
+  when: 'nut_primary'
   systemd:
     name: nut-server.service
-    enabled: '{{ nut_primary }}'
-    state: '{% if nut_primary %}started{% else %}stopped{% endif %}'
+    enabled: true
+    masked: false
   notify:
     - Restart nut-server.service
 
-- name: Enable/disable monitor
+- name: Disable NUT server (secondary)
+  when: 'not nut_primary'
+  systemd:
+    name: nut-server.service
+    state: stopped
+    enabled: false
+    masked: true
+
+- name: Enable NUT monitor
   systemd:
     name: nut-monitor.service
     enabled: true

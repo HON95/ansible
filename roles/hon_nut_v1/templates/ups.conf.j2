@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:False
 # Managed
 
 maxretry = {{ nut_driver_retry_count | int }}
@@ -33,6 +34,5 @@ retrydelay = {{ nut_driver_retry_delay | int }}
     ondelay = "{{ ups.startup_delay }}"
 {% endif %}
 {% endif %}{# usbhid-ups #}
-
 {% endwith %}
 {% endfor %}

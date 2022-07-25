@@ -1,16 +1,22 @@
+- name: Reset failed nut-driver.service
+  when: 'not nut_primary'
+  command: 'systemctl reset-failed nut-driver.service'
+  changed_when: true
+  failed_when: false
+
 - name: Restart nut-driver.service
   when: 'nut_primary'
-  service:
+  systemd:
     name: nut-driver.service
     state: restarted
 
 - name: Restart nut-server.service
   when: 'nut_primary'
-  service:
+  systemd:
     name: nut-server.service
     state: restarted
 
 - name: Restart nut-monitor.service
-  service:
+  systemd:
     name: nut-monitor.service
     state: restarted
