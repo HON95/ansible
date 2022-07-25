@@ -3,4 +3,5 @@ skip_list:
   - no-handler
   - unnamed-task
   - ignore-errors
+  - command-instead-of-module
   - yaml[line-length]
