@@ -21,7 +21,7 @@
 - import_tasks: ntp.yml
 - meta: flush_handlers
 
-- import_tasks: pve-users.yml
+- import_tasks: users.yml
 - meta: flush_handlers
 
 - import_tasks: pve-auth.yml

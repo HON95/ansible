@@ -1,4 +1,12 @@
-# (Required) Linux users.
+# Linux groups.
+linux_server_local_groups: {}
+# linux_server_local_groups:
+#   yolo_normal:
+#   yolo_system:
+#     system: true
+
+# Linux users.
+linux_server_local_users: []
 # linux_server_local_users:
 #   root:
 #     groups: []
