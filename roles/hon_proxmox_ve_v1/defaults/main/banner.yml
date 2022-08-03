@@ -1,6 +1,6 @@
 # What to do with pre-login banners (ignore, empty or logo)
 linux_server_banner_issue_state: empty
-linux_server_banner_issue_net_state: logo
+linux_server_banner_issue_net_state: empty
 # What to do with post-login banner (ignore, motd)
 linux_server_banner_motd_state: motd
 # Post-login banner
