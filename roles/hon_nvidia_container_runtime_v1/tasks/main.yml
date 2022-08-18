@@ -70,7 +70,6 @@
   file:
     path: '{{ nvidia_container_runtime_oci_hook_dir }}'
     state: directory
-    recurse: true
     mode: '0755'
 
 # Bugfix

@@ -1,0 +1,76 @@
+- name: Find source directories
+  delegate_to: localhost
+  command:
+    chdir: '{{ file_item.src }}'
+    cmd: 'find . -type d'
+  changed_when: false
+  register: _found_dirs
+
+- name: Find source files
+  delegate_to: localhost
+  command:
+    chdir: '{{ file_item.src }}'
+    cmd: 'find . -type f'
+  changed_when: false
+  register: _found_files
+
+- name: Create directories for files
+  vars:
+    dst_path: '{{ (app.srv_path, file_item.path, item) | path_join | realpath }}'
+  loop: '{{ _found_dirs.stdout_lines }}'
+  loop_control:
+    label: "{{ dst_path }}"
+  file:
+    path: '{{ dst_path }}'
+    state: directory
+    mode: '0755'
+  notify: Restart app
+
+- name: Copy all files
+  vars:
+    src_path: '{{ (playbook_dir, file_item.src, item) | path_join | realpath }}'
+    dst_path: '{{ (app.srv_path, file_item.path, item) | path_join | realpath }}'
+  loop: '{{ _found_files.stdout_lines }}'
+  loop_control:
+    label: "{{ dst_path }}"
+  when: 'not file_item.auto_template | default(true)'
+  copy:
+    dest: '{{ dst_path }}'
+    src: '{{ src_path }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify: Restart app
+
+- name: Copy normal files
+  vars:
+    src_path: '{{ (playbook_dir, file_item.src, item) | path_join | realpath }}'
+    dst_path: '{{ (app.srv_path, file_item.path, item) | path_join | realpath }}'
+  loop: '{{ _found_files.stdout_lines }}'
+  loop_control:
+    label: "{{ dst_path }}"
+  when: 'file_item.auto_template | default(true) and not item | regex_search("\.j2$")'
+  copy:
+    dest: '{{ dst_path }}'
+    src: '{{ src_path }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify: Restart app
+
+- name: Copy template files
+  vars:
+    item_output: '{{ item | regex_replace("^(.*)\.j2$", "\1") }}'
+    src_path: '{{ (playbook_dir, file_item.src, item) | path_join | realpath }}'
+    dst_path: '{{ (app.srv_path, file_item.path, item_output) | path_join | realpath }}'
+  loop: '{{ _found_files.stdout_lines }}'
+  loop_control:
+    label: "{{ dst_path }}"
+  when: 'file_item.auto_template | default(true) and item | regex_search("\.j2$")'
+  template:
+    dest: '{{ dst_path }}'
+    src: '{{ src_path }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify: Restart app

@@ -1,5 +1,7 @@
 - name: Restart app
   community.docker.docker_compose:
     project_src: '{{ app.srv_path }}'
+    state: present
     recreate: always
-    remove_orphans: true
+    remove_orphans: '{{ app.remove_orphans | default(true) }}'
+    timeout: '{{ app.recreate_timeout | default(60) }}'

@@ -22,6 +22,8 @@
 
 - name: Add dirs (new)
   loop: '{{ app.dirs | default([]) }}'
+  loop_control:
+    label: '{{ item.path }}'
   file:
     path: '{{ app.srv_path }}/{{ item.path }}'
     state: directory
@@ -30,15 +32,10 @@
     mode: '{{ item.mode | default("0755") }}'
   notify: Restart app
 
-- name: Create directories for files
-  loop: '{{ app.files | default([]) }}'
-  file:
-    path: '{{ app.srv_path }}/{{ item.path | dirname }}'
-    state: directory
-    mode: '0755'
-
 - name: Add files (new)
   loop: '{{ app.files | default([]) }}'
+  loop_control:
+    label: '{{ item.path }}'
   when: 'item.type == "touch"'
   copy:
     dest: '{{ app.srv_path }}/{{ item.path }}'
@@ -51,6 +48,8 @@
 
 - name: Add files (copy)
   loop: '{{ app.files | default([]) }}'
+  loop_control:
+    label: '{{ item.path }}'
   when: 'item.type == "copy"'
   copy:
     dest: '{{ app.srv_path }}/{{ item.path }}'
@@ -62,24 +61,10 @@
     backup: '{{ item.backup | default(omit) }}'
   notify: Restart app
 
-# Synchronize file or dir to remote (requires rsync)
-# Prompts for SSH key password for every file if using passworded key.
-# Doesn't work if using sudo with password (i.e. --ask-become-pass).
-# TODO Replace this with something better
-- name: Add files (synchronize)
-  loop: '{{ app.files | default([]) }}'
-  when: 'item.type == "synchronize"'
-  synchronize:
-    dest: '{{ app.srv_path }}/{{ item.path }}'
-    src: '{{ item.src | default(omit) }}'
-    mode: push
-    owner: false
-    group: false
-    perms: false
-  notify: Restart app
-
 - name: Add files (template)
   loop: '{{ app.files | default([]) }}'
+  loop_control:
+    label: '{{ item.path }}'
   when: 'item.type == "template"'
   template:
     dest: '{{ app.srv_path }}/{{ item.path }}'
@@ -90,6 +75,32 @@
     backup: '{{ item.backup | default(omit) }}'
   notify: Restart app
 
+# Deprecated and disabled.
+- name: Add files (synchronize)
+  loop: '{{ app.files | default([]) }}'
+  loop_control:
+    label: '{{ item.path }}'
+  when: 'item.type == "synchronize"'
+  fail:
+    msg: 'Synchronize type no longer supported, use recursive instead.'
+
+# Recursively creates dirs and copies files.
+# Uses templating for ".j2" files if "auto_template" (default true) is set.
+# Does not support symlinks.
+# Does not preserve ownership and permissions.
+- name: Add files (recursive)
+  loop: '{{ app.files | default([]) }}'
+  loop_control:
+    loop_var: file_item
+    label: '{{ file_item.path }}'
+  when: 'file_item.type == "recursive"'
+  include_tasks: 'add-files-recursive.yml'
+
 - name: Start app
   community.docker.docker_compose:
     project_src: '{{ app.srv_path }}'
+    state: present
+    pull: true
+    recreate: smart
+    remove_orphans: '{{ app.remove_orphans | default(true) }}'
+    timeout: '{{ app.recreate_timeout | default(60) }}'

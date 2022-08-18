@@ -1,4 +1,48 @@
-timezone: "Europe/Oslo"
-locale: "en_US.UTF-8"
+# Example below.
+# "host_config_dir" here must be defined.
 
-# TODO example for files and stuff
+# app:
+#   # Remote dir to add files to. Must be absolute!
+#   srv_path: /srv/monitoring
+#   dc_file:
+#     path: 'mario/monitoring/docker-compose.yml'
+
+#   dirs:
+#     - path: grafana
+
+#     - path: grafana/data
+#       owner: '472'
+
+#     - path: grafana/logs
+#       owner: '472'
+
+#     - path: prometheus
+
+#     - path: prometheus/data
+#       mode: '777'
+
+#     - path: alertmanager
+
+#     - path: alertmanager/data
+#       mode: '777'
+
+#   files:
+#     - path: grafana/grafana.ini
+#       type: template
+#       src: 'mario/monitoring/grafana/grafana.ini.j2'
+
+#     - path: prometheus/prometheus.yml
+#       type: copy
+#       src: 'mario/monitoring/prometheus/prometheus.yml'
+
+#     - path: prometheus/rules
+#       type: recursive
+#       src: 'mario/monitoring/prometheus/rules'
+
+#     - path: alertmanager/alertmanager.yml
+#       type: template
+#       src: 'mario/monitoring/alertmanager/alertmanager.yml.j2'
+
+#     - path: alertmanager/templates
+#       type: recursive
+#       src: 'mario/monitoring/alertmanager/templates'
