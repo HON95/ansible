@@ -1,0 +1,12 @@
+services:
+  watchtower:
+    image: containrrr/watchtower:latest
+    environment:
+      - TZ={{ watchtower_timezone }}
+      # Check every X seconds
+      - WATCHTOWER_POLL_INTERVAL={{ watchtower_poll_interval }}
+      # Remove old images afterwards
+      - WATCHTOWER_CLEANUP=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always

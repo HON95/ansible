@@ -1,0 +1,6 @@
+# Timezone
+watchtower_timezone: Europe/Oslo
+# How often to check for updates, in seconds.
+watchtower_poll_interval: 300
+# Where to put the Docker Compose file.
+watchtower_srv_path: /srv/watchtower

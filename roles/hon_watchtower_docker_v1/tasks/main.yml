@@ -1,0 +1,18 @@
+- name: Setup server dir
+  file:
+    path: '{{ watchtower_srv_path }}'
+    state: directory
+    mode: '700'
+
+- name: Add docker-compose.yml
+  template:
+    src: 'docker-compose.yml.j2'
+    dest: '{{ watchtower_srv_path }}/docker-compose.yml'
+    mode: '0644'
+
+- name: Start app
+  community.docker.docker_compose:
+    project_src: '{{ watchtower_srv_path }}'
+    state: present
+    pull: true
+    recreate: smart
