@@ -6,7 +6,10 @@
         "max-size": "100m"
     },
     "mtu": {{ docker_network_mtu | int | to_json }},
-    "default-address-pools": [{"base": "{{ docker_network_pools_ipv4_prefix }}", "size": 24}],
+    "default-address-pools": [
+        {"base": "{{ docker_network_pools_ipv4_prefix }}", "size": 24},
+        {"base": "{{ docker_network_pools_ipv6_prefix }}", "size": 64}
+    ],
     "ipv6": true,
     "ip6tables": true,
     "fixed-cidr-v6": "{{ docker_network_default_bridge_ipv6_subnet }}",

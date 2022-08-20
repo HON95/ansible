@@ -80,7 +80,11 @@
   service:
     name: docker.service
     enabled: true
-    state: started
+  notify: Restart docker.service
+
+# Make sure Docker is restarted before running remaining tasks
+- name: Flush handlers
+  meta: flush_handlers
 
 - name: Check swap limit support
   shell: 'set -o pipefail; docker info | grep "WARNING: No swap limit support"'
@@ -115,7 +119,7 @@
   loop: '{{ docker_networks }}'
   when: 'item.driver == "macvlan"'
   community.docker.docker_network:
-    # Force is required to change details
+    # Force is required to change existing
     force: '{{ docker_network_force_update }}'
     name: '{{ item.name }}'
     driver: macvlan
@@ -127,11 +131,11 @@
       - subnet: '{{ item.ipv4_subnet | ansible.utils.ipaddr("subnet") }}'
       - subnet: '{{ item.ipv6_subnet | ansible.utils.ipaddr("subnet") }}'
 
-- name: Setup Docker bridge networks
+- name: Setup Docker bridge networks (static)
   loop: '{{ docker_networks }}'
-  when: 'item.driver == "bridge"'
+  when: 'item.driver == "bridge" and (item.ipv4_subnet is defined or item.ipv6_subnet is defined)'
   community.docker.docker_network:
-    # Force is required to change details
+    # Force is required to change existing
     force: '{{ docker_network_force_update }}'
     name: '{{ item.name }}'
     driver: bridge
@@ -141,3 +145,15 @@
     ipam_config:
       - subnet: '{{ item.ipv4_subnet | ansible.utils.ipaddr("subnet") }}'
       - subnet: '{{ item.ipv6_subnet | ansible.utils.ipaddr("subnet") }}'
+
+- name: Setup Docker bridge networks (dynamic)
+  loop: '{{ docker_networks }}'
+  when: 'item.driver == "bridge" and not (item.ipv4_subnet is defined or item.ipv6_subnet is defined)'
+  community.docker.docker_network:
+    # Force is required to change existing
+    force: '{{ docker_network_force_update }}'
+    name: '{{ item.name }}'
+    driver: bridge
+    driver_options:
+      com.docker.network.driver.mtu: '{{ docker_network_mtu | int }}'
+    enable_ipv6: true

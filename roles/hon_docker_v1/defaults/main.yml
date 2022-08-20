@@ -13,8 +13,10 @@ docker_network_force_update: false
 # Change the default MTU (1500) if path MTU is broken or you need jumbo frames or something
 docker_network_mtu: 1500
 docker_network_pools_ipv4_prefix: "10.194.0.0/16"
-docker_network_default_bridge_ipv6_subnet: "fd34:93c7:6fa8:39f0::/64"
+docker_network_pools_ipv6_prefix: "fd34:93c7:6fa8::/48"
+docker_network_default_bridge_ipv6_subnet: "fd34:93c7:6fa8:0::/64"
 # Docker networks to create
+# "ipv{4,6}_subnet" may be omitted for bridges to get one from the Docker pool, but this is currently broken for Docker (see https://github.com/moby/moby/issues/41438).
 docker_networks: []
 # docker_networks:
 #   - name: apps-general
