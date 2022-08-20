@@ -26,36 +26,27 @@
     src: 'networking/systemd-main.network.j2'
     dest: '/etc/systemd/network/main.network'
     mode: '0644'
-  register: linux_server_networking_systemd_config_change
+  notify: Reboot machine
 
-- name: Disable ifupdown service
-  when: 'linux_server_networking_method != "ignore" and "networking.service" in ansible_facts.services'
-  systemd:
-    name: networking.service
-    enabled: false
-    masked: true
-  register: linux_server_networking_disable_ifupdown
+- name: Uninstall ifupdown
+  when: 'linux_server_networking_method != "ignore"'
+  apt:
+    name: [ifupdown]
+    state: absent
+    purge: true
+  notify: Reboot machine
 
-- name: Disable dhcpcd service
-  when: 'linux_server_networking_method != "ignore" and "dhcpcd.service" in ansible_facts.services'
-  systemd:
-    name: dhcpcd.service
-    enabled: false
-    masked: true
-  register: linux_server_networking_disable_dhcpcd
+- name: Uninstall dhcpcd
+  when: 'linux_server_networking_method != "ignore"'
+  apt:
+    name: [dhcpcd]
+    state: absent
+    purge: true
+  notify: Reboot machine
 
 - name: Enable systemd-networkd service (systemd-networkd)
   when: 'linux_server_networking_method == "systemd"'
   systemd:
     name: systemd-networkd.service
     enabled: true
-  register: linux_server_networking_systemd_enable
-
-# Warn about network changes, but don't do anything
-- name: Prompt to change to reboot system and break playbook
-  when: 'linux_server_networking_systemd_config_change.changed
-    or linux_server_networking_disable_dhcpcd.changed
-    or linux_server_networking_systemd_enable.changed'
-  fail:
-    msg: 'The network config was significantly changed, please reboot the system ASAP'
-  ignore_errors: true
+  notify: Reboot machine

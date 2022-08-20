@@ -3,6 +3,7 @@
 - import_tasks: iptables.yml
 - import_tasks: l10n.yml
 - import_tasks: logging.yml
+- import_tasks: networking.yml
 - import_tasks: ntp.yml
 - import_tasks: ssh.yml
 - import_tasks: unattended-upgrades.yml
