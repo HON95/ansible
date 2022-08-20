@@ -16,9 +16,13 @@ traefik_service: traefik.service
 traefik_logrotate_config_path: /etc/logrotate.d/traefik
 
 traefik_provider_config_dir: /etc/traefik/provider
-traefik_provider_configs_main:
-  - type: template
-    src: 'provider-traefik.yml.j2'
-    dst: 'traefik.yml'
-traefik_provider_configs_all: '{{ traefik_provider_configs_main + traefik_provider_configs_extra }}'
+traefik_provider_config_traefik:
+  type: template
+  src: 'provider-traefik.yml.j2'
+  dst: 'traefik.yml'
+traefik_provider_config_default:
+  type: template
+  src: 'provider-default.yml.j2'
+  dst: 'default.yml'
+traefik_provider_configs_all: '{{ [traefik_provider_config_traefik] + ([traefik_provider_config_default] if traefik_default_provider_enable else []) + traefik_provider_configs_extra }}'
 traefik_provider_configs_dst_files: '{{ traefik_provider_configs_all | map(attribute="dst") }}'

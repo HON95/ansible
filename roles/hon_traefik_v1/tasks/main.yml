@@ -89,6 +89,14 @@
     home: /nonexistent
     shell: /usr/sbin/nologin
 
+- name: Add Traefik user to Docker group
+  when: 'traefik_provider_docker_enable'
+  user:
+    name: traefik
+    groups: docker
+    append: true
+  notify: Restart traefik.service
+
 - name: Add service file
   template:
     src: '{{ traefik_service }}.j2'

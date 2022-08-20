@@ -1,12 +1,17 @@
 # You may want to override this to pin it.
-traefik_version: '2.6.3'
+traefik_version: '2.8.3'
 # Extra args to pass to the binary.
 traefik_args: []
 # Email address to use for ACME (required).
 # traefik_acme_webmaster: example@example.net
 # If we should use the staging server while testing to avoid getting rate limited by the production server.
-traefik_use_staging_server: false
-# If the Docker provider should be enabled.
+traefik_staging_server_enable: false
+# Enable a default provider, which will respond with a 404.
+traefik_default_provider_enable: false
+# Enable Let's Encrypt certs for the default provider.
+traefik_default_provider_letsencrypt_enable: false
+# If the Docker provider should be enabled (Docker must be installed first).
+# Will also add the Traefik user to the Docker group.
 traefik_provider_docker_enable: false
 
 # Extra file provider config templates to add.

@@ -20,7 +20,7 @@ certificatesResolvers:
     acme:
       email: '{{ traefik_acme_webmaster }}'
       storage: '{{ traefik_acme_path }}'
-{% if traefik_use_staging_server %}
+{% if traefik_staging_server_enable %}
       # Staging server
       caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
 {% endif %}

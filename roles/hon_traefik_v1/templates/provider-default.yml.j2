@@ -1,0 +1,23 @@
+# Managed
+
+http:
+  routers:
+    default:
+      entryPoints: [https]
+{% if traefik_default_provider_letsencrypt_enable %}
+      tls:
+        certResolver: letsencrypt
+{% else %}
+      tls: {}
+{% endif %}
+      # Hostname for TLS cert, wildcard for alternative access with IP address
+      rule: 'Host(`{{ inventory_hostname }}`) || PathPrefix(`/`)'
+      # Low priority
+      priority: 1
+      middlewares: [default-block]
+      service: noop@internal
+
+  middlewares:
+    default-block:
+      ipwhitelist:
+        sourcerange: ['127.0.0.1/32', '::1/128']
