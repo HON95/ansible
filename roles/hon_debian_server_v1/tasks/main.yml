@@ -6,7 +6,7 @@
     or linux_server_machine_type == "generic-vm"
     )'
   fail:
-    msg: 'Unsupported OS: {{ ansible_distribution }} {{ ansible_distribution_version }}'
+    msg: 'Unsupported OS: {{ linux_server_machine_type }}'
 
 - name: Check if supported OS
   when: 'not (

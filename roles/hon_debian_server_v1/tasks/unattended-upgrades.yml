@@ -17,6 +17,7 @@
     path: /etc/apt/apt.conf.d/20auto-upgrades
     regexp: '^APT::Periodic::Enable '
     line: 'APT::Periodic::Enable "1";'
+    create: true
     mode: '0644'
   notify: Restart unattended-upgrades.service
 
@@ -25,6 +26,7 @@
     path: /etc/apt/apt.conf.d/20auto-upgrades
     regexp: '^APT::Periodic::Update-Package-Lists '
     line: 'APT::Periodic::Update-Package-Lists "1";'
+    create: true
     mode: '0644'
   notify: Restart unattended-upgrades.service
 
@@ -33,6 +35,7 @@
     path: /etc/apt/apt.conf.d/20auto-upgrades
     regexp: '^APT::Periodic::Unattended-Upgrade '
     line: 'APT::Periodic::Unattended-Upgrade "1";'
+    create: true
     mode: '0644'
   notify: Restart unattended-upgrades.service
 
@@ -42,5 +45,6 @@
     regexp: '^APT::Periodic::AutocleanInterval '
     # Days
     line: 'APT::Periodic::AutocleanInterval "7";'
+    create: true
     mode: '0644'
   notify: Restart unattended-upgrades.service

@@ -1,6 +1,6 @@
 # Setup sudo
 
-- name: Disable password for sudo group
+- name: Disable sudo password for sudo group
   when: 'linux_server_sudo_no_pass'
   lineinfile:
     path: '/etc/sudoers'
@@ -11,7 +11,7 @@
     mode: '0440'
     validate: 'visudo -c %s'
 
-- name: Disable password for ansible user
+- name: Disable sudo password for ansible user
   lineinfile:
     path: '/etc/sudoers'
     backup: true
