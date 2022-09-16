@@ -75,6 +75,20 @@
     backup: '{{ item.backup | default(omit) }}'
   notify: Restart app
 
+- name: Add files (URL)
+  loop: '{{ app.files | default([]) }}'
+  loop_control:
+    label: '{{ item.path }}'
+  when: 'item.type == "url"'
+  get_url:
+    dest: '{{ app.srv_path }}/{{ item.path }}'
+    url: '{{ item.src | default(omit) }}'
+    owner: '{{ item.owner | default("root") }}'
+    group: '{{ item.group | default("root") }}'
+    mode: '{{ item.mode | default("0644") }}'
+    backup: '{{ item.backup | default(omit) }}'
+  notify: Restart app
+
 # Deprecated and disabled.
 - name: Add files (synchronize)
   loop: '{{ app.files | default([]) }}'
