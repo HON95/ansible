@@ -67,9 +67,11 @@
 - meta: flush_handlers
 
 - import_tasks: pve-vm-ct-resources.yml
+  when: 'pve_vm_ct_res_setup_enable'
 - meta: flush_handlers
 
 - import_tasks: pve-vms.yml
+  when: 'pve_vms_setup_enable'
 - meta: flush_handlers
 
 - import_tasks: misc.yml

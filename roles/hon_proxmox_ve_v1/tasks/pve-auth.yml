@@ -11,6 +11,18 @@
   fail:
     msg: 'No PVE API token was provided for ansible ("{{ pve_user_token_ansible_id }}")'
 
+- name: Check if PVE token file exists
+  stat:
+    path: '/etc/pve/priv/token.cfg'
+  register: pve_token_file_exists_result
+
+- name: Create PVE token file
+  when: 'not pve_token_file_exists_result.stat.exists'
+  file:
+    path: '/etc/pve/priv/token.cfg'
+    state: touch
+    mode: '0600'
+
 - name: Setup PVE token secrets
   no_log: true
   template:

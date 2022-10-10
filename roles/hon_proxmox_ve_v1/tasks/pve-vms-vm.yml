@@ -140,6 +140,12 @@
   command: 'qm set "{{ vm_id }}" --net0 "{{ network_string }}"'
   changed_when: true
 
+- name: Create PVE firewall dir
+  file:
+    path: '/etc/pve/firewall'
+    state: directory
+    mode: '0755'
+
 - name: Create VM firewall file
   when: 'vm_firewall_enable'
   file:
