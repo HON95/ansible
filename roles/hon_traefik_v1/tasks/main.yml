@@ -21,7 +21,7 @@
       when: 'traefik_check_version.stdout != traefik_version'
       block:
         - name: Stop existing service (remove outdated version)
-          when: 'traefik_service in ansible.services'
+          when: 'traefik_service in ansible_facts.services'
           systemd:
             name: '{{ traefik_service }}'
             state: stopped
