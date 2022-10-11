@@ -1,5 +1,5 @@
 # You may want to override this to pin it.
-traefik_version: '2.8.3'
+traefik_version: '2.9.1'
 # Extra args to pass to the binary.
 traefik_args: []
 # Email address to use for ACME (required).
