@@ -1,0 +1,13 @@
+# Setup miscellanea
+
+- name: Remove Debian Cloud-Init sudo config
+  when: 'ansible_distribution == "Debian"'
+  file:
+    path: '/etc/sudoers.d/90-cloud-init-users'
+    state: absent
+
+- name: Remove Debian Cloud-Init SSH root config
+  when: 'ansible_distribution == "Debian"'
+  file:
+    path: '/root/.ssh/authorized_keys'
+    state: absent
