@@ -4,8 +4,8 @@
 
 set -eu -o pipefail
 
-the_dir="$(dirname $0)"
+local_dir="$(dirname $0)"
 
-ansible-lint -c "$the_dir/.ansible-lint" "$the_dir/roles/"*
+ansible-lint -c "$local_dir/.ansible-lint" "$local_dir/roles/"*
 
 echo "OK!"
