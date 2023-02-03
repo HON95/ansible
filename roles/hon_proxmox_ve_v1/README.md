@@ -15,7 +15,7 @@ E.g. networking and backups are not managed by this role, since it's too individ
 
 1. Setup the Ansible user:
     1. Install `sudo` and.
-    1. Create Ansible user: `useradd -G sudo ansible && passwd ansible`
+    1. Create Ansible user: `adduser ansible && usermod -aG sudo ansible`
 1. Setup networking:
     1. (Optional) Install `openvswitch-switch` for OVS support.
     1. Update the network config in the web UI.
