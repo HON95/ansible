@@ -8,9 +8,21 @@ http:
       rule: 'PathPrefix(`/api/`) || PathPrefix(`/debug/`)'
       service: api@internal
 
+    api-tls:
+      entryPoints: [api]
+      tls: {}
+      rule: 'PathPrefix(`/api/`) || PathPrefix(`/debug/`)'
+      service: api@internal
+
     dashboard:
       entryPoints: [api]
       #tls: {}
+      rule: 'PathPrefix(`/dashboard/`)'
+      service: api@internal
+
+    dashboard-tls:
+      entryPoints: [api]
+      tls: {}
       rule: 'PathPrefix(`/dashboard/`)'
       service: api@internal
 
@@ -20,9 +32,21 @@ http:
       rule: 'PathPrefix(`/`)'
       service: prometheus@internal
 
+    metrics-tls:
+      entryPoints: [metrics]
+      tls: {}
+      rule: 'PathPrefix(`/`)'
+      service: prometheus@internal
+
     ping:
       entryPoints: [ping]
       #tls: {}
+      rule: 'PathPrefix(`/`)'
+      service: ping@internal
+
+    ping-tls:
+      entryPoints: [ping]
+      tls: {}
       rule: 'PathPrefix(`/`)'
       service: ping@internal
 
