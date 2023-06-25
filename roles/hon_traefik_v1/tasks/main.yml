@@ -13,6 +13,8 @@
   block:
     - name: Check the current version
       shell: "set -o pipefail; {{ traefik_binary_path }} version 2>&1 | grep -Po1 '(?<=Version:)\\s*[^ ]+' | awk '{$1=$1};1'"
+      args:
+        executable: /bin/bash
       register: traefik_check_version
       failed_when: 'traefik_check_version.stdout == ""'
       changed_when: false
