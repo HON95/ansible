@@ -56,8 +56,7 @@ http:
       rule: 'Path(`/{a:.*[^/]}`)'
       # Only if no other routers match
       priority: 1
-      middlewares:
-        - slash-redirect-redirect
+      middlewares: [slash-redirect-redirect]
       service: noop@internal
 
   middlewares:
