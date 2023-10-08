@@ -1,0 +1,30 @@
+# Setup PVE VMs
+
+- name: Update VM lists
+  include_tasks: update-vms.yml
+
+- name: Setup VM templates
+  loop: '{{ pve_vm_templates }}'
+  loop_control:
+    loop_var: vm
+    label: '{{ vm.name }} ({{ vm.type }})'
+  vars:
+    vm_id: '{{ pve_vm_name_id_list[vm.name] | default(pve_vmid_template_next) }}'
+    vm_new: '{{ not vm.name in pve_vm_names }}'
+    vm_network_enable: '{{ vm.network_enable | default(pve_vm_default_network_enable) }}'
+  include_tasks: vms-template-{{ vm.type }}.yml
+
+- name: Setup VMs
+  loop: '{{ pve_vms }}'
+  loop_control:
+    loop_var: vm
+    label: '{{ vm.name }}'
+  vars:
+    vm_id: '{{ pve_vm_name_id_list[vm.name] | default(pve_vmid_normal_next) }}'
+    vm_new: '{{ not vm.name in pve_vm_names }}'
+    vm_clone: '{{ vm.template_name is defined }}'
+    vm_cloud_init_enable: '{{ vm.cloud_init_enable | default(pve_vm_default_cloud_init_enable) }}'
+    vm_network_enable: '{{ vm.network_enable | default(pve_vm_default_network_enable) }}'
+    vm_firewall_enable: '{{ vm.firewall_enable | default(pve_vm_default_firewall_enable) }}'
+    vm_start: '{{ vm.start | default(pve_vm_default_start) }}'
+  include_tasks: 'vms-vm.yml'

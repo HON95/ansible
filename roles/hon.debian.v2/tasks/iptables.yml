@@ -1,0 +1,31 @@
+# Setup IPTables
+
+# Note: The script flushes all existing rules, so e.g. Docker and Fail2Ban must be restarted afterward to re-add their own rules.
+
+- name: Uninstall other firewalls
+  when: 'linux_iptables_install'
+  apt:
+    name:
+      - ufw
+      - firewalld
+    state: absent
+    purge: true
+
+- name: Install IPTables
+  when: 'linux_iptables_install'
+  apt:
+    name:
+      - iptables
+      - iptables-persistent
+      - netfilter-persistent
+
+- name: Setup basic IPTables script
+  when: 'linux_iptables_basic_enable'
+  template:
+    src: '{{ linux_iptables_basic_source }}'
+    dest: '/etc/iptables/config.sh'
+    mode: '0744'
+  register: iptables_config
+  notify:
+    - Run IPTables script
+    - Restart IPTables-related services

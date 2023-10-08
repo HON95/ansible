@@ -1,0 +1,70 @@
+# Setup MOTD
+
+- name: Clear /etc/motd
+  when: 'linux_banner_motd_state == "empty"'
+  copy:
+    content: ''
+    dest: '/etc/motd'
+    mode: '0644'
+
+- name: Set /etc/motd
+  when: 'linux_banner_motd_state == "motd" and linux_banner_motd_path is defined'
+  copy:
+    src: '{{ linux_banner_motd_path }}'
+    dest: '/etc/motd'
+    mode: '0644'
+
+- name: Clear /etc/issue
+  when: 'linux_banner_issue_state == "empty"'
+  copy:
+    content: ''
+    dest: '/etc/issue'
+    mode: '0644'
+
+- name: Clear /etc/issue.net
+  when: 'linux_banner_issue_net_state == "empty"'
+  copy:
+    content: ''
+    dest: '/etc/issue.net'
+    mode: '0644'
+
+- name: Setting /etc/issue to logo
+  when: 'linux_banner_issue_state == "logo" and linux_ascii_logo_path is defined'
+  copy:
+    src: '{{ linux_ascii_logo_path }}'
+    dest: '/etc/issue'
+    mode: '0644'
+
+- name: Setting /etc/issue.net to logo
+  when: 'linux_banner_issue_state == "logo" and linux_ascii_logo_path is defined'
+  copy:
+    src: '{{ linux_ascii_logo_path }}'
+    dest: '/etc/issue.net'
+    mode: '0644'
+
+- name: Install packages for DMOTD
+  when: 'linux_banner_dmotd_enable'
+  apt:
+    name:
+      - neofetch
+      - lolcat
+
+- name: Add logo for DMOTD
+  when: 'linux_banner_dmotd_enable and linux_ascii_logo_path is defined'
+  copy:
+    src: '{{ linux_ascii_logo_path }}'
+    dest: '/etc/logo'
+    mode: '0644'
+
+- name: Add DMOTD script
+  when: 'linux_banner_dmotd_enable'
+  copy:
+    src: 'dmotd.sh'
+    dest: '/etc/profile.d/dmotd.sh'
+    mode: '0644'
+
+- name: Remove DMOTD script
+  when: 'not linux_banner_dmotd_enable'
+  file:
+    path: '/etc/profile.d/dmotd.sh'
+    state: absent

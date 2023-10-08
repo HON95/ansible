@@ -1,0 +1,2 @@
+# Maximum network socket receive buffer size (should be at least 2.5MB for QUIC to work well)
+linux_system_net_sock_recv_buffer_max: 2500000

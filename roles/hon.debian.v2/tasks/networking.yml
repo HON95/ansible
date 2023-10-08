@@ -1,0 +1,52 @@
+# Setup network interface
+
+# Warning: Changing network managers requires a system reboot.
+
+- name: Check if interface exists
+  when: 'linux_networking_method != "ignore"'
+  stat:
+    path: '/sys/class/net/{{ linux_networking_interface }}/'
+  register: check_network_interface
+
+- name: Fail if unknown interface
+  when: 'linux_networking_method != "ignore" and not check_network_interface.stat.exists'
+  fail:
+    msg: 'The provided network interface ({{ linux_networking_interface }}) does not exist in the system.'
+
+- name: Disable ifupdown config
+  when: 'linux_networking_method != "ignore"'
+  replace:
+    path: '/etc/network/interfaces'
+    regexp: '^([^#].*)$'
+    replace: '# \1'
+
+- name: Update network config (systemd-networkd)
+  when: 'linux_networking_method == "systemd"'
+  template:
+    src: 'networking/systemd-main.network.j2'
+    dest: '/etc/systemd/network/main.network'
+    mode: '0644'
+  notify: Reboot machine
+
+- name: Uninstall ifupdown
+  when: 'linux_networking_method != "ignore"'
+  apt:
+    name: [ifupdown]
+    state: absent
+    purge: true
+  notify: Reboot machine
+
+- name: Uninstall dhcpcd
+  when: 'linux_networking_method != "ignore"'
+  apt:
+    name: [dhcpcd]
+    state: absent
+    purge: true
+  notify: Reboot machine
+
+- name: Enable systemd-networkd service (systemd-networkd)
+  when: 'linux_networking_method == "systemd"'
+  systemd:
+    name: systemd-networkd.service
+    enabled: true
+  notify: Reboot machine

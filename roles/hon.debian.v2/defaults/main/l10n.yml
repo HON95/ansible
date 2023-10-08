@@ -1,0 +1,10 @@
+linux_l10n_keyboard:
+  # US
+  # model: "pc104"
+  # layout: "us"
+  # Norway
+  model: "pc105"
+  layout: "no"
+  variant: ""
+  options: ""
+  backspace: "guess"

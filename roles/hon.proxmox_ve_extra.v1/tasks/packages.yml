@@ -1,0 +1,11 @@
+# Setup PVE packages
+
+- name: Install packages for PVE (APT)
+  apt:
+    name:
+      - openvswitch-switch
+
+- name: Install Proxmoxer (Pip)
+  pip:
+    name:
+      - proxmoxer

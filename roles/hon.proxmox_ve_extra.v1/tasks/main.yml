@@ -1,0 +1,40 @@
+- name: Check if supported OS
+  when: 'not (
+    (ansible_distribution == "Debian" and ansible_distribution_major_version == "10")
+    or (ansible_distribution == "Debian" and ansible_distribution_major_version == "11")
+    )'
+  fail:
+    msg: 'Unsupported OS: {{ ansible_distribution }} {{ ansible_distribution_major_version }}'
+
+- name: Get service facts
+  service_facts: {}
+
+- import_tasks: packages.yml
+- meta: flush_handlers
+
+- import_tasks: auth.yml
+  when: 'pve_auth_setup_enable'
+- meta: flush_handlers
+
+- import_tasks: firewall.yml
+  when: 'pve_firewall_setup_enable'
+- meta: flush_handlers
+
+- import_tasks: storage.yml
+  when: 'pve_storage_setup_enable'
+- meta: flush_handlers
+
+- import_tasks: banner.yml
+- meta: flush_handlers
+
+- import_tasks: traefik.yml
+  when: 'pve_traefik_provider_setup_enable'
+- meta: flush_handlers
+
+- import_tasks: vm-ct-resources.yml
+  when: 'pve_vm_ct_res_setup_enable'
+- meta: flush_handlers
+
+- import_tasks: vms.yml
+  when: 'pve_vms_setup_enable'
+- meta: flush_handlers

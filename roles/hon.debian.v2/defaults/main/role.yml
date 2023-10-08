@@ -1,0 +1,4 @@
+# User to configure for Ansible to use.
+linux_ansible_user: ansible
+# Enable if this is a Proxmox VE server.
+linux_proxmox_ve_compatible: false

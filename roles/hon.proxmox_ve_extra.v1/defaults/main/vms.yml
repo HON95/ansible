@@ -1,0 +1,104 @@
+# Enable setting up VMs (set to false to avoid errors during first use).
+pve_vms_setup_enable: true
+
+# VM config defaults.
+pve_vm_default_domain: 'localdomain'
+pve_vm_default_cpu_type: 'host'
+pve_vm_default_cpu_sockets: 1
+pve_vm_default_cpu_cores: 2
+pve_vm_default_memory_mb: 4096
+pve_vm_default_disk_storage: '{{ pve_storage_default_image_rootdir_name }}'
+pve_vm_default_disk_resize: false
+pve_vm_default_disk_size_gb: 20
+pve_vm_default_network_enable: true
+pve_vm_default_network_bridge: "vmbr0"
+pve_vm_default_network_vlan_id: ""
+pve_vm_default_firewall_enable: true
+pve_vm_default_firewall_verify_source: true
+pve_vm_default_firewall_block_inbound: false
+pve_vm_default_firewall_prevent_dhcp_server: true
+pve_vm_default_dns_servers: '{{ pve_vm_dns_servers }}'
+pve_vm_default_display: 'std'
+pve_vm_default_protection: false
+pve_vm_default_start: false
+pve_vm_default_autostart: false
+pve_vm_default_qemu_agent: false
+pve_vm_default_startup_order: 1000
+pve_vm_default_cloud_init_enable: false
+pve_vm_default_ci_user: 'ansible'
+# (Required) SSH pubkeys, one per line
+# pve_vm_default_ci_ssh_pubkeys: ''
+
+# VMs to create, based on templates.
+# Required fields: id, name, type, network_bridge
+# The name is both the PVE VM name and the Cloud-Init-configured guest hostname.
+# "firewall_verify_source" requires the IPv4 and IPv6 address to be set.
+# "start" starts new VMs, "autostart" starts VMs on boot.
+# Network and disk stuff is only set during creation.
+# Recommended display options: std (graphical terminal), serial0 (text terminal), qxl (SPICE)
+pve_vms: []
+# pve_vms:
+#
+#   - name: full-linux-cloudinit-example
+#     description: ''
+#     template_name: template-debian-11-cloudgeneric
+#     domain: ''
+#     cpu_type: 'host'
+#     cpu_sockets: 2
+#     cpu_cores: 2
+#     memory_mb: 2048
+#     disk_resize: true
+#     disk_size_gb: 20
+#     disk_storage: 'local-lvm'
+#     network_enable: true
+#     network_bridge: "vmbr0"
+#     network_vlan_id: "10"
+#     network_ipv4_address: '192.168.1.5/24'
+#     network_ipv6_address: '2001:db8::5/64'
+#     firewall_enable: true
+#     firewall_verify_source: true
+#     firewall_block_inbound: false
+#     firewall_prevent_dhcp_server: true
+#     firewall_extra_rules: []
+#     dns_servers: [2001:db8::20, 2001:db8::21, 192.168.1.20]
+#     display: 'serial0'
+#     protection: false
+#     start: true
+#     autostart: true
+#     qemu_agent: true
+#     startup_order: 20
+#     cloud_init_enable: false
+#     ci_user: ansible
+#     ci_ssh_pubkeys: ''
+#
+#   - name: vyos-example
+#     description: ''
+#     cdrom_file: vyos-1.4-rolling-202205100602-amd64.iso
+#     cpu_cores: 2
+#     memory_mb: 2048
+#     disk_size_gb: 5
+#     disk_storage: 'local-lvm'
+#     network_enable: false
+#     display: 'serial0'
+#     protection: true
+#     start: true
+#     autostart: true
+#     startup_order: 10
+#
+#   - name: ubuntu-desktop-example
+#     description: ''
+#     cdrom_file: 'ubuntu-22.04-desktop-amd64.iso'
+#     cpu_cores: 6
+#     memory_mb: 8192
+#     disk_size_gb: 50
+#     disk_storage: 'local-lvm'
+#     network_bridge: 'vmbr0'
+#     network_vlan_id: "10"
+#     firewall_enable: true
+#     firewall_verify_source: false
+#     firewall_block_inbound: true
+#     display: 'qxl'
+#     protection: true
+#     start: true
+#     autostart: true
+#     startup_order: 10

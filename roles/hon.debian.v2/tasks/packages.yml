@@ -1,0 +1,67 @@
+# Setup packages
+
+- name: Enable contrib and non-free archive areas
+  replace:
+    path: /etc/apt/sources.list
+    regexp: '^(deb|deb-src)\s+(\S+)\s+(\S+)\s+.*main.*'
+    replace: '\1 \2 \3 main contrib non-free'
+    backup: true
+  register: apt_enable_repo_areas
+
+- name: Update if changed repo areas
+  when: 'apt_enable_repo_areas.changed'
+  apt: update_cache=true
+
+- name: Install basic packages
+  apt:
+    name:
+      - python3
+      - python3-pip
+      - ca-certificates
+      - software-properties-common
+      - curl
+      - vim
+      - htop
+      - screen
+      - tree
+      - bash-completion
+      - rsync
+
+- name: Install machine type-specific packages (bare-metal)
+  when: 'linux_machine_type == "bare-metal"'
+  apt:
+    name:
+      - smartmontools
+      - lm-sensors
+
+- name: Install machine type-specific packages (bare-metal non-pve)
+  when: 'linux_machine_type == "bare-metal" and not linux_proxmox_ve_compatible'
+  apt:
+    name:
+      - firmware-linux
+
+- name: Install machine type-specific packages (raspi)
+  when: 'linux_machine_type == "raspi"'
+  apt:
+    name:
+      - firmware-linux
+      - lm-sensors
+
+- name: Install machine type-specific packages (QEMU VM)
+  when: 'linux_machine_type == "qemu-vm"'
+  apt:
+    name:
+      - qemu-guest-agent
+
+- name: Enable QEMU guest agent (QEMU VM)
+  when: 'linux_machine_type == "qemu-vm"'
+  systemd:
+    name: qemu-guest-agent.service
+    enabled: true
+    state: started
+
+- name: Install machine type-specific packages (RasPi)
+  when: 'linux_machine_type == "raspi"'
+  apt:
+    name:
+      - lm-sensors

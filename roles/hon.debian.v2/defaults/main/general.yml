@@ -1,0 +1,8 @@
+timezone: "Europe/Oslo"
+locale: "en_US.UTF-8"
+
+# (Required) Supports "bare-metal", "raspi", "qemu-vm", "generic-vm".
+# linux_machine_type: bare-metal
+
+# Reboot timeout (seconds).
+linux_reboot_timeout: 600

@@ -1,0 +1,2 @@
+pve_vm_dns_servers: '{{ pve_dns_servers_ipv4 + pve_dns_servers_ipv6 }}'
+pve_user_token_ansible_id: 'ansible@pam!main'

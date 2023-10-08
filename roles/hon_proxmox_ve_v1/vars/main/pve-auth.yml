@@ -1,5 +1,0 @@
-pve_enabled_users: '{{ linux_server_local_users | dict2items | selectattr("value.pve_enabled", "defined") | selectattr("value.pve_enabled", "true") }}'
-pve_enabled_usernames_pam: '{{ pve_enabled_users | map(attribute="key") | product(["@pam"]) | map("join") | list }}'
-pve_admin_users: '{{ pve_enabled_users | selectattr("value.pve_groups", "defined") | selectattr("value.pve_groups", "contains", "admin") }}'
-pve_admin_usernames_pam: '{{ pve_admin_users | map(attribute="key") | product(["@pam"]) | map("join") | list }}'
-pve_user_token_ansible_id: 'ansible@pam!main'

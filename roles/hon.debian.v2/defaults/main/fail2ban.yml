@@ -1,0 +1,2 @@
+linux_fail2ban_enable: true
+linux_fail2ban_jail_file: fail2ban/jail.local.j2

@@ -1,0 +1,10 @@
+# Install IPTables-related packages
+linux_iptables_install: false
+# Use the basic IPTables script to set up the basics
+linux_iptables_basic_enable: false
+# Template to use, for overriding the internal template
+linux_iptables_basic_source: 'iptables/config.sh.j2'
+# Which services to allow in the basic script (add SSH to prevent lockout) (see the script for supported values)
+linux_iptables_basic_services: []
+# linux_iptables_basic_services:
+#   - ssh

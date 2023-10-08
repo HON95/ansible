@@ -1,0 +1,7 @@
+# Managed
+
+search {{ domain }}
+
+{% for server in linux_dns_servers -%}
+nameserver {{ server }}
+{% endfor %}

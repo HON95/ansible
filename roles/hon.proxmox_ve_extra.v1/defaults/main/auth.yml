@@ -1,0 +1,13 @@
+# Note: PVE PAM users are added through the new "pve_enabled" and "pve_groups" fields for the "linux_local_users" dict in users.yml.
+
+pve_auth_setup_enable: false
+
+# Auth tokens associated with users.
+# A token ID "root@pam!test" describes a "test" token for user "root@pam".
+# The key must be a UUID (needs confirmation).
+# Use Ansible Vault or something to encrypt the key.
+# A token "ansible@pam!main" is required to be added.
+pve_user_tokens: []
+# pve_user_tokens:
+#   "ansible@pam!main":
+#     key: !vault ...

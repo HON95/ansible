@@ -1,0 +1,19 @@
+# Setup PVE storage config
+
+- name: Check if PVE cluster firewall file exists
+  stat:
+    path: '/etc/pve/storage.cfg'
+  register: pve_storage_file_exists_result
+
+- name: Create PVE cluster firewall file
+  when: 'not pve_storage_file_exists_result.stat.exists'
+  file:
+    path: '/etc/pve/storage.cfg'
+    state: touch
+    mode: '0640'
+
+- name: Set PVE storage config
+  template:
+    src: '{{ pve_storage_config_path }}'
+    dest: '/etc/pve/storage.cfg'
+    mode: '0640'
