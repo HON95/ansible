@@ -136,7 +136,7 @@
     mac_address: '{{ pve_vm_mac_address_result.stdout | default("") }}'
     network_bridge: '{{ vm.network_bridge | default(pve_vm_default_network_bridge) }}'
     network_vlan_id: '{{ vm.network_vlan_id | default(pve_vm_default_network_vlan_id) }}'
-    network_string: 'virtio={{ mac_address }},bridge={{ network_bridge }}{% if network_vlan_id %},tag={{ network_vlan_id }}{% endif %},firewall=1'
+    network_string: 'virtio={{ mac_address }},bridge={{ network_bridge }},firewall=1{% if network_vlan_id %},tag={{ network_vlan_id }}{% endif %}'
   when: 'vm_network_enable and network_string != old_network_string'
   command: 'qm set "{{ vm_id }}" --net0 "{{ network_string }}"'
   changed_when: true
@@ -174,3 +174,8 @@
 - name: Update VM lists
   when: 'vm_new'
   include_tasks: update-vms.yml
+
+- name: Give VM some time to boot (new)
+  when: 'vm_new'
+  pause:
+    seconds: '{{ pve_vm_boot_delay }}'

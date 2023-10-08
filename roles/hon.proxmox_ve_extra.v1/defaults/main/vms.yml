@@ -1,5 +1,7 @@
 # Enable setting up VMs (set to false to avoid errors during first use).
 pve_vms_setup_enable: true
+# Delay in seconds to wait after creating a new VM, to allow it to boot before playbook continues.
+pve_vm_boot_delay: 60
 
 # VM config defaults.
 pve_vm_default_domain: 'localdomain'
@@ -8,7 +10,7 @@ pve_vm_default_cpu_sockets: 1
 pve_vm_default_cpu_cores: 2
 pve_vm_default_memory_mb: 4096
 pve_vm_default_disk_storage: '{{ pve_storage_default_image_rootdir_name }}'
-pve_vm_default_disk_resize: false
+pve_vm_default_disk_resize: true
 pve_vm_default_disk_size_gb: 20
 pve_vm_default_network_enable: true
 pve_vm_default_network_bridge: "vmbr0"

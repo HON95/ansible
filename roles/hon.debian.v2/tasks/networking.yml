@@ -13,12 +13,11 @@
   fail:
     msg: 'The provided network interface ({{ linux_networking_interface }}) does not exist in the system.'
 
-- name: Disable ifupdown config
+- name: Remove ifupdown config
   when: 'linux_networking_method != "ignore"'
-  replace:
-    path: '/etc/network/interfaces'
-    regexp: '^([^#].*)$'
-    replace: '# \1'
+  file:
+    path: "/etc/network/interfaces"
+    state: "absent"
 
 - name: Update network config (systemd-networkd)
   when: 'linux_networking_method == "systemd"'

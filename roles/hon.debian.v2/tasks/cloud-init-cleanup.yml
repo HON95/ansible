@@ -1,13 +1,18 @@
-# Setup miscellanea
+# Cleanup Cloud-Init
 
-- name: Remove Debian Cloud-Init sudo config
-  when: 'ansible_distribution == "Debian"'
-  file:
-    path: '/etc/sudoers.d/90-cloud-init-users'
-    state: absent
+- name: "Remove Cloud-Init packages"
+  apt:
+    name:
+      - cloud-init
+      - cloud-utils
+      - cloud-guest-utils
+    autoremove: yes
 
-- name: Remove Debian Cloud-Init SSH root config
-  when: 'ansible_distribution == "Debian"'
+- name: Remove Cloud-Init files
+  loop:
+    - "/etc/sudoers.d/90-cloud-init-users"
+    - "/root/.ssh/authorized_keys"
+    - "/etc/netplan/50-cloud-init.yaml"
   file:
-    path: '/root/.ssh/authorized_keys'
-    state: absent
+    path: "{{ item }}"
+    state: "absent"

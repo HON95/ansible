@@ -11,11 +11,19 @@
       - gnupg
       - curl
 
-- name: Install Docker SDKs for Python
+- name: Install Docker SDKs for Python (pip)
+  when: '(ansible_distribution == "Debian" and ansible_distribution_major_version == "10")
+    or (ansible_distribution == "Debian" and ansible_distribution_major_version == "11")'
   pip:
     name:
       - docker
       - docker-compose
+
+- name: Install Docker SDKs for Python (apt)
+  when: '(ansible_distribution == "Debian" and ansible_distribution_major_version == "12")'
+  apt:
+    name:
+      - python3-docker
 
 # Docker setup
 
@@ -112,6 +120,14 @@
   when: 'docker_nvidia_runtime_enable'
   command: 'docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi'
   changed_when: false
+
+# Docker compose compat script
+
+- name: Add docker-compose compat script
+  copy:
+    src: 'docker-compose.sh'
+    dest: '/usr/local/bin/docker-compose'
+    mode: '0755'
 
 # Network setup
 
