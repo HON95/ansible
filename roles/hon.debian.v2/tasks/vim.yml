@@ -1,7 +1,8 @@
 # Setup VIM
 
 - name: Install
-  apt: name=vim
+  apt:
+    name: vim
 
 - name: Get default editor
   command: 'readlink -f /etc/alternatives/editor'

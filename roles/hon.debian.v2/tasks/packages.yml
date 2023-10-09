@@ -10,7 +10,8 @@
 
 - name: Update if changed repo areas
   when: 'apt_enable_repo_areas.changed'
-  apt: update_cache=true
+  apt:
+    update_cache: true
 
 - name: Install basic packages
   apt:

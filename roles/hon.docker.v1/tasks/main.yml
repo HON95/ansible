@@ -103,7 +103,7 @@
 
 - name: Add swap limit support in GRUB config
   when: 'docker_swap_limit_result.rc == 0'
-  script: file-sh-var-space-list-append.sh /etc/default/grub GRUB_CMDLINE_LINUX cgroup_enable=memory swapaccount=1
+  script: 'file-sh-var-space-list-append.sh /etc/default/grub GRUB_CMDLINE_LINUX cgroup_enable=memory swapaccount=1'
   notify: Update GRUB
 
 - name: Warn about swap limit support changes

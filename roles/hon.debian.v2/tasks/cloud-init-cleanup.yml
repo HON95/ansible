@@ -6,7 +6,7 @@
       - cloud-init
       - cloud-utils
       - cloud-guest-utils
-    autoremove: yes
+    autoremove: true
 
 - name: Remove Cloud-Init files
   loop:

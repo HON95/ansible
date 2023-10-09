@@ -5,3 +5,7 @@ skip_list:
   - ignore-errors
   - command-instead-of-module
   - yaml[line-length]
+  - no-changed-when
+  - no-free-form
+  # Ignore name format for internal roles.
+  - role-name

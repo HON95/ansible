@@ -61,7 +61,7 @@
   loop_control:
     label: "{{ item.key }}"
   when: 'not item.value.remove | default(false) and item.value.ssh_keys is defined'
-  authorized_key:
+  ansible.posix.authorized_key:
     user: '{{ item.key }}'
     key: '{{ item.value.ssh_keys }}'
     exclusive: true
