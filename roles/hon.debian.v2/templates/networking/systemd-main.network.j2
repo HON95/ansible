@@ -28,7 +28,7 @@ Address={{ linux_networking_ipv6_address | ansible.utils.ipaddr("host") }}
 Gateway={{ linux_networking_ipv6_gateway | ansible.utils.ipaddr("address") }}
 {% elif linux_networking_ipv6_address | ansible.utils.ipaddr('prefix') == 127 %}
 Gateway={{ linux_networking_ipv6_address | ansible.utils.ipaddr(0) | ansible.utils.ipaddr("address") }}
-{{ else }}
+{% else %}
 Gateway={{ linux_networking_ipv6_address | ansible.utils.ipaddr(1) | ansible.utils.ipaddr("address") }}
 {% endif %}
 {% elif linux_networking_ipv6_addressing == 'slaac' %}
