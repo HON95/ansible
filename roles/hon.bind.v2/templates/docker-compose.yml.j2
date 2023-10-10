@@ -1,0 +1,80 @@
+#jinja2: trim_blocks:False
+# Docker Compose file for a BIND server
+# Managed
+{# Generalized for primary/secondary and authoritative/recursive #}
+
+services:
+  bind:
+    image: ubuntu/bind9:{{ bind_ubuntu_version }}
+    environment:
+      - TZ={{ timezone }}
+    volumes:
+      # Individual files for "/etc/bind/" to avoid overwriting other files there
+      - ./etc/named.conf:/etc/bind/named.conf:ro
+      - ./etc/default-zones.conf:/etc/bind/default-zones.conf:ro
+      {%- if bind_authoritative %}
+      - ./etc/main-zones.conf:/etc/bind/main-zones.conf:ro
+      {%- endif %}
+      {%- for local_config in bind_local_configs %}
+      {%- if (bind_primary and local_config.primary | default(true)) or (not bind_primary and local_config.secondary | default(true)) %}
+      - ./etc/local/{{ local_config.filename }}:/etc/bind/local/{{ local_config.filename }}:ro
+      {%- endif %}
+      {%- endfor %}
+      # RW zone file dir for automatic DNSSEC signing
+      - ./zones/:/etc/bind/zones/:rw
+      - ./cache/:/var/cache/bind/:rw
+      - ./data/:/var/lib/bind/:rw
+      - ./log/:/var/log/bind/:rw
+    networks:
+      internal:
+        ipv4_address: {{ bind_internal_ipv4_subnet | ansible.utils.ipaddr(bind_internal_address_nums.bind) | ansible.utils.ipaddr("address") }}
+        ipv6_address: {{ bind_internal_ipv6_subnet | ansible.utils.ipaddr(bind_internal_address_nums.bind) | ansible.utils.ipaddr("address") }}
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    restart: always
+
+  {%- if bind_recursive and bind_cloudflare_doh_enable %}
+
+  doh-proxy:
+    image: cloudflare/cloudflared:{{ bind_cloudflared_version }}
+    command:
+      - "--no-autoupdate"
+      - "proxy-dns"
+      - "--address=::"
+      #- "--metrics=0.0.0.0:40883"
+    environment:
+      - TZ={{ timezone }}
+    networks:
+      # IPv4+6 required for full internet access
+      internal:
+        ipv4_address: {{ bind_internal_ipv4_subnet | ansible.utils.ipaddr(bind_internal_address_nums.doh_proxy) | ansible.utils.ipaddr("address") }}
+        ipv6_address: {{ bind_internal_ipv6_subnet | ansible.utils.ipaddr(bind_internal_address_nums.doh_proxy) | ansible.utils.ipaddr("address") }}
+    restart: always
+  {%- endif %}{# bind_cloudflare_doh_enable #}
+
+  {%- if bind_prometheus_exporter_enable %}
+
+  prom-exporter:
+    image: prometheuscommunity/bind-exporter:{{ bind_prom_exporter_version }}
+    command:
+      - "--bind.stats-url=http://{{ bind_internal_ipv6_subnet | ansible.utils.ipaddr(bind_internal_address_nums.bind) | ansible.utils.ipaddr("address") }}:8053"
+    environment:
+      - TZ={{ timezone }}
+    networks:
+      internal:
+        ipv4_address: {{ bind_internal_ipv4_subnet | ansible.utils.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.utils.ipaddr("address") }}
+        ipv6_address: {{ bind_internal_ipv6_subnet | ansible.utils.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.utils.ipaddr("address") }}
+    ports:
+      - "9119:9119/tcp"
+      - "9119:9119/udp"
+    restart: always
+  {%- endif %}{# prometheus_exporter_enable #}
+
+networks:
+  internal:
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: {{ bind_internal_ipv4_subnet | ansible.utils.ipaddr("subnet") }}
+        - subnet: {{ bind_internal_ipv6_subnet | ansible.utils.ipaddr("subnet") }}

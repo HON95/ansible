@@ -1,6 +1,11 @@
 timezone: "Europe/Oslo"
 locale: "en_US.UTF-8"
 
+# Version for the Docker image (i.e. the tag).
+bind_ubuntu_version: "9.18-22.04_beta"
+bind_cloudflared_version: "2023.8.2"
+bind_prom_exporter_version: "v0.7.0"
+
 # Primary or secondary server
 # May be specified as a task var to reuse the same config file for both primary and secondary.
 # "secondary" variables may generally be omitted if no secondary server is used.
@@ -10,24 +15,18 @@ bind_primary: true
 bind_authoritative: false
 bind_recursive: false
 
-# (Required) Directory to put server in
-# bind_srv_path_primary: /srv/bind-recursive-primary
-# bind_srv_path_secondary: /srv/bind-recursive-secondary
+# Directory to put server in
+bind_srv_path: /srv/bind
 
-# (Required) Site-facing network interface (must already exist)
-# bind_external_network:
-#   name: private-apps-general
-#   ipv4_address_primary: 10.95.12.11
-#   ipv6_address_primary: fd87:d8aa:222:10::11
-#   ipv4_address_secondary: 10.95.12.12
-#   ipv6_address_secondary: fd87:d8aa:222:10::12
+# (Required) Addresses so primary/secondary can reach eachother.
+# bind_primary_ipv4_address: TODO
+# bind_primary_ipv6_address: TODO
+# bind_secondary_ipv4_address: TODO
+# bind_secondary_ipv6_address: TODO
 
-# (Optional-ish) Internal network for communication between containers (automatically created)
-# bind_internal_network:
-#   ipv4_subnet_primary: 172.31.0.0/24
-#   ipv6_subnet_primary: fd97:af91:2abd:4169::/64
-#   ipv4_subnet_secondary: 172.31.1.0/24
-#   ipv6_subnet_secondary: fd97:af91:2abd:4170::/64
+# Internal network for communication between BIND and sidecars-ish. Override if they collide with anything.
+bind_internal_ipv4_subnet: 172.26.166.0/24
+bind_internal_ipv6_subnet: fd76:63d2:ea09:c5b4::/64
 
 # Cache settings for recursive servers
 # Max cache size ("m" for MB)
@@ -49,12 +48,6 @@ bind_log_query_enable: false
 
 # Use Prometheus exporter (requires both external and internal network)
 bind_prometheus_exporter_enable: false
-# Static addresses to use for external network
-# bind_prometheus_exporter_external_network:
-#   ipv4_address_primary: 10.95.12.13
-#   ipv6_address_primary: fd87:d8aa:222:10::13
-#   ipv4_address_secondary: 10.95.12.14
-#   ipv6_address_secondary: fd87:d8aa:222:10::14
 
 # Local configs included in named.conf
 bind_local_configs: []
@@ -71,7 +64,7 @@ bind_zone_files: []
 #     src: srv1/bind-authoritative/abc.db
 
 # (Required for authoritative) Config to build local zone
-# infra_names:
+# bind_zone_names:
 #   zone: home.hon.systems.
 #   hostmaster: hostmaster.hon.one.
 #   ns1_name: ns1

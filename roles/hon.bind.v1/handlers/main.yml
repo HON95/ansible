@@ -1,5 +1,0 @@
-- name: Restart BIND
-  community.docker.docker_compose:
-    project_src: '{{ bind_srv_path }}'
-    recreate: always
-    remove_orphans: true

@@ -1,20 +1,18 @@
 # Ansible Role: BIND
 
-Generalized for authoritative/recursive and primary/secondary, but only one combination may be run per role call.
-Authoritative/recursive should typically have different variable sets/files (which also descripes if the serve should be authoritative or/and recursive),
-while primary/secondary is provided as a `primary` boolean variable and may share config.
-Supports automatic DNSSEC signing.
+Generalized for authoritative/recursive and primary/secondary, but only one combination may exist per Docker host/VM. Supports automatic DNSSEC signing.
 
 ## Requirements
 
 - Arch: x86_64
-- Docker & Docker Compose
+- Docker
 - Ansible collections:
     - `netcommon`
-    - `community.docker`
 
 ## Info
 
+- This setup binds the ports to the hosts, meaning the host can't also listen on port 53. If using systemd-resolved, disable the stub listener. If using the Debian role, set `linux_dns_systemd_stublistener`.
+- Make sure to disable the Docker userland proxy in `/etc/docker/daemon.json` so that the source addresses are retained, so that zone transfers don't break.
 - Note: If using automatic DNSSEC signing, the serial must be incremented for each zone file change to trigger resigning!
 - DS record format: `<key-tag> <algorithm> <digest-type> <digest>`
 - Generated DNSKEY records are located in `primary/data/K<zone><something>.key`.

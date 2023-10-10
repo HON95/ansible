@@ -1,0 +1,28 @@
+; Managed
+
+$ORIGIN {{ item.zone }}
+$TTL {{ bind_zone_config.ttl }}
+
+@   IN          SOA     {{ bind_zone_config.ns1_name }}.{{ bind_zone_config.zone }} {{ bind_zone_config.hostmaster }} (
+                        {{ bind_zone_config.serial }} ; serial number
+                        28800           ; Refresh
+                        7200            ; Retry
+                        864000          ; Expire
+                        86400           ; Min TTL
+                        )
+                NS      {{ bind_zone_config.ns1_name }}.{{ bind_zone_config.zone }}
+{% if bind_zone_config.ns2_name is defined %}
+                NS      {{ bind_zone_config.ns2_name }}.{{ bind_zone_config.zone }}
+{% endif %}
+
+{% for name_id, name_opts in bind_zone_names.items() -%}
+
+{%- if item.family == "IPv4" and name_opts.a is defined and name_opts.add_reverse is defined and name_opts.add_reverse %}
+{{ name_opts.a | ansible.utils.ipaddr("revdns") }}    PTR     {{ name_id }}.{{ bind_zone_config.zone }}
+{% endif %}
+
+{%- if item.family == "IPv6" and name_opts.aaaa is defined and name_opts.add_reverse is defined and name_opts.add_reverse %}
+{{ name_opts.aaaa | ansible.utils.ipaddr("revdns") }}    PTR     {{ name_id }}.{{ bind_zone_config.zone }}
+{% endif %}
+
+{%- endfor %}

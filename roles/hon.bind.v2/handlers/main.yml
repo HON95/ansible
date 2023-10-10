@@ -1,0 +1,4 @@
+- name: Restart BIND
+  command:
+    chdir: "{{ bind_srv_path }}"
+    cmd: "docker compose up -d --force-recreate --remove-orphans"

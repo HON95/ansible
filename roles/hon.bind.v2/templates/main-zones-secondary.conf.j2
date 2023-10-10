@@ -1,0 +1,28 @@
+#jinja2: trim_blocks:False
+# Managed
+
+zone "{{ bind_zone_config.zone }}" {
+    type secondary;
+    file "/etc/bind/zones/{{ bind_zone_config.zone }}db";
+    primaries {
+        {{ bind_primary_ipv6_address }};
+    };
+    allow-notify {
+        {{ bind_primary_ipv4_address }};
+    };
+};
+
+{%- for network in bind_zone_config.networks %}
+
+zone "{{ network.zone }}" {
+    type secondary;
+    file "/etc/bind/zones/{{ network.zone }}db";
+    primaries {
+        {{ bind_primary_ipv6_address }};
+    };
+    allow-notify {
+        {{ bind_primary_ipv4_address }};
+        {{ bind_primary_ipv6_address }};
+    };
+};
+{%- endfor %}

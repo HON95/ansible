@@ -1,3 +1,7 @@
+- name: Install APT dependencies
+  apt:
+    name: bind9utils
+
 - name: Setup server dirs
   file:
     path: '{{ bind_srv_path }}'
@@ -68,13 +72,13 @@
   when: 'bind_authoritative and bind_primary'
   template:
     src: 'normal.db.j2'
-    dest: '{{ bind_srv_path }}/zones/{{ infra_names.zone }}db'
+    dest: '{{ bind_srv_path }}/zones/{{ bind_zone_config.zone }}db'
     mode: '0644'
   notify: Restart BIND
 
 - name: Add BIND main reverse zones (authoritative primary)
   when: 'bind_authoritative and bind_primary'
-  loop: '{{ infra_names.networks }}'
+  loop: '{{ bind_zone_config.networks }}'
   template:
     src: 'reverse.db.j2'
     dest: '{{ bind_srv_path }}/zones/{{ item.zone }}db'

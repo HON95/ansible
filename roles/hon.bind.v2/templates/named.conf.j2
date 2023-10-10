@@ -29,11 +29,7 @@ options {
     {%- if bind_cloudflare_doh_enable %}
     // Forward to Cloudflare DoH proxy
     forwarders {
-        {%- if bind_primary %}
-        {{ bind_internal_network.ipv6_subnet_primary | ansible.utils.ipaddr(bind_internal_address_nums.doh_proxy) | ansible.utils.ipaddr("address") }};
-        {%- else %}
-        {{ bind_internal_network.ipv6_subnet_secondary | ansible.utils.ipaddr(bind_internal_address_nums.doh_proxy) | ansible.utils.ipaddr("address") }};
-        {%- endif %}
+        {{ bind_internal_ipv6_subnet | ansible.utils.ipaddr(bind_internal_address_nums.doh_proxy) | ansible.utils.ipaddr("address") }};
     };
     {%- else %}
     // Forward to Cloudflare
@@ -78,7 +74,6 @@ options {
     {%- if bind_recursive %}
 
     // Caching
-    cleaning-interval 15;
     max-cache-size {{ bind_cache_max_size }};
     max-cache-ttl {{ bind_cache_max_ttl }};
     max-ncache-ttl {{ bind_cache_max_nttl }};
@@ -140,25 +135,14 @@ logging{
 
 // Enable stats access from host and Prom exporter
 statistics-channels {
-    {%- if bind_primary %}
-    inet {{ bind_internal_network.ipv4_subnet_primary | ansible.utils.ipaddr(bind_internal_address_nums.bind) | ansible.utils.ipaddr("address") }} port 8053 allow {
-        {{ bind_internal_network.ipv4_subnet_primary | ansible.utils.ipaddr(bind_internal_address_nums.host) | ansible.utils.ipaddr("address") }};
-        {{ bind_internal_network.ipv4_subnet_primary | ansible.utils.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.utils.ipaddr("address") }};
+    inet {{ bind_internal_ipv4_subnet | ansible.utils.ipaddr(bind_internal_address_nums.bind) | ansible.utils.ipaddr("address") }} port 8053 allow {
+        {{ bind_internal_ipv4_subnet | ansible.utils.ipaddr(bind_internal_address_nums.host) | ansible.utils.ipaddr("address") }};
+        {{ bind_internal_ipv4_subnet | ansible.utils.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.utils.ipaddr("address") }};
     };
-    inet {{ bind_internal_network.ipv6_subnet_primary | ansible.utils.ipaddr(bind_internal_address_nums.bind) | ansible.utils.ipaddr("address") }} port 8053 allow {
-        {{ bind_internal_network.ipv6_subnet_primary | ansible.utils.ipaddr(bind_internal_address_nums.host) | ansible.utils.ipaddr("address") }};
-        {{ bind_internal_network.ipv6_subnet_primary | ansible.utils.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.utils.ipaddr("address") }};
+    inet {{ bind_internal_ipv6_subnet | ansible.utils.ipaddr(bind_internal_address_nums.bind) | ansible.utils.ipaddr("address") }} port 8053 allow {
+        {{ bind_internal_ipv6_subnet | ansible.utils.ipaddr(bind_internal_address_nums.host) | ansible.utils.ipaddr("address") }};
+        {{ bind_internal_ipv6_subnet | ansible.utils.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.utils.ipaddr("address") }};
     };
-    {%- else %}
-    inet {{ bind_internal_network.ipv4_subnet_secondary | ansible.utils.ipaddr(bind_internal_address_nums.bind) | ansible.utils.ipaddr("address") }} port 8053 allow {
-        {{ bind_internal_network.ipv4_subnet_secondary | ansible.utils.ipaddr(bind_internal_address_nums.host) | ansible.utils.ipaddr("address") }};
-        {{ bind_internal_network.ipv4_subnet_secondary | ansible.utils.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.utils.ipaddr("address") }};
-    };
-    inet {{ bind_internal_network.ipv6_subnet_secondary | ansible.utils.ipaddr(bind_internal_address_nums.bind) | ansible.utils.ipaddr("address") }} port 8053 allow {
-        {{ bind_internal_network.ipv6_subnet_secondary | ansible.utils.ipaddr(bind_internal_address_nums.host) | ansible.utils.ipaddr("address") }};
-        {{ bind_internal_network.ipv6_subnet_secondary | ansible.utils.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.utils.ipaddr("address") }};
-    };
-    {%- endif %}
 };
 {%- endif %}
 

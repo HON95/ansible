@@ -16,17 +16,20 @@
 - name: Install basic packages
   apt:
     name:
+      - bash-completion
+      - ca-certificates
+      - curl
+      - dnsutils
+      - htop
+      - jq
+      - mtr
       - python3
       - python3-pip
-      - ca-certificates
-      - software-properties-common
-      - curl
-      - vim
-      - htop
-      - screen
-      - tree
-      - bash-completion
       - rsync
+      - screen
+      - software-properties-common
+      - tree
+      - vim
 
 - name: Install machine type-specific packages (bare-metal)
   when: 'linux_machine_type == "bare-metal"'
