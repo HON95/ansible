@@ -110,11 +110,11 @@
   when: 'file_item.type == "recursive"'
   include_tasks: 'add-files-recursive.yml'
 
-- name: Start app
-  community.docker.docker_compose:
-    project_src: '{{ app.srv_path }}'
-    state: present
-    pull: true
-    recreate: smart
-    remove_orphans: '{{ app.remove_orphans | default(true) }}'
-    timeout: '{{ app.recreate_timeout | default(60) }}'
+# - name: Start app
+#   community.docker.docker_compose:
+#     project_src: '{{ app.srv_path }}'
+#     state: present
+#     pull: true
+#     recreate: smart
+#     remove_orphans: '{{ app.remove_orphans | default(true) }}'
+#     timeout: '{{ app.recreate_timeout | default(60) }}'

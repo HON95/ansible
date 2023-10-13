@@ -1,7 +1,10 @@
 - name: Restart app
-  community.docker.docker_compose:
-    project_src: '{{ app.srv_path }}'
-    state: present
-    recreate: always
-    remove_orphans: '{{ app.remove_orphans | default(true) }}'
-    timeout: '{{ app.recreate_timeout | default(60) }}'
+  # community.docker.docker_compose:
+  #   project_src: '{{ app.srv_path }}'
+  #   state: present
+  #   recreate: always
+  #   remove_orphans: '{{ app.remove_orphans | default(true) }}'
+  #   timeout: '{{ app.recreate_timeout | default(60) }}'
+  command:
+    chdir: "{{ app.srv_path }}"
+    cmd: "docker compose up -d --force-recreate --remove-orphans"
