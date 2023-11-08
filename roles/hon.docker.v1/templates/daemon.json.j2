@@ -3,7 +3,11 @@
     "exec-opts": ["native.cgroupdriver=systemd"],
     "log-driver": "json-file",
     "log-opts": {
-        "max-size": "100m"
+        "mode": "non-blocking",
+        "max-buffer-size": "5m",
+        "max-size": "10m",
+        "max-file": "3",
+        "compress": "true"
     },
     "mtu": {{ docker_network_mtu | int | to_json }},
     "default-address-pools": [
