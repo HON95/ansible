@@ -5,7 +5,12 @@
     name:
       - openvswitch-switch
 
-- name: Install Proxmoxer (Pip)
-  pip:
+# - name: Install Proxmoxer (Pip)
+#   pip:
+#     name:
+#       - proxmoxer
+
+- name: Install proxmoxer (APT)
+  apt:
     name:
-      - proxmoxer
+      - python3-proxmoxer

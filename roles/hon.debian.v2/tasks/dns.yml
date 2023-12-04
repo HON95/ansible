@@ -32,6 +32,12 @@
 
 # systemd method
 
+- name: Install systemd-resolved (systemd)
+  when: 'linux_dns_method == "systemd"'
+  apt:
+    name:
+      - systemd-resolved
+
 - name: Set DNS servers (systemd)
   when: 'linux_dns_method == "systemd"'
   lineinfile:

@@ -1,36 +1,33 @@
 # Ansible Role: Proxmox VE Extra
 
-Intended to be used with hon.debian.v1 (with "linux_proxmox_ve_compatible=true") and lae.proxmox.
+Intended to be used with hon.debian.v1 (with `linux_proxmox_ve_compatible=true`) and lae.proxmox.
 
 ## Resources
 
-- [[HON's Wiki] Proxmox VE](https://wiki.hon.one/config/virt-cont/proxmox-ve/)
+- [[HON's Wiki] Proxmox VE](https://wiki.hon.one/virt-cont/proxmox-ve/)
 - [[HON's Wiki] Debian Server](https://wiki.hon.one/config/linux-server/debian/)
 
 ## Instructions
 
-1. Install Proxmox.
-1. Setup networking:
-    1. (Optional) Install `openvswitch-switch` for OVS support.
-    1. Update the network config in the web UI.
-1. **TODO** Update notes below, assume they're wrong.
-1. Disable certain role features to avoid errors and breaking things: See below.
-1. **Run this role.**
-1. Setup storage backend (e.g. with ZFS).
-    - (Note) This is left as a manual step as it just varies too much for my own use cases for it to make sense to automate.
-1. Enable extra role features and run the role again:
-    - Enable storage setup: `pve_storage_setup_enable: true`
-    - Enable the firewall (avoid lockout!): `pve_firewall_setup_enable: true`
-    - Enable downloading relevant VM ISOs and LXC templates: `pve_vm_ct_res_setup_enable: true`
-    - Enable setting up template VMs, configured VMs and stuff: `pve_vms_setup_enable: true`
-1. Setup backups:
-    1. Update the backup config in the web UI.
-    1. I normally just set it to backup all VMs at "sun 03:00", with failure emails only (sent to root if no address specified).
-    1. (TODO) Automate this?
-1. (Optional) Setup other appropriate stuff:
+1. Install Debian (manually or PXE).
+1. Fix some things:
+    1. Install some packages: `apt install vim sudo python3`
+    1. Add non-root user (if not done during install): `adduser ansible`
+    1. Add user to sudo group: `usermod -aG sudo ansible`
+    1. Fix the IPv4 address if wrong so Ansible can connect using the correct address. Modify `/etc/network/interfaces` (see snippet below), then run `systemctl restart networking`.
+1. Create a playbook and vars/files using roles `hon.debian.v2`, `lae.proxmox` and `hon-proxmox_ve_extra.v1` (in that order).
+1. Run playbook (with first-time options): `ansible-playbook <your-playbook> -l <new-host> -u <user> --ask-pass --ask-become-pass -e '{"pve_run_system_upgrades": false, "pve_run_proxmox_upgrades": false, "pve_reboot_on_kernel_update": true, "pve_reboot_on_kernel_update_delay": 300, "pve_firewall_setup_enable": false, "pve_storage_setup_enable": false, "pve_vms_setup_enable": false}'`
+1. Manually setup stuff that this roles and lae.proxmox doesn't automate for practical reasons (see [HON wiki](https://wiki.hon.one/virt-cont/proxmox-ve/)):
+    - Network settings (preferably using Open vSwitch).
+    - Storage (preferably ZFS).
+    - Backup (I normally just set it to backup all VMs at "sun 03:00", with failure emails to root).
+    - Disable the root user in the GUI.
+    - Update the storage, firewall and VM configs.
+1. Run playbook normally: `ansible-playbook playbooks/linux.yml -l <host>`
+1. (Optional) Setup other stuff:
     - See the Prometheus node exporter role to export node metrics.
     - See the Postfix role to setup e-mail forwarding.
-    - See the Traefik role to setup a reverse proxy in front of the PVE web interface.
+    - See the Traefik role to setup a reverse proxy in front of the PVE web interface (see notes below).
 
 ### Traefik Config
 

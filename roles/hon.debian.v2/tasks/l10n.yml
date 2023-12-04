@@ -13,6 +13,10 @@
     line: 'LANG={{ locale }}'
     mode: '0644'
 
+- name: Install keyboard configuration program
+  apt:
+    name: keyboard-configuration
+
 - name: Set keyboard configuration
   with_items:
     - { key: XKBMODEL, value: '{{ linux_l10n_keyboard.model }}' }

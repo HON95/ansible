@@ -29,7 +29,7 @@
     path: '/etc/pve/local/host.fw'
   register: pve_firewall_host_file_exists_result
 
-- name: Create PVE cluster firewall file
+- name: Create PVE host firewall file
   when: 'not pve_firewall_host_file_exists_result.stat.exists'
   file:
     path: '/etc/pve/local/host.fw'
