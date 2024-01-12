@@ -2,7 +2,10 @@
 
 collections:
   - name: ansible.netcommon
+  - name: ansible.posix
   - name: community.general
   - name: community.docker
   - name: containers.podman
+  # FIXME
+  # - name: lae.proxmox
   - name: vyos.vyos

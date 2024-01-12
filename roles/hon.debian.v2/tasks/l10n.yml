@@ -1,7 +1,7 @@
 # Setup localization (l10n)
 
 - name: Generate locale
-  community.general.system.locale_gen:
+  community.general.locale_gen:
     name: '{{ locale }}'
     state: present
 
@@ -33,5 +33,5 @@
   notify: Update keyboard configuration
 
 - name: Set timezone
-  community.general.system.timezone:
+  community.general.timezone:
     name: '{{ timezone }}'
