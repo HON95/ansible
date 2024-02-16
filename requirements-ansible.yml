@@ -6,6 +6,6 @@ collections:
   - name: community.general
   - name: community.docker
   - name: containers.podman
-  # FIXME
+  # TODO: lae.proxmox mangler støtte for Deb12+PVE8, se README.
   # - name: lae.proxmox
   - name: vyos.vyos
