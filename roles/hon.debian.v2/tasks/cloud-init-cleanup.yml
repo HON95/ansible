@@ -2,11 +2,12 @@
 
 - name: "Remove Cloud-Init packages"
   apt:
+    state: "absent"
+    autoremove: true
     name:
       - cloud-init
       - cloud-utils
       - cloud-guest-utils
-    autoremove: true
 
 - name: Remove Cloud-Init files
   loop:

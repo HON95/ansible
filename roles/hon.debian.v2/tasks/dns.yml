@@ -34,7 +34,7 @@
 
 # Debian 11 and earlier has it integrated, no package
 - name: Install systemd-resolved (systemd)
-  when: 'linux_dns_method == "systemd" and ansible_distribution_major_version|int >= 12)'
+  when: 'linux_dns_method == "systemd" and ansible_distribution_major_version|int >= 12'
   apt:
     name:
       - systemd-resolved
