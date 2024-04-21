@@ -2,5 +2,10 @@
 
 - name: Increase network socket receive buffer size
   ansible.posix.sysctl:
-    name: 'net.core.rmem_max'
-    value: '{{ linux_system_net_sock_recv_buffer_max }}'
+    name: "net.core.rmem_max"
+    value: "{{ linux_system_net_sock_recv_buffer_max }}"
+
+- name: Increase network socket transmit buffer size
+  ansible.posix.sysctl:
+    name: "net.core.wmem_max"
+    value: "{{ linux_system_net_sock_recv_buffer_max }}"

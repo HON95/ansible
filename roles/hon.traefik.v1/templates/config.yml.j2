@@ -18,8 +18,9 @@ accessLog:
 certificatesResolvers:
   letsencrypt:
     acme:
-      email: '{{ traefik_acme_webmaster }}'
+      email: '{{ traefik_acme_webmaster | default("") }}'
       storage: '{{ traefik_acme_path }}'
+      keyType: RSA4096
 {% if traefik_staging_server_enable %}
       # Staging server
       caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
