@@ -7,8 +7,8 @@
 - name: Create the VM
   when: 'vm_new'
   vars:
-    # cloudinit_disk: '{{ pve_storage_default_image_rootdir_name }}:vm-{{ vm_id }}-cloudinit'
-    cloudinit_disk: '{{ pve_storage_default_image_rootdir_name }}:cloudinit'
+    # cloudinit_disk: '{{ pve_storage_default_image_name }}:vm-{{ vm_id }}-cloudinit'
+    cloudinit_disk: '{{ pve_storage_default_image_name }}:cloudinit'
   command: 'qm create "{{ vm_id }}" --name="{{ vm.name }}" --ide2="{{ cloudinit_disk }}"'
   changed_when: true
 
@@ -31,7 +31,7 @@
         timeout: '{{ pve_download_timeout_s }}'
 
     - name: Import the disk image
-      command: 'qm importdisk "{{ vm_id }}" "{{ pve_template_vm_create_tmpfile.path }}" "{{ pve_storage_default_image_rootdir_name }}"'
+      command: 'qm importdisk "{{ vm_id }}" "{{ pve_template_vm_create_tmpfile.path }}" "{{ pve_storage_default_image_name }}"'
       changed_when: true
 
   always:
@@ -43,7 +43,7 @@
 
 - name: Attach the disk image
   when: 'vm_new'
-  command: 'qm set "{{ vm_id }}" --scsi0 "{{ pve_storage_default_image_rootdir_name }}:vm-{{ vm_id }}-disk-0,cache=writeback"'
+  command: 'qm set "{{ vm_id }}" --scsi0 "{{ pve_storage_default_image_name }}:vm-{{ vm_id }}-disk-0,cache=writeback"'
   changed_when: true
 
 - name: Update the VM config

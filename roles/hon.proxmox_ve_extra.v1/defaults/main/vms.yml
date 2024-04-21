@@ -9,7 +9,7 @@ pve_vm_default_cpu_type: 'host'
 pve_vm_default_cpu_sockets: 1
 pve_vm_default_cpu_cores: 2
 pve_vm_default_memory_mb: 4096
-pve_vm_default_disk_storage: '{{ pve_storage_default_image_rootdir_name }}'
+pve_vm_default_disk_storage: '{{ pve_storage_default_image_name }}'
 pve_vm_default_disk_resize: true
 pve_vm_default_disk_size_gb: 20
 pve_vm_default_network_enable: true

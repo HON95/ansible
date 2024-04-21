@@ -36,7 +36,7 @@
 - name: Update VM config (non-Cloud-Init) (new)
   when: 'vm_new and not vm_cloud_init_enable'
   vars:
-    cdrom_string: '{% if vm.cdrom_file is defined %}{{ pve_storage_default_iso_vztmpl_name }}:iso/{{ vm.cdrom_file }}{% else %}none{% endif %},media=cdrom'
+    cdrom_string: '{% if vm.cdrom_file is defined %}{{ pve_storage_default_iso_name }}:iso/{{ vm.cdrom_file }}{% else %}none{% endif %},media=cdrom'
     qm_params:
       ide2: "{{ cdrom_string }}"
   loop: '{{ qm_params | list }}'

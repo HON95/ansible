@@ -40,3 +40,7 @@ traefik_provider_configs_extra:
   - type: keep
     dst: pve.yml
 ```
+
+## TODO
+
+- Remove functionality to create VM resources in the next major version. Use Terraform instead.
