@@ -1,5 +1,0 @@
-{
-    "yaml.schemas": {
-        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json": "file:///home/hon/Projects/CasualGaming/tech-configs/ansible-hon/roles/hon.proxmox_ve_extra.v1/tasks/traefik.yml"
-    }
-}
