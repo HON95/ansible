@@ -1,10 +1,5 @@
 # Setup PVE groups, users and permissions
 
-- name: Check if an Ansible token was provided
-  when: 'not pve_user_token_ansible_id in pve_user_tokens'
-  fail:
-    msg: 'No PVE API token was provided for ansible ("{{ pve_user_token_ansible_id }}")'
-
 - name: Check if PVE token file exists
   stat:
     path: '/etc/pve/priv/token.cfg'
