@@ -1,11 +1,11 @@
-# Ansible dependencies provided in a single file for convenience.
-
 collections:
   - name: ansible.netcommon
   - name: ansible.posix
   - name: community.general
   - name: community.docker
   - name: containers.podman
-  # TODO: lae.proxmox mangler støtte for Deb12+PVE8, se README.
-  # - name: lae.proxmox
+  - name: junipernetworks.junos
   - name: vyos.vyos
+
+roles:
+  - name: lae.proxmox

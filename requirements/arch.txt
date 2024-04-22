@@ -1,0 +1,6 @@
+# Arch packages to install, because no Python PIP.
+
+python-dnspython
+python-jmespath
+python-netaddr
+python-pylibssh

@@ -7,5 +7,5 @@ skip_list:
   - yaml[line-length]
   - no-changed-when
   - no-free-form
-  # Ignore name format for internal roles.
   - role-name
+  - var-naming[no-role-prefix]

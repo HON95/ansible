@@ -1,0 +1,4 @@
+ansible-pylibssh
+dnspython
+jmespath
+netaddr

@@ -1,5 +1,0 @@
-# Python dependencies provided in a single file for convenience.
-
-netaddr
-jmespath
-ansible-pylibssh

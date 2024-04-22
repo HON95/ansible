@@ -1,4 +1,3 @@
-
 - name: "Setup VyOS config"
   block:
 
