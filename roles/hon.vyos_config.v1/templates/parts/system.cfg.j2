@@ -1,0 +1,17 @@
+{% if vyos_config_system_domain_name is defined %}
+set system domain-name '{{ vyos_config_system_domain_name }}'
+{% endif %}
+{% if vyos_config_system_host_name is defined %}
+set system host-name '{{ vyos_config_system_host_name }}'
+{% endif %}
+
+{% for user in vyos_config_system_login_users | default([]) %}
+{% set user_path = "system login user " + user.username %}
+{% if user.authn_encrypted_password is defined %}
+set {{ user_path }} authentication {{ fq }}encrypted-password{{ fq }} '{{ user.authn_encrypted_password }}'
+{% endif %}
+{% for pubkey_name, pubkey_value in user.authn_public_keys | default({}) | dictsort %}
+set {{ user_path }} authentication public-keys {{ pubkey_name }} key '{{ pubkey_value.key }}'
+set {{ user_path }} authentication public-keys {{ pubkey_name }} type '{{ pubkey_value.type }}'
+{% endfor %}
+{% endfor %}{# vyos_config_system_login_users #}

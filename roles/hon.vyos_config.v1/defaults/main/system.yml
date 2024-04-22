@@ -1,0 +1,10 @@
+# vyos_config_system_domain_name: "example.net"
+# vyos_config_system_host_name: "vyos01"
+# vyos_config_system_login_users:
+#   - username: vyos
+#     authn_encrypted_password: "$6$55CsA5amvanwAJiz$rZ6JlNLwr8kI3k8MkY66QIqkQQRq85ob/f.1OwFVCpaEnPI6QQ8u0OPgIdjMHmo0pAYpL6AYknuAJKEfBsnC80"
+#   - username: ansible
+#     authn_public_keys:
+#       "ansible":
+#         type: "ssh-rsa"
+#         key: "AAAAB3NzaC1yc2EAAAADAQABAAAAgQCqtuQEngGn7+uAyFpIMkdbLKwkB+N0PVVpmYtAYYRQUUmsTXg6PMo27Wd3HJk8gPe77DVrStntiRi95RfYy9eJ9msBB6kWSqUL5ydDJQoUtVPKCwe0d7+BIMRafktmAPo0Kqnukc+4HZHSehkLSgZ/+s4fgxpFwKePkLJfWz16Dw=="

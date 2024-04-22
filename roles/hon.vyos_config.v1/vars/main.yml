@@ -1,0 +1,5 @@
+vyos_config_interface_types:
+  "bond": "bonding"
+  "dum": "dummy"
+  "eth": "ethernet"
+  "lo": "loopback"

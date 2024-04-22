@@ -1,0 +1,6 @@
+{% for route in vyos_config_proto_static_routes | default([]) %}
+{% set route_kw = "route6" if ":" in route.prefix else "route" %}
+{% if route.next_hop is defined %}
+set protocols static {{ route_kw }} {{ route.prefix }} next-hop {{ route.next_hop }}
+{% endif %}{# route.next_hop #}
+{% endfor %}{# vyos_config_proto_static_routes #}

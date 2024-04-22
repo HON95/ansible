@@ -1,0 +1,7 @@
+set service lldp interface all
+
+{% for srv in vyos_config_svc_ntp_servers | default([]) %}
+set service ntp server {{ srv }}
+{% endfor %}
+
+set service ssh disable-host-validation

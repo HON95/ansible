@@ -1,0 +1,28 @@
+# TODO: source this from the bogon lists instead
+# vyos_config_firewall_network_group_bogons:
+#   name: "bogons"
+#   ipv4:
+#     members:
+#       - address: "0.0.0.0/8"
+#       - address: "100.64.0.0/10"
+#       - address: "127.0.0.0/8"
+#       - address: "169.254.0.0/16"
+#       - address: "192.0.0.0/24"
+#       - address: "192.0.2.0/24"
+#       - address: "198.18.0.0/15"
+#       - address: "198.51.100.0/24"
+#       - address: "203.0.113.0/24"
+#       - address: "240.0.0.0/4"
+#   ipv6:
+#     members:
+#       - address: "::/8"
+#       - address: "64:ff9b::/96"
+#       - address: "100::/64"
+#       - address: "200::/7"
+#       - address: "2001::/23"
+#       - address: "2001:2::/48"
+#       - address: "2001:db8::/32"
+#       - address: "2001:10::/28"
+#       - address: "2002::/16"
+#       - address: "3ffe::/16"
+#       - address: "fec0::/10"
