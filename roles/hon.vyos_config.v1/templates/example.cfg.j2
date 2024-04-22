@@ -1,0 +1,19 @@
+set interfaces ethernet eth0 address '1.2.3.4/24'
+set interfaces ethernet eth0 address '1:2:3:4::10/64'
+set interfaces ethernet eth0 description 'link:wan'
+set interfaces ethernet eth0 hw-id 'bc:24:11:ad:03:71'
+set interfaces loopback lo
+set protocols static route 0.0.0.0/0 next-hop 1.2.3.1
+set protocols static route6 ::/0 next-hop 1:2:3:4::1
+set service lldp interface all
+set service ntp server 0.no.pool.ntp.org
+set service ntp server 1.no.pool.ntp.org
+set service ntp server 2.no.pool.ntp.org
+set service ntp server 3.no.pool.ntp.org
+set service ssh
+set system domain-name 'yolo.hon.systems'
+set system host-name 'vyos01'
+set system login user ansible authentication public-keys ansible key 'AAAAB3NzaC1yc2EAAAADAQABAAAAgQCqtuQEngGn7+uAyFpIMkdbLKwkB+N0PVVpmYtAYYRQUUmsTXg6PMo27Wd3HJk8gPe77DVrStntiRi95RfYy9eJ9msBB6kWSqUL5ydDJQoUtVPKCwe0d7+BIMRafktmAPo0Kqnukc+4HZHSehkLSgZ/+s4fgxpFwKePkLJfWz16Dw=='
+set system login user ansible authentication public-keys ansible type 'ssh-rsa'
+set system login user vyos authentication {{ fq }}encrypted-password{{ fq }} '$6$55CsA5amvanwAJiz$rZ6JlNLwr8kI3k8MkY66QIqkQQRq85ob/f.1OwFVCpaEnPI6QQ8u0OPgIdjMHmo0pAYpL6AYknuAJKEfBsnC80'
+set system login user vyos authentication plaintext-password ''

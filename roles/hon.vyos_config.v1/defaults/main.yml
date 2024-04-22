@@ -1,0 +1,2 @@
+# Required: Path to a VyOS config template using set-style commands.
+# vyos_config_path: xxx/vyos.cfg.j2

@@ -1,0 +1,126 @@
+
+- name: "Setup VyOS config"
+  block:
+
+    - name: "Create temporary file for current config"
+      ansible.builtin.tempfile:
+        state: "file"
+      register: "vyos_current_config_file_result"
+      changed_when: "false"
+
+    - name: "Create temporary file for intended config"
+      ansible.builtin.tempfile:
+        state: "file"
+      register: "vyos_intended_config_file_result"
+      changed_when: "false"
+
+    - name: "Get current config"
+      vyos.vyos.vyos_command:
+        retries: 0
+        commands:
+          - "configure"
+          - "show | commands"
+          - "exit"
+      register: "vyos_get_config_result"
+
+    - name: "Write current config to local file"
+      delegate_to: "localhost"
+      copy:
+        content: "{{ vyos_get_config_result.stdout_lines[1][:-1] | join('\n') }}\n"
+        dest: "{{ vyos_current_config_file_result.path }}"
+        mode: "0600"
+      changed_when: "false"
+
+    - name: "Write intended config to local file"
+      delegate_to: "localhost"
+      vars:
+        fq: ""
+      template:
+        src: "{{ vyos_config_path }}"
+        dest: "{{ vyos_intended_config_file_result.path }}"
+        mode: "0600"
+      changed_when: "false"
+
+    - name: "Diff configs"
+      delegate_to: "localhost"
+      command:
+        cmd: "diff --ignore-blank-lines {{ vyos_current_config_file_result.path }} {{ vyos_intended_config_file_result.path }}"
+      register: "vyos_config_diff_result"
+      changed_when: "vyos_config_diff_result.rc != 0"
+      failed_when: "false"
+
+    - name: "Create temporary file for applyable config"
+      when: "vyos_config_diff_result.changed"
+      ansible.builtin.tempfile:
+        state: "file"
+      register: "vyos_apply_config_file_result"
+      changed_when: "false"
+
+    - name: "Write applyable config content to local file"
+      when: "vyos_config_diff_result.changed"
+      delegate_to: "localhost"
+      vars:
+        fq: "'"
+      template:
+        src: "{{ vyos_config_path }}"
+        dest: "{{ vyos_apply_config_file_result.path }}"
+        mode: "0600"
+      changed_when: "false"
+
+    - name: "Write applyable config header to local file"
+      when: "vyos_config_diff_result.changed"
+      delegate_to: "localhost"
+      blockinfile:
+        path: "{{ vyos_apply_config_file_result.path }}"
+        block: "{{ lookup('ansible.builtin.file', 'apply_header.cfg') }}"
+        insertbefore: "BOF"
+        marker: ""
+        mode: "0600"
+      changed_when: "false"
+
+    - name: "Remove newlines in applyable config"
+      when: "vyos_config_diff_result.changed"
+      delegate_to: "localhost"
+      lineinfile:
+        path: "{{ vyos_apply_config_file_result.path }}"
+        regexp: "^$"
+        state: "absent"
+        mode: "0600"
+      changed_when: "false"
+
+    - name: "Update config"
+      when: "vyos_config_diff_result.changed"
+      vyos.vyos.vyos_config:
+        src: "{{ vyos_apply_config_file_result.path }}"
+        # All commands must run for correct result
+        match: "none"
+        save: true
+      register: vyos_update_config_result
+
+    - name: "Check for filtered commands"
+      when: "vyos_update_config_result.filtered is defined and vyos_update_config_result.filtered"
+      fail:
+        msg: "Some commands were filtered (add quotes around other parts of the command to bypass filter): {{ vyos_update_config_result.filtered }}"
+
+  always:
+
+    - name: "Delete temporary file for current config"
+      when: "vyos_current_config_file_result.path is defined"
+      file:
+        path: "{{ vyos_current_config_file_result.path }}"
+        state: "absent"
+      changed_when: "false"
+
+    - name: "Delete temporary file for intended config"
+      when: "vyos_intended_config_file_result.path is defined"
+      file:
+        path: "{{ vyos_intended_config_file_result.path }}"
+        state: "absent"
+      changed_when: "false"
+
+    - name: "Delete temporary file for applyable intended config"
+      when: "vyos_apply_config_file_result.path is defined"
+      file:
+        path: "{{ vyos_apply_config_file_result.path }}"
+        state: "absent"
+      changed_when: "false"
