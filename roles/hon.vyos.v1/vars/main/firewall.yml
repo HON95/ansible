@@ -1,5 +1,0 @@
-vyos_firewall_rule_sets_all_transformed:
-  - afi: ipv4
-    rule_sets: '{{ vyos_firewall_rule_sets_all | selectattr("name", "match", ".+-4$") }}'
-  - afi: ipv6
-    rule_sets: '{{ vyos_firewall_rule_sets_all | selectattr("name", "match", ".+-6$") }}'
