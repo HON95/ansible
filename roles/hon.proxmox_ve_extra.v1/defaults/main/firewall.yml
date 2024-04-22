@@ -3,6 +3,10 @@ pve_firewall_setup_enable: false
 # Path the cluster and host firewall configs (template)
 pve_firewall_cluster_config_path: cluster.fw.j2
 pve_firewall_host_config_path: host.fw.j2
+# Open TCP/UDP 80/443
+pve_firewall_open_http: false
+# Open TCP 8006
+pve_firewall_open_pve_http: true
 # Extra rules (raw)
 # Consider creating it in the GUI and then copying it over here
 pve_firewall_cluster_extra_rules: []

@@ -1,6 +1,8 @@
 # Ansible Role: Proxmox VE Extra
 
-Intended to be used with hon.debian.v1 (with `linux_proxmox_ve_compatible=true`) and lae.proxmox.
+Intended to be used with hon.debian.v1 (with `linux_proxmox_ve_compatible=true`) and lae.proxmox (with certain overlapping features left disabled).
+
+Some steps are intentionally left non-automated, as they vary too much on my nodes and I want the manual control.
 
 ## Resources
 
@@ -8,6 +10,10 @@ Intended to be used with hon.debian.v1 (with `linux_proxmox_ve_compatible=true`)
 - [[HON's Wiki] Debian Server](https://wiki.hon.one/config/linux-server/debian/)
 
 ## Instructions
+
+Instructions from Debian installation to ready PVE.
+
+**Warning**: Hasn't been tested with PVE clustering yet, only standalone nodes.
 
 1. Install Debian (manually or PXE).
 1. Fix some things:
@@ -20,8 +26,8 @@ Intended to be used with hon.debian.v1 (with `linux_proxmox_ve_compatible=true`)
 1. Manually setup stuff that this roles and lae.proxmox doesn't automate for practical reasons (see [HON wiki](https://wiki.hon.one/virt-cont/proxmox-ve/)):
     - Network settings (preferably using Open vSwitch).
     - Storage (preferably ZFS).
-    - Backup (I normally just set it to backup all VMs at "sun 03:00", with failure emails to root).
-    - Disable the root user in the GUI.
+    - Backup (I normally just set it to backup all VMs at "sun 03:00", with failure emails to root). **TODO**: Automate this?
+    - Disable the root user in the GUI. **TODO**: Automate this?
     - Update the storage, firewall and VM configs.
 1. Run playbook normally: `ansible-playbook playbooks/linux.yml -l <host>`
 1. (Optional) Setup other stuff:

@@ -1,5 +1,5 @@
 # Enable setting up VMs (set to false to avoid errors during first use).
-pve_vms_setup_enable: true
+pve_vms_setup_enable: false
 # Delay in seconds to wait after creating a new VM, to allow it to boot before playbook continues.
 pve_vm_boot_delay: 60
 

@@ -5,10 +5,16 @@ enable: 1
 IN Ping(ACCEPT) -i {{ pve_network_mgmt_interface }} -log nolog # Ping
 IN ACCEPT -i {{ pve_network_mgmt_interface }} -p ipv6-icmp -log nolog # NDP
 IN ACCEPT -i {{ pve_network_mgmt_interface }} -p tcp -dport 22 -log nolog # SSH
-IN ACCEPT -i {{ pve_network_mgmt_interface }} -p tcp -dport 80 -log nolog # HTTP
-IN ACCEPT -i {{ pve_network_mgmt_interface }} -p tcp -dport 443 -log nolog # HTTPS
+{% if pve_firewall_open_http %}
+IN ACCEPT -i {{ pve_network_mgmt_interface }} -p tcp -dport 80 -log nolog # HTTP (TCP)
+IN ACCEPT -i {{ pve_network_mgmt_interface }} -p udp -dport 80 -log nolog # HTTP (UDP)
+IN ACCEPT -i {{ pve_network_mgmt_interface }} -p tcp -dport 443 -log nolog # HTTPS (TCP)
+IN ACCEPT -i {{ pve_network_mgmt_interface }} -p udp -dport 443 -log nolog # HTTPS (UDP)
+{% endif %}
 IN ACCEPT -i {{ pve_network_mgmt_interface }} -p tcp -dport 3128 -log nolog # SPICE
+{% if pve_firewall_open_pve_http %}
 IN ACCEPT -i {{ pve_network_mgmt_interface }} -p tcp -dport 8006 -log nolog # PVE HTTPS
+{% endif %}
 {% for rule in pve_firewall_cluster_extra_rules %}
 {{ rule }}
 {% endfor %}
