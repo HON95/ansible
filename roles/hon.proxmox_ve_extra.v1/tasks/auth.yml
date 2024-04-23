@@ -1,21 +1,22 @@
 # Setup PVE groups, users and permissions
 
-- name: Check if PVE token file exists
+- name: "Check if PVE token file exists"
   stat:
-    path: '/etc/pve/priv/token.cfg'
-  register: pve_token_file_exists_result
+    path: "/etc/pve/priv/token.cfg"
+  register: "pve_token_file_exists_result"
 
-- name: Create PVE token file
-  when: 'not pve_token_file_exists_result.stat.exists'
+- name: "Create PVE token file"
+  when: "not pve_token_file_exists_result.stat.exists"
   file:
-    path: '/etc/pve/priv/token.cfg'
-    state: touch
-    mode: '0600'
+    path: "/etc/pve/priv/token.cfg"
+    state: "touch"
+    mode: "0600"
 
-- name: Setup PVE token secrets
+- name: "Setup PVE tokens"
+  when: "pve_user_tokens"
   no_log: true
   template:
-    src: 'token.cfg.j2'
-    dest: '/etc/pve/priv/token.cfg'
-    owner: root
-    mode: '0600'
+    src: "token.cfg.j2"
+    dest: "/etc/pve/priv/token.cfg"
+    owner: "root"
+    mode: "0600"

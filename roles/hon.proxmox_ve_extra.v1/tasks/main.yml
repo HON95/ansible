@@ -14,7 +14,6 @@
 - meta: flush_handlers
 
 - import_tasks: auth.yml
-  when: 'pve_auth_setup_enable'
 - meta: flush_handlers
 
 - import_tasks: firewall.yml

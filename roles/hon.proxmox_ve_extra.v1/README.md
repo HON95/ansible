@@ -21,7 +21,7 @@ Instructions from Debian installation to ready PVE.
     1. Add non-root user (if not done during install): `adduser ansible`
     1. Add user to sudo group: `usermod -aG sudo ansible`
     1. Fix basic networking with static IPv6 and maybe IPv4, so Ansible can connect. Modify `/etc/network/interfaces` and run `systemctl restart networking`.
-1. Create a playbook and vars/files using roles `hon.debian.v2`, `lae.proxmox` and `hon-proxmox_ve_extra.v1` (in that order).
+1. Create a playbook and vars/files using roles `hon.debian.v3`, `lae.proxmox` and `hon-proxmox_ve_extra.v1` (in that order).
 1. Run playbook (with first-time options): `ansible-playbook <your-playbook> -l <new-host> -u <user> --ask-pass --ask-become-pass -e '{"pve_run_system_upgrades": false, "pve_run_proxmox_upgrades": false, "pve_reboot_on_kernel_update": true, "pve_reboot_on_kernel_update_delay": 300, "pve_firewall_setup_enable": false, "pve_storage_setup_enable": false, "pve_vms_setup_enable": false}'`
 1. Manually setup stuff that this roles and lae.proxmox doesn't automate for practical reasons (see [HON wiki](https://wiki.hon.one/virt-cont/proxmox-ve/)):
     - Network settings (preferably using Open vSwitch).
