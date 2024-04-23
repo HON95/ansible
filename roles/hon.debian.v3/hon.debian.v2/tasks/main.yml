@@ -40,9 +40,8 @@
 - import_tasks: ntp.yml
 - meta: flush_handlers
 
+# TODO does this interfere with lae.proxmox?
 - import_tasks: hostname.yml
-  # TODO does this interfere with lae.proxmox?
-  # when: 'not linux_proxmox_ve_compatible'
 - meta: flush_handlers
 
 - import_tasks: users.yml

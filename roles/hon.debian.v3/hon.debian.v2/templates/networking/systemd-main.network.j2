@@ -1,4 +1,4 @@
-# Managed
+# {{ ansible_managed }}
 
 [Match]
 Name={{ linux_networking_interface }}
@@ -19,7 +19,7 @@ Gateway={{ linux_networking_ipv4_address | ansible.utils.ipaddr(1) | ansible.uti
 {% endif %}
 {% elif linux_networking_ipv4_addressing == 'dhcp' %}
 DHCP=ipv4
-{% endif %}
+{% endif %}{# linux_networking_ipv4_addressing #}
 {# IPv6 #}
 {% if linux_networking_ipv6_addressing == 'static' %}
 IPv6AcceptRA=no
@@ -32,18 +32,32 @@ Gateway={{ linux_networking_ipv6_address | ansible.utils.ipaddr(0) | ansible.uti
 Gateway={{ linux_networking_ipv6_address | ansible.utils.ipaddr(1) | ansible.utils.ipaddr("address") }}
 {% endif %}
 {% elif linux_networking_ipv6_addressing == 'slaac' %}
-{# Will SLAAC or DHCPv6 #}
 IPv6AcceptRA=yes
+IPv6PrivacyExtensions=no
 {% else %}
 IPv6AcceptRA=no
-{% endif %}
+{% endif %}{# linux_networking_ipv6_addressing #}
+LLDP={{ "yes" if linux_network_lldp_receive else "no" }}
+EmitLLDP={{ "yes" if linux_network_lldp_transmit else "no" }}
 
+{% elif linux_networking_ipv4_addressing == 'dhcp' %}
 [DHCP]
 UseDNS=yes
 UseNTP=no
 UseHostname=no
 UseDomains=yes
+Anonymize=yes
+{% endif %}
 
+{% if linux_networking_ipv6_addressing == 'slaac' %}
 [IPv6AcceptRA]
 UseDNS=yes
 UseDomains=yes
+Token=prefixstable
+
+[DHCPv6]
+UseDNS=yes
+UseNTP=no
+UseHostname=no
+UseDomains=yes
+{% endif %}

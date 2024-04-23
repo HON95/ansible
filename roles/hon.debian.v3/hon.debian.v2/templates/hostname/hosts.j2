@@ -1,0 +1,8 @@
+#jinja2: trim_blocks:False
+# {{ ansible_managed }}
+
+::1 localhost localhost6
+127.0.0.1 localhost localhost4
+
+{% if linux_ipv6_address %}{{ linux_ipv6_address | ansible.utils.ipv6("address") }} {{ inventory_hostname }} {{ inventory_hostname_short }}{% endif %}
+{% if linux_ipv4_address %}{{ linux_ipv4_address | ansible.utils.ipv4("address") }} {{ inventory_hostname }} {{ inventory_hostname_short }}{% endif %}

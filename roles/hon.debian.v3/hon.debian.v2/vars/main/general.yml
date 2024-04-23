@@ -1,0 +1,3 @@
+# Use specified address if provided, fallback to whatever Ansible found.
+linux_ipv4_address: "{% if linux_networking_ipv4_address is defined %}{{ linux_networking_ipv4_address | ansible.utils.ipv4('address') }}{% elif ansible_default_ipv4 is defined %}{{ ansible_default_ipv4.address }}{% else %}{{ omit }}{% endif %}"
+linux_ipv6_address: "{% if linux_networking_ipv6_address is defined %}{{ linux_networking_ipv6_address | ansible.utils.ipv6('address') }}{% elif ansible_default_ipv6 is defined %}{{ ansible_default_ipv6.address }}{% else %}{{ omit }}{% endif %}"

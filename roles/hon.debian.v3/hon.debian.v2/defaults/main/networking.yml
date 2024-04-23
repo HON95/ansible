@@ -3,8 +3,8 @@
 # Network manager:
 # - ignore: Don't touch anything.
 # - systemd: Use systemd-networkd.
-linux_networking_method: systemd
-# Use a specific MTU (1280 is minimum for IPv6, 1500 is the default, 9000 is jumbo)
+linux_networking_method: ignore
+# Use a specific MTU (1280 is minimum for IPv6, 1500 is the default, 9000 is jumbo).
 linux_networking_mtu: 1500
 # IPv4 addressing method: none, static, dhcp
 linux_networking_ipv4_addressing: static
@@ -12,7 +12,10 @@ linux_networking_ipv4_addressing: static
 linux_networking_ipv6_addressing: static
 # Main network interface:
 # linux_networking_interface: eth0
-# Static addressing parameters (v4 and/or v6):
+# Static addressing parameters, including prefix length (v4 and/or v6):
 # Note: The gateway defaults to the first address in the subnet (supports v4/31 and v6/127).
 # linux_networking_ipv4_address: 10.95.12.10/22
 # linux_networking_ipv6_address: fd87:d8aa:222:10::10/64
+# Receive and/or transmit LLDP.
+linux_network_lldp_receive: true
+linux_network_lldp_transmit: true
