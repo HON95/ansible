@@ -1,5 +1,5 @@
 #jinja2: trim_blocks:False
-# Managed
+# {{ ansible_managed }}
 
 {% for address in nut_server_listen_addresses %}
 LISTEN {{ address }} {{ nut_server_listen_port }}

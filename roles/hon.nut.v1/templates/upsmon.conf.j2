@@ -1,5 +1,5 @@
 #jinja2: trim_blocks:False
-# Managed
+# {{ ansible_managed }}
 
 {% for ups in nut_monitor_upses %}
 MONITOR {{ ups.name }}@{{ ups.host | default("localhost") }}:{{ ups.port | default(3493) }} {{ ups.powervalue | default(1) }} "{{ ups.username }}" "{{ ups.password }}" {% if ups.primary | default(true) %}master{% else %}slave{% endif %}
