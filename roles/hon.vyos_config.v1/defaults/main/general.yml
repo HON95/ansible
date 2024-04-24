@@ -1,7 +1,7 @@
 # Path to a VyOS config template using set-style commands. Defaults to internal config.
 vyos_config_path: "vyos.cfg.j2"
 # Debug option to keep temporary configs on disk after exit and print their paths.
-vyos_config_keep_tmpfiles: false
+vyos_config_debug_mode: false
 
 # List of bogon prefixes, may be used for traffic and route filters.
 vyos_config_bogons_ipv4:

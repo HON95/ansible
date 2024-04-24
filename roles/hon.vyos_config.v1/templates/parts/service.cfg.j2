@@ -5,3 +5,7 @@ set service ntp server {{ srv }}
 {% endfor %}
 
 set service ssh disable-host-validation
+set service ssh dynamic-protection
+{% if vyos_config_svc_ssh_disable_password_auth %}
+set service ssh disable-password-authentication
+{% endif %}

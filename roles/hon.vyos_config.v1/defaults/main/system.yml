@@ -1,10 +1,21 @@
 # vyos_config_system_domain_name: "example.net"
 # vyos_config_system_host_name: "vyos01"
+# vyos_config_system_time_zone: "Europe/Oslo"
+# vyos_config_system_name_servers:
+#   - "1.1.1.1"
+#   - "1.0.0.1"
+#   - "2606:4700:4700::1111"
+#   - "2606:4700:4700::1001"
+# vyos_config_system_keyboard_layout: "us"
+# vyos_config_system_login_timeout_s: 3600
+# vyos_config_system_post_login_banner: "some multiline string"
 # vyos_config_system_login_users:
-#   - username: vyos
-#     authn_encrypted_password: "$6$55CsA5amvanwAJiz$rZ6JlNLwr8kI3k8MkY66QIqkQQRq85ob/f.1OwFVCpaEnPI6QQ8u0OPgIdjMHmo0pAYpL6AYknuAJKEfBsnC80"
-#   - username: ansible
-#     authn_public_keys:
+#   - name: vyos
+#     password_hash: "$6$55CsA5amvanwAJiz$rZ6JlNLwr8kI3k8MkY66QIqkQQRq85ob/f.1OwFVCpaEnPI6QQ8u0OPgIdjMHmo0pAYpL6AYknuAJKEfBsnC80"
+#   - name: ansible
+#     full_name: "Ansible"
+#     ssh_keys:
 #       "ansible":
+#         options: 'from="10.0.0.0/24"'
 #         type: "ssh-rsa"
 #         key: "AAAAB3NzaC1yc2EAAAADAQABAAAAgQCqtuQEngGn7+uAyFpIMkdbLKwkB+N0PVVpmYtAYYRQUUmsTXg6PMo27Wd3HJk8gPe77DVrStntiRi95RfYy9eJ9msBB6kWSqUL5ydDJQoUtVPKCwe0d7+BIMRafktmAPo0Kqnukc+4HZHSehkLSgZ/+s4fgxpFwKePkLJfWz16Dw=="

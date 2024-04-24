@@ -44,25 +44,4 @@ Make sure you don't lock yourself out by messing up your connection or changing 
 
 This role supports `--check` mode, to build and check the config without committing it.
 
-Set variable `vyos_config_keep_tmpfiles=true` to avoid deleting the local temporary config files and print their paths instead, so you can inspect the generated config.
-
-## TODO
-
-- Firewall global-options
-- NAT SNAT/masq
-- Protocols OSPFv2/v2?
-- Protocols BGP
-- Protocols static/blackhole
-- Service DHCP-relay
-- Service DHCP-server?
-- Service LLDP
-- Service NTP?
-- Setvice RA
-- Service SNMP
-- System banners
-- System conntrack
-- System console?
-- System name-servers
-- System syslog
-- System time-zone
-- VRRP
+Set variable `vyos_config_debug_mode=true` to avoid deleting the local temporary config files and print their paths instead, so you can inspect the generated config.

@@ -1,17 +1,40 @@
-{% if vyos_config_system_domain_name is defined %}
 set system domain-name '{{ vyos_config_system_domain_name }}'
-{% endif %}
-{% if vyos_config_system_host_name is defined %}
 set system host-name '{{ vyos_config_system_host_name }}'
+set system time-zone '{{ vyos_config_system_time_zone }}'
+{% for dns in vyos_config_system_name_servers %}
+set system name-server '{{ dns }}'
+{% endfor %}
+set system option ctrl-alt-delete 'reboot'
+set system option keyboard-layout '{{ vyos_config_system_keyboard_layout }}'
+set system option reboot-on-panic
+set system option startup-beep
+set system option time-format '24-hour'
+{% if vyos_config_system_post_login_banner is defined %}
+set system login banner post-login '{{ vyos_config_system_post_login_banner | regex_replace("\"", "\\\"") | regex_replace("[\\r\\n]", "\\\\n") }}'
+{% endif %}
+{% if vyos_config_system_login_timeout_s is defined %}
+set system login timeout '{{ vyos_config_system_login_timeout_s }}'
 {% endif %}
 
-{% for user in vyos_config_system_login_users | default([]) %}
-{% set user_path = "system login user " + user.username %}
-{% if user.authn_encrypted_password is defined %}
-set {{ user_path }} authentication {{ fq }}encrypted-password{{ fq }} '{{ user.authn_encrypted_password }}'
+set system conntrack modules ftp
+set system conntrack modules h323
+set system conntrack modules nfs
+set system conntrack modules pptp
+set system conntrack modules rtsp
+set system conntrack modules sip
+set system conntrack modules sqlnet
+set system conntrack modules tftp
+
+{% for user in vyos_config_system_login_users %}
+{% set user_path = "system login user " + user.name %}
+{% if user.password_hash is defined %}
+set {{ user_path }} authentication {{ fq }}encrypted-password{{ fq }} '{{ user.password_hash }}'
 {% endif %}
-{% for pubkey_name, pubkey_value in user.authn_public_keys | default({}) | dictsort %}
-set {{ user_path }} authentication public-keys {{ pubkey_name }} key '{{ pubkey_value.key }}'
-set {{ user_path }} authentication public-keys {{ pubkey_name }} type '{{ pubkey_value.type }}'
+{% for sshkey_name, sshkey_value in user.ssh_keys | default({}) | dictsort %}
+{% if sshkey_value.options is defined %}
+set {{ user_path }} authentication public-keys {{ sshkey_name }} options '{{ sshkey_value.options | regex_replace("\"", "&quot;") }}'
+{% endif %}
+set {{ user_path }} authentication public-keys {{ sshkey_name }} type '{{ sshkey_value.type }}'
+set {{ user_path }} authentication public-keys {{ sshkey_name }} key '{{ sshkey_value.key }}'
 {% endfor %}
 {% endfor %}{# vyos_config_system_login_users #}

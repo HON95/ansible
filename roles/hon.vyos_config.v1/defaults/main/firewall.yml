@@ -1,5 +1,9 @@
+# Options: strict, loose, disable
+vyos_config_fw_source_validation: "strict"
+vyos_config_fw_conntrack_default_actions: true
+
 # TODO: source this from the bogon lists instead
-# vyos_config_firewall_network_group_bogons:
+# vyos_config_fw_network_group_bogons:
 #   name: "bogons"
 #   ipv4:
 #     members:

@@ -108,7 +108,7 @@
   always:
 
     - name: "Delete temporary file for current config"
-      when: "vyos_current_config_file_result.path is defined and not vyos_config_keep_tmpfiles"
+      when: "vyos_current_config_file_result.path is defined and not vyos_config_debug_mode"
       check_mode: false
       file:
         path: "{{ vyos_current_config_file_result.path }}"
@@ -116,7 +116,7 @@
       changed_when: false
 
     - name: "Delete temporary file for intended config"
-      when: "vyos_intended_config_file_result.path is defined and not vyos_config_keep_tmpfiles"
+      when: "vyos_intended_config_file_result.path is defined and not vyos_config_debug_mode"
       check_mode: false
       file:
         path: "{{ vyos_intended_config_file_result.path }}"
@@ -124,7 +124,7 @@
       changed_when: false
 
     - name: "Delete temporary file for applyable intended config"
-      when: "vyos_apply_config_file_result.path is defined and not vyos_config_keep_tmpfiles"
+      when: "vyos_apply_config_file_result.path is defined and not vyos_config_debug_mode"
       check_mode: false
       file:
         path: "{{ vyos_apply_config_file_result.path }}"
@@ -132,16 +132,25 @@
       changed_when: false
 
     - name: "Print path to temporary file for current config"
-      when: "vyos_current_config_file_result.path is defined and vyos_config_keep_tmpfiles"
+      when: "vyos_current_config_file_result.path is defined and vyos_config_debug_mode"
       debug:
         var: "vyos_current_config_file_result.path"
+      changed_when: true
 
     - name: "Print path to temporary file for intended config"
-      when: "vyos_intended_config_file_result.path is defined and vyos_config_keep_tmpfiles"
+      when: "vyos_intended_config_file_result.path is defined and vyos_config_debug_mode"
       debug:
         var: "vyos_intended_config_file_result.path"
+      changed_when: true
 
     - name: "Print path to temporary file for applyable config"
-      when: "vyos_apply_config_file_result.path is defined and vyos_config_keep_tmpfiles"
+      when: "vyos_apply_config_file_result.path is defined and vyos_config_debug_mode"
       debug:
         var: "vyos_apply_config_file_result.path"
+      changed_when: true
+
+    - name: "Print diff"
+      when: "vyos_config_diff_result.changed and vyos_config_debug_mode"
+      debug:
+        msg: "{{ vyos_config_diff_result.stdout }}"
+      changed_when: true
