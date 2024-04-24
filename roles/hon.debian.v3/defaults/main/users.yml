@@ -26,6 +26,7 @@ linux_local_users: []
 #     linux_groups: ["sudo", "adm", "test123"]
 #     pve_enable: true
 #     pve_groups: ["admin"]
+#     vyos_admin: true
 #     password_hash: "$6$jN.xCC/VbUDRShqn$Vqw6Xa.vXrgwxCFqOoDPPRjIhNoQD2bRQ0IdB063PREB2Ur1noIR5o2RiIXHmUPUTsgG4D4IVEelE1peV/p4P0"
 #     ssh_keys:
 #       "ansible":
