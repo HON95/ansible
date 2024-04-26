@@ -15,6 +15,7 @@ set system login banner post-login '{{ vyos_config_system_post_login_banner | re
 {% if vyos_config_system_login_timeout_s is defined %}
 set system login timeout '{{ vyos_config_system_login_timeout_s }}'
 {% endif %}
+set system syslog console facility all level 'err'
 
 set system conntrack modules ftp
 set system conntrack modules h323

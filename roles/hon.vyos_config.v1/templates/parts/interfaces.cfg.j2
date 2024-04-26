@@ -1,4 +1,4 @@
-{% for int_name, int in vyos_config_int_interfaces | default({}) | dictsort %}
+{% for int_name, int in vyos_config_int_interfaces | dictsort %}
 {% set int_basename = int_name | regex_replace("^([a-z]+[0-9]*).*$", "\\1") %}
 {% set int_type_short = int_basename | regex_replace("^([a-z]+).*$", "\\1") %}
 {% set int_type = vyos_config_interface_types[int_type_short] %}
@@ -8,6 +8,9 @@
 {% if int.desc is defined and int.desc %}
 set {{ int_path }} description '{{ int.desc }}'
 {% endif %}{# int.desc #}
+{% if int.vrf is defined and int.vrf %}
+set {{ int_path }} vrf '{{ int.vrf }}'
+{% endif %}{# int.vrf #}
 {% for ip_addr in int.ip_addrs %}
 set {{ int_path }} address '{{ ip_addr }}'
 {% endfor %}{# int.ip_addrs #}

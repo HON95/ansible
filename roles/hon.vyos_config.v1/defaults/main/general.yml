@@ -1,5 +1,7 @@
 # Path to a VyOS config template using set-style commands. Defaults to internal config.
 vyos_config_path: "vyos.cfg.j2"
+# Extra lines to add to the default template.
+vyos_config_extra_lines: []
 # Debug option to keep temporary configs on disk after exit and print their paths.
 vyos_config_debug_mode: false
 
