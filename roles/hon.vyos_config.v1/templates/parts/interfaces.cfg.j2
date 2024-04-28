@@ -3,16 +3,16 @@
 {% set int_type_short = int_basename | regex_replace("^([a-z]+).*$", "\\1") %}
 {% set int_type = vyos_config_interface_types[int_type_short] %}
 {% set int_vid = int_name | regex_replace("^.*\.([0-9]+)$", "\\1") if "." in int_name else "" %}
-{% set int_path = ("interfaces " + int_type + " " + int_basename + " vif " + int_vid) if int_vid else ("interfaces " + int_type + " " + int_basename) %}
+{% set cli_path = ("interfaces " + int_type + " " + int_basename + " vif " + int_vid) if int_vid else ("interfaces " + int_type + " " + int_basename) %}
 
 {% if int.desc is defined and int.desc %}
-set {{ int_path }} description '{{ int.desc }}'
+set {{ cli_path }} description '{{ int.desc }}'
 {% endif %}{# int.desc #}
-{% if int.vrf is defined and int.vrf %}
-set {{ int_path }} vrf '{{ int.vrf }}'
+{% if int.vrf is defined and int.vrf != "default" %}
+set {{ cli_path }} vrf '{{ int.vrf }}'
 {% endif %}{# int.vrf #}
 {% for ip_addr in int.ip_addrs %}
-set {{ int_path }} address '{{ ip_addr }}'
+set {{ cli_path }} address '{{ ip_addr }}'
 {% endfor %}{# int.ip_addrs #}
 
-{% endfor %}{# vyos_config_interfaces #}
+{% endfor %}{# vyos_config_int_interfaces #}

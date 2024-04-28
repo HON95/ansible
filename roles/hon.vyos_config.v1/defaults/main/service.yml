@@ -3,6 +3,7 @@ vyos_config_svc_ntp_servers:
   - "1.pool.ntp.org"
   - "2.pool.ntp.org"
   - "3.pool.ntp.org"
-vyos_config_svc_ntp_vrf: "default"
-vyos_config_svc_ssh_vrfs: ["default"]
+vyos_config_svc_ntp_vrf: null
+vyos_config_svc_ssh_vrfs: []
+vyos_config_svc_ssh_defaults: false
 vyos_config_svc_ssh_disable_password_auth: false

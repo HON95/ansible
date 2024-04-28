@@ -1,6 +1,9 @@
+# Set FW options to sane values.
+vyos_config_fw_options_defaults: false
 # Options: strict, loose, disable
-vyos_config_fw_source_validation: "strict"
-vyos_config_fw_conntrack_default_actions: true
+vyos_config_fw_source_validation: null
+# Set FW conntrack actions to accept established/related and drop invalid.
+vyos_config_fw_conntrack_default_actions_defaults: false
 
 # TODO: source this from the bogon lists instead
 # vyos_config_fw_network_group_bogons:
