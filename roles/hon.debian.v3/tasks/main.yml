@@ -1,75 +1,75 @@
-- name: Check if supported machine type
-  when: 'not (
-    linux_machine_type == "bare-metal"
-    or linux_machine_type == "raspi"
-    or linux_machine_type == "qemu-vm"
-    or linux_machine_type == "generic-vm"
-    )'
+- name: "Check if supported machine type"
+  when: "not (
+    linux_machine_type == 'bare-metal'
+    or linux_machine_type == 'raspi'
+    or linux_machine_type == 'qemu-vm'
+    or linux_machine_type == 'generic-vm'
+    )"
   fail:
-    msg: 'Unsupported machine: {{ linux_machine_type }}'
+    msg: "Unsupported machine: {{ linux_machine_type }}"
 
-- name: Check if supported OS
-  when: 'ansible_distribution != "Debian" or ansible_distribution_major_version|int < 10 or ansible_distribution_major_version|int > 12'
+- name: "Check if supported OS"
+  when: "ansible_distribution != 'Debian' or ansible_distribution_major_version|int < 10 or ansible_distribution_major_version|int > 12"
   fail:
-    msg: 'Unsupported OS: {{ ansible_distribution }} {{ ansible_distribution_major_version }}'
+    msg: "Unsupported OS: {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
 
-- name: Get service facts
+- name: "Get service facts"
   service_facts: {}
 
-- import_tasks: sudo.yml
-- meta: flush_handlers
+# Remove sudo pass before updating user passwords
+- import_tasks: "sudo.yml"
+- meta: "flush_handlers"
 
-- import_tasks: packages.yml
-- meta: flush_handlers
+- import_tasks: "users.yml"
+- meta: "flush_handlers"
 
-- import_tasks: unattended-upgrades.yml
-  when: 'not linux_proxmox_ve_compatible'
-- meta: flush_handlers
+- import_tasks: "packages.yml"
+- meta: "flush_handlers"
 
-- import_tasks: dns.yml
-- meta: flush_handlers
+- import_tasks: "unattended-upgrades.yml"
+  when: "not linux_proxmox_ve_compatible"
+- meta: "flush_handlers"
 
-- import_tasks: networking.yml
-  when: 'not linux_proxmox_ve_compatible'
-- meta: flush_handlers
+- import_tasks: "dns.yml"
+- meta: "flush_handlers"
 
-- import_tasks: iptables.yml
-  when: 'not linux_proxmox_ve_compatible'
-- meta: flush_handlers
+- import_tasks: "networking.yml"
+  when: "not linux_proxmox_ve_compatible"
+- meta: "flush_handlers"
 
-- import_tasks: ntp.yml
-- meta: flush_handlers
+- import_tasks: "iptables.yml"
+  when: "not linux_proxmox_ve_compatible"
+- meta: "flush_handlers"
 
-# TODO does this interfere with lae.proxmox?
-- import_tasks: hostname.yml
-- meta: flush_handlers
+- import_tasks: "ntp.yml"
+- meta: "flush_handlers"
 
-- import_tasks: users.yml
-- meta: flush_handlers
+- import_tasks: "hostname.yml"
+- meta: "flush_handlers"
 
-- import_tasks: ssh.yml
-- meta: flush_handlers
+- import_tasks: "ssh.yml"
+- meta: "flush_handlers"
 
-- import_tasks: logging.yml
-- meta: flush_handlers
+- import_tasks: "logging.yml"
+- meta: "flush_handlers"
 
-- import_tasks: l10n.yml
-- meta: flush_handlers
+- import_tasks: "l10n.yml"
+- meta: "flush_handlers"
 
-- import_tasks: banner.yml
-- meta: flush_handlers
+- import_tasks: "banner.yml"
+- meta: "flush_handlers"
 
-- import_tasks: fail2ban.yml
-  when: 'not linux_proxmox_ve_compatible and linux_fail2ban_enable'
-- meta: flush_handlers
+- import_tasks: "fail2ban.yml"
+  when: "not linux_proxmox_ve_compatible and linux_fail2ban_enable"
+- meta: "flush_handlers"
 
-- import_tasks: vim.yml
-  when: 'linux_vim_setup_enable'
-- meta: flush_handlers
+- import_tasks: "vim.yml"
+  when: "linux_vim_setup_enable"
+- meta: "flush_handlers"
 
-- import_tasks: cloud-init-cleanup.yml
-  when: 'linux_cloud_init_cleanup_enable'
-- meta: flush_handlers
+- import_tasks: "cloud-init-cleanup.yml"
+  when: "linux_cloud_init_cleanup_enable"
+- meta: "flush_handlers"
 
-- import_tasks: misc.yml
-- meta: flush_handlers
+- import_tasks: "misc.yml"
+- meta: "flush_handlers"

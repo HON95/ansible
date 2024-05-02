@@ -60,7 +60,7 @@
     name: "{{ item.name }}"
     password: "{{ item.password_hash | default('*') }}"
     groups: "{{ item.linux_groups | default([]) | intersect(ansible_facts.getent_group) }}"
-    shell: "{{ item.linux_shell | default(omit) }}"
+    shell: "{{ item.linux_shell | default('/bin/bash') }}"
 
 - name: Remove old users
   loop: "{{ linux_local_users }}"

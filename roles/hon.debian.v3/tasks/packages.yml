@@ -1,10 +1,20 @@
 # Setup packages
 
-- name: Enable contrib and non-free archive areas
+- name: Enable contrib and non-free archive areas (Debian 10/11)
+  when: "ansible_distribution_major_version|int >= 10 and ansible_distribution_major_version|int <= 11"
   replace:
     path: /etc/apt/sources.list
     regexp: '^(deb|deb-src)\s+(\S+)\s+(\S+)\s+.*main.*'
     replace: '\1 \2 \3 main contrib non-free'
+    backup: true
+  register: apt_enable_repo_areas
+
+- name: Enable contrib and non-free archive areas (Debian 12)
+  when: "ansible_distribution_major_version|int >= 12"
+  replace:
+    path: /etc/apt/sources.list
+    regexp: '^(deb|deb-src)\s+(\S+)\s+(\S+)\s+.*main.*'
+    replace: '\1 \2 \3 main contrib non-free non-free-firmware'
     backup: true
   register: apt_enable_repo_areas
 
@@ -22,24 +32,25 @@
       - dnsutils
       - htop
       - jq
+      - man-db
       - mtr-tiny
+      - nmap
       - python3
       - python3-pip
       - rsync
       - screen
-      - tmux
       - software-properties-common
+      - tcpdump
+      - tmux
       - tree
       - vim
-      - tcpdump
-      - nmap
 
 - name: Install machine type-specific packages (bare-metal)
   when: 'linux_machine_type == "bare-metal"'
   apt:
     name:
-      - smartmontools
       - lm-sensors
+      - smartmontools
 
 - name: Install machine type-specific packages (bare-metal non-pve)
   when: 'linux_machine_type == "bare-metal" and not linux_proxmox_ve_compatible'
