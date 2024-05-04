@@ -1,6 +1,6 @@
 # You may want to override this to pin it.
 # https://github.com/traefik/traefik/releases
-traefik_version: "2.10.7"
+traefik_version: "3.0.0"
 # Extra args to pass to the binary.
 traefik_args: []
 # Email address to use for ACME, for email notifications (optional).

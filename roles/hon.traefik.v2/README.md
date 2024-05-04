@@ -27,6 +27,7 @@ traefik_provider_configs_extra: []
 #     dst: yolo.yml
 ```
 
-## TODO
+## History
 
-- Log settings.
+- 2024-05-05 (role v2):
+    - Upgrade the default Trafik version and relevant config to v3. See the [v2 to v3 migration guide](https://doc.traefik.io/traefik/v3.0/migration/v2-to-v3/).
