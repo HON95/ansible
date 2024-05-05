@@ -1,0 +1,13 @@
+# apt_repo_name: example
+# The following extra vars may be used in the URLs: apt_repo_name, os_distro, dpkg_arch, os_version_codename
+# apt_repo_lines: ["deb [arch={{ dpkg_arch }} signed-by={{ apt_repo_keyring_path }}] https://download.docker.com/linux/{{ os_distro }} {{ os_version_codename }} stable"]
+apt_repo_lines: []
+# apt_repo_src_file_path: "yolo.asc"
+apt_repo_src_file_path: null
+# apt_repo_key_src_url: "https://example.com/gpg"
+apt_repo_key_src_url: null
+apt_repo_path: "/etc/apt/sources.list.d/{{ apt_repo_name }}.list"
+apt_repo_keyring_path: "/usr/share/keyrings/{{ apt_repo_name }}.gpg"
+apt_repo_force_download_key: false
+# Optional list of packages to install afterwards
+apt_repo_packages: []

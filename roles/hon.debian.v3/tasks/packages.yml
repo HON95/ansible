@@ -26,12 +26,16 @@
 - name: Install basic packages
   apt:
     name:
+      - apt-transport-https
       - bash-completion
       - ca-certificates
       - curl
       - dnsutils
+      - git
+      - gnupg
       - htop
       - jq
+      - lsb-release
       - man-db
       - mtr-tiny
       - nmap

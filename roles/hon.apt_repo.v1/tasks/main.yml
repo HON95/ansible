@@ -1,0 +1,60 @@
+- name: "Install prerequisites"
+  apt:
+    name:
+      - "ca-certificates"
+      - "gnupg"
+      - "curl"
+
+- name: "Get architecture info"
+  command: "dpkg --print-architecture"
+  changed_when: false
+  register: "dpkg_arch_result"
+
+- name: "Get OS info"
+  shell: ". /etc/os-release; echo $ID; echo $VERSION_ID; echo $VERSION_CODENAME"
+  changed_when: false
+  register: "os_info_result"
+
+- name: "Add keyring (content)"
+  when: "apt_repo_src_file_path"
+  copy:
+    src: "{{ apt_repo_src_file_path }}"
+    dest: "{{ apt_repo_keyring_path }}"
+    mode: "0644"
+  notify: "Update APT cache"
+
+- name: "Check if keyring exists (download)"
+  when: "apt_repo_key_src_url"
+  stat:
+    path: "{{ apt_repo_keyring_path }}"
+  register: "keyring_file_result"
+
+- name: "Add keyring (download)"
+  when: "apt_repo_key_src_url and (not keyring_file_result.stat.exists or apt_repo_force_download_key)"
+  vars:
+    os_distro: "{{ os_info_result.stdout_lines[0] }}"
+    dpkg_arch: "{{ dpkg_arch_result.stdout_lines[0] }}"
+    os_version_codename: "{{ os_info_result.stdout_lines[2] }}"
+  shell: "set -o pipefail; curl -sSfL {{ apt_repo_key_src_url }} | gpg --dearmor > {{ apt_repo_keyring_path }}"
+  changed_when: true
+  register: "add_repo_keyring_result"
+
+- name: "Add repo file"
+  vars:
+    os_distro: "{{ os_info_result.stdout_lines[0] }}"
+    dpkg_arch: "{{ dpkg_arch_result.stdout_lines[0] }}"
+    os_version_codename: "{{ os_info_result.stdout_lines[2] }}"
+  copy:
+    content: "{{ apt_repo_lines | join ('\n') }}\n"
+    dest: "{{ apt_repo_path }}"
+    mode: "0644"
+  register: "add_repo_result"
+
+- name: Update APT cache
+  when: "add_repo_keyring_result.changed or add_repo_result.changed"
+  apt:
+    update_cache: true
+
+- name: "Install extra packages"
+  apt:
+    name: "{{ apt_repo_packages }}"
