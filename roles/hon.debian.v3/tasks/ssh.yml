@@ -29,6 +29,15 @@
     validate: 'sshd -t -f %s'
   notify: Restart sshd.service
 
+- name: Disable reverse DNS lookup
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*UseDNS .+$'
+    line: 'UseDNS no'
+    mode: '0644'
+    validate: 'sshd -t -f %s'
+  notify: Restart sshd.service
+
 # Disable locales to avoid annoying missing locale errors
 - name: Disable SSH user locales
   lineinfile:

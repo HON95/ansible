@@ -33,6 +33,7 @@
       - dnsutils
       - git
       - gnupg
+      - file
       - htop
       - jq
       - lsb-release
