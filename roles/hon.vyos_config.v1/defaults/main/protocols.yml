@@ -1,6 +1,0 @@
-vyos_config_proto_static_routes: []
-# vyos_config_proto_static_routes:
-#   - prefix: "0.0.0.0/0"
-#     next_hop: "1.2.3.1"
-#   - prefix: "::/0"
-#     next_hop: "1:2:3:4::1"

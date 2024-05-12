@@ -1,0 +1,12 @@
+#jinja2: trim_blocks:False
+
+{# Config clear #}
+{% include "parts/delete_header.cfg.j2" %}
+
+{# Included parts #}
+{% include "parts/users.cfg.j2" %}
+
+set system host-name '{{ inventory_hostname_short }}'
+set system domain-name '{{ domain }}'
+set system time-zone '{{ timezone }}'
+{# ... #}

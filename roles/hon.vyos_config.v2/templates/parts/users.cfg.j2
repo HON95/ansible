@@ -1,0 +1,13 @@
+{% for user in vyos_config_users %}
+{% set user_path = "system login user " + user.name %}
+{% if user.password_hash is defined %}
+set {{ user_path }} authentication {{ fq }}encrypted-password{{ fq }} '{{ user.password_hash }}'
+{% endif %}
+{% for sshkey_name, sshkey_value in user.ssh_keys | default({}) | dictsort %}
+{% if sshkey_value.options is defined %}
+set {{ user_path }} authentication public-keys {{ sshkey_name }} options '{{ sshkey_value.options | regex_replace("\"", "&quot;") }}'
+{% endif %}
+set {{ user_path }} authentication public-keys {{ sshkey_name }} type '{{ sshkey_value.type }}'
+set {{ user_path }} authentication public-keys {{ sshkey_name }} key '{{ sshkey_value.key }}'
+{% endfor %}
+{% endfor %}{# vyos_config_users #}
