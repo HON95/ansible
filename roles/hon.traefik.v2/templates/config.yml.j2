@@ -47,6 +47,10 @@ entryPoints:
   ping:
     address: ':8083'
     http3: {}
+{% for ep in traefik_extra_tcpudp_entrypoints | dict2items %}
+  {{ ep.key }}:
+    address: '{{ ep.value }}'
+{% endfor %}
 
 api:
   dashboard: true
