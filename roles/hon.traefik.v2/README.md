@@ -31,5 +31,6 @@ traefik_provider_configs_extra: []
 
 - 2024-05-23:
     - Add default-vars `traefik_user_name` to make the username configurable and `traefik_user_create` to support externally managed users.
+    - Add logging settings through the `traefik_log_*` and `traefik_accesslog_*` default-vars.
 - 2024-05-05 (role v2):
     - Upgrade the default Trafik version and relevant config to v3. See the [v2 to v3 migration guide](https://doc.traefik.io/traefik/v3.0/migration/v2-to-v3/).

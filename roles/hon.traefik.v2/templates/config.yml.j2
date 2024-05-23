@@ -3,12 +3,14 @@
 
 log:
   filePath: '{{ traefik_log_dir }}/error.log'
-  #format: json
-  level: error
+  format: '{{ traefik_log_format }}'
+  level: '{{ traefik_log_level }}'
 
 accessLog:
   filePath: '{{ traefik_log_dir }}/access.log'
-  #format: json
+  format: '{{ traefik_accesslog_format }}'
+  bufferingSize: '{{ traefik_accesslog_buffering_size }}'
+  addInternals: true
 
 certificatesResolvers:
   letsencrypt:
