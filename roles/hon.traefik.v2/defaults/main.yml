@@ -18,7 +18,7 @@ traefik_accesslog_buffering_size: 100
 traefik_staging_server_enable: false
 # Enable a default provider, which will respond with a 404.
 # Extra TCP/UDP entrypoints to create, e.g. for sFlow:
-traefik_extra_tcpudp_entrypoints: []
+traefik_extra_tcpudp_entrypoints: {}
 # traefik_extra_tcpudp_entrypoints:
 #   sflow: ":6343/udp"
 traefik_default_provider_enable: false

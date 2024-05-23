@@ -31,6 +31,10 @@ traefik_provider_configs_extra: []
 #     dst: yolo.yml
 ```
 
+## Miscellanea
+
+- This role does not update kernel parameters `net.core.rmem_max` and `net.core.wmem_max`, [as recommended](https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes). They're set to an appropriate size if using role `hon.debian.v3`.
+
 ## History
 
 - 2024-05-23:

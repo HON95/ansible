@@ -19,7 +19,7 @@
     - name: Check the current version
       shell: 'set -o pipefail; {{ prom_node_exp_binary_path }} --version 2>&1 | grep -Po1 "(?<=version )[^ ]+(?= )"'
       register: prom_node_exp_check_version
-      failed_when: 'prom_node_exp_check_version.stdout == ""'
+      failed_when: 'prom_node_exp_check_version.stdout | length == 0'
       changed_when: false
 
     - name: Remove if wrong version

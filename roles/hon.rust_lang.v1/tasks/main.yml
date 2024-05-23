@@ -9,7 +9,7 @@
   when: 'rust_check_exists.stat.exists'
   shell: 'set -o pipefail; {{ rust_rustc_path }} --version 2>&1 | grep -Po -m1 "(?<=rustc )[^ ]+(?= )"'
   register: rust_check_version
-  failed_when: 'rust_check_version.stdout == ""'
+  failed_when: 'rust_check_version.stdout | length == 0'
   changed_when: false
 
 # Install (fresh or update)

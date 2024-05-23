@@ -16,7 +16,7 @@
       args:
         executable: /bin/bash
       register: traefik_check_version
-      failed_when: 'traefik_check_version.stdout == ""'
+      failed_when: 'traefik_check_version.stdout | length == 0'
       changed_when: false
 
     - name: Remove if wrong version

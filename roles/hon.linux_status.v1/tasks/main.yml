@@ -2,7 +2,7 @@
   shell: 'set -o pipefail; systemctl list-units -t service --full --all --plain --no-legend | egrep "^\S+\s+\S+\s+failed\s+" | cut -d" " -f1'
   register: _result
   changed_when: false
-  failed_when: '_result.stdout != ""'
+  failed_when: '_result.stdout | length > 0'
 
 - name: Check if AppArmor is operational (Debian)
   when: 'ansible_facts["os_family"] == "Debian"
