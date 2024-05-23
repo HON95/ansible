@@ -74,7 +74,7 @@
     - name: Delete temporary download directory
       when: 'traefik_create_tmpdir is defined'
       file:
-        path: "{{ traefik_create_tmpdir.path }}"
+        path: '{{ traefik_create_tmpdir.path }}'
         state: absent
 
 - name: Grant port bind capability
@@ -84,6 +84,7 @@
   changed_when: false
 
 - name: Add system user
+  when: 'traefik_user_create'
   user:
     name: traefik
     system: true
@@ -92,9 +93,9 @@
     shell: /usr/sbin/nologin
 
 - name: Add Traefik user to Docker group
-  when: 'traefik_provider_docker_enable'
+  when: 'traefik_user_create and traefik_provider_docker_enable'
   user:
-    name: traefik
+    name: '{{ traefik_user_name }}'
     groups: docker
     append: true
   notify: Restart traefik.service
@@ -119,7 +120,7 @@
     state: directory
     owner: traefik
     group: adm
-    mode: '0700'
+    mode: '0770'
 
 - name: Enable service
   systemd:
@@ -192,6 +193,6 @@
 
 - name: Setup logrotate config
   template:
-    src: logrotate.conf
+    src: logrotate.conf.j2
     dest: '{{ traefik_logrotate_config_path }}'
     mode: '0644'

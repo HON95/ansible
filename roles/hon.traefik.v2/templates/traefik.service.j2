@@ -4,7 +4,7 @@ Documentation=https://traefik.io
 
 [Service]
 Restart=always
-User=traefik
+User={{ traefik_user_name }}
 EnvironmentFile={{ traefik_env_path }}
 ExecStart={{ traefik_binary_path }} $ARGS
 ExecReload=/bin/kill -HUP $MAINPID
