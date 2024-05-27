@@ -127,7 +127,6 @@
     name: '{{ traefik_service }}'
     enabled: true
     daemon_reload: '{{ traefik_add_service_file.changed }}'
-  notify: Restart traefik.service
 
 # Add configs
 
@@ -196,3 +195,12 @@
     src: logrotate.conf.j2
     dest: '{{ traefik_logrotate_config_path }}'
     mode: '0644'
+
+# Make sure it's actually running, after the restart handler to avoid starting twice
+
+- meta: flush_handlers
+
+- name: Start service
+  systemd:
+    name: '{{ traefik_service }}'
+    state: started
