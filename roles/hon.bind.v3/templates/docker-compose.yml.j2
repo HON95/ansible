@@ -7,7 +7,7 @@ services:
   bind:
     image: ubuntu/bind9:{{ bind_ubuntu_version }}
     environment:
-      - TZ={{ timezone }}
+      - TZ={{ bind_timezone }}
     volumes:
       # Individual files for "/etc/bind/" to avoid overwriting other files there
       - ./etc/named.conf:/etc/bind/named.conf:ro
@@ -44,7 +44,7 @@ services:
       - "--address=::"
       #- "--metrics=0.0.0.0:40883"
     environment:
-      - TZ={{ timezone }}
+      - TZ={{ bind_timezone }}
     networks:
       # IPv4+6 required for full internet access
       internal:
@@ -60,7 +60,7 @@ services:
     command:
       - "--bind.stats-url=http://{{ bind_internal_ipv6_subnet | ansible.utils.ipaddr(bind_internal_address_nums.bind) | ansible.utils.ipaddr("address") }}:8053"
     environment:
-      - TZ={{ timezone }}
+      - TZ={{ bind_timezone }}
     networks:
       internal:
         ipv4_address: {{ bind_internal_ipv4_subnet | ansible.utils.ipaddr(bind_internal_address_nums.prom_exporter) | ansible.utils.ipaddr("address") }}

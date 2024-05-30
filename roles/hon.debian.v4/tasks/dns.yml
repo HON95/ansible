@@ -53,7 +53,7 @@
   lineinfile:
     path: /etc/systemd/resolved.conf
     regexp: '^#?Domains='
-    line: 'Domains={{ domain }}'
+    line: 'Domains={{ linux_domain }}'
     mode: '0644'
   notify: Restart systemd-resolved.service
 

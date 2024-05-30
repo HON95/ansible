@@ -37,3 +37,7 @@ See the defaults.
 
 - Change `linux_local_users` to be more compatible with non-Linux things and to limit which nodes/servers the users are deployed to. See the example for the new structure and changed/added fields.
 - Change the `linux_networking_method` default to `ignore` and `linux_cloud_init_cleanup_enable` to `false`, to not mess up cloud VMs as easily.
+
+### Version 4
+
+- Change variables `timezone`, `locale` and `domain` to `linux_timezone`, `linux_locale` and `linux_domain`, and make them required.

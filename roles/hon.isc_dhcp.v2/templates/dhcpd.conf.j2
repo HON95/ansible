@@ -24,7 +24,7 @@ authorative;
 min-lease-time 300;
 max-lease-time 86400;
 default-lease-time 900;
-option domain-name "{{ domain }}";
+option domain-name "{{ dhcp_domain }}";
 {%- for dns_server in infra_networks_defaults.ipv4_dns | default([]) %}
 option domain-name-servers {{ dns_server }};
 {%- endfor %}

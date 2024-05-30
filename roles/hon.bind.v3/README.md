@@ -29,3 +29,9 @@ Generalized for authoritative/recursive and primary/secondary, but only one comb
     - Only the keys and stuff (in `data/`) needs to be backed up, the signed zones (in `zones/`) are automatically regenerated if missing.
     - To regenerate the signed zones, delete all the generated files under `zones/`.
 - Logs: `log/`
+
+## Changes
+
+### Version 3
+
+- Change variables `timezone`, `locale` to `bind_timezone` and `bind_locale`, and make them required.

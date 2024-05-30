@@ -2,7 +2,7 @@
 
 - name: Generate locale
   community.general.locale_gen:
-    name: '{{ locale }}'
+    name: '{{ linux_locale }}'
     state: present
 
 - name: Set default locale
@@ -10,7 +10,7 @@
     path: /etc/default/locale
     create: true
     regexp: '^LANG='
-    line: 'LANG={{ locale }}'
+    line: 'LANG={{ linux_locale }}'
     mode: '0644'
 
 - name: Install keyboard configuration program
@@ -34,4 +34,4 @@
 
 - name: Set timezone
   community.general.timezone:
-    name: '{{ timezone }}'
+    name: '{{ linux_timezone }}'

@@ -1,5 +1,6 @@
-timezone: "Europe/Oslo"
-locale: "en_US.UTF-8"
+# Required
+#bind_timezone: "Europe/Oslo"
+#bind_locale: "en_US.UTF-8"
 
 # Version for the Docker image (i.e. the tag).
 bind_ubuntu_version: "9.18-22.04_beta"
