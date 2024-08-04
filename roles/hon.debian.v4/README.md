@@ -12,19 +12,20 @@
 
 - netaddr (Python/Pip)
 
-## Before and After Notes
+## Debian Installation
+
+The role assumes you've manually or automatically installed Debian on the server, with an `ansible` user with sudo privileges.
+
+See my notes: [Debian Server](https://wiki.hon.one/linux-servers/debian/#basic-setup) ("Installation" and "Prepare for Ansible Configuration").
+
+## Usage
 
 Do this before running the Ansible role against the server.
 
+- See the the default variable config for variables that are required or that you might want to overwrite.
 - Use `openssl passwd -6` to generate password hashes to put in the config.
-- The role depends on sudo, so make sure sudo is installed and that the Ansible user is in the `sudo` group.
-    - TL;DR (as root): `apt update && apt full-upgrade --autoremove -y && apt install sudo && usermod -aG sudo ansible`
-- As (assumingly) SSH keys and passwordless sudo for the Ansible user is not set up initially, you may need to specify `--ask-pass` and `--ask-become-pass` initially.
+- As (presumably) SSH keys and passwordless sudo for the Ansible user is not set up initially, you may need to specify `--ask-pass` and `--ask-become-pass` initially for `ansible-playbook`.
 - The role does not reboot the server, which may be required if there are any network changes, so do it manually.
-
-## Variables and Files
-
-See the defaults.
 
 ## Changes
 
