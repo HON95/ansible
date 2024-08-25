@@ -150,7 +150,7 @@
       changed_when: true
 
     - name: "Print diff"
-      when: "vyos_config_diff_result.changed and vyos_config_debug_mode"
+      when: "vyos_config_diff_result.changed is defined and vyos_config_diff_result.changed and vyos_config_debug_mode"
       debug:
         msg: "{{ vyos_config_diff_result.stdout }}"
       changed_when: true
