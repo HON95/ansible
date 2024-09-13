@@ -1,6 +1,10 @@
 #jinja2: trim_blocks:False
 # {{ ansible_managed }}
 
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
 log:
   filePath: '{{ traefik_log_dir }}/error.log'
   format: '{{ traefik_log_format }}'
@@ -38,15 +42,21 @@ entryPoints:
   https:
     address: ':443'
     http3: {}
+{% if traefik_api_enable or traefik_dashboard_enable %}
   api:
     address: ':8081'
     http3: {}
+{% endif %}
+{% if traefik_metrics_enable %}
   metrics:
     address: ':8082'
     http3: {}
+{% endif %}
+{% if traefik_ping_enable %}
   ping:
     address: ':8083'
     http3: {}
+{% endif %}
 {% for ep in traefik_extra_tcpudp_entrypoints | dict2items %}
   {{ ep.key }}:
     address: '{{ ep.value }}'
@@ -59,6 +69,9 @@ api:
 metrics:
   prometheus:
     manualRouting: true
+    addEntryPointsLabels: true
+    addRoutersLabels: true
+    addServicesLabels: true
 
 ping:
   manualRouting: true

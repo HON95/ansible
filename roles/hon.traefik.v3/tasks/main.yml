@@ -120,7 +120,7 @@
     state: directory
     owner: traefik
     group: adm
-    mode: '0770'
+    mode: '0750'
 
 - name: Enable service
   systemd:

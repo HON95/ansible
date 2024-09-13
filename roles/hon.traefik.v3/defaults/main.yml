@@ -16,11 +16,23 @@ traefik_accesslog_buffering_size: 100
 # traefik_acme_webmaster: example@example.net
 # If we should use the staging server while testing to avoid getting rate limited by the production server.
 traefik_staging_server_enable: false
-# Enable a default provider, which will respond with a 404.
+# Enable the API endpoint (port 8081), with optional IP allowlist.
+traefik_api_enable: false
+traefik_api_allowlist: ["0.0.0.0/0", "::/0"]
+# Enable the dashboard endpoint (port 8081), with optional IP allowlist.
+traefik_dashboard_enable: false
+traefik_dashboard_allowlist: ["0.0.0.0/0", "::/0"]
+# Enable the Prometheus metrics endpoint (port 8082), with optional IP allowlist.
+traefik_metrics_enable: false
+traefik_metrics_allowlist: ["0.0.0.0/0", "::/0"]
+# Enable the ping endpoint (port 8083), with optional IP allowlist.
+traefik_ping_enable: false
+traefik_ping_allowlist: ["0.0.0.0/0", "::/0"]
 # Extra TCP/UDP entrypoints to create, e.g. for sFlow:
 traefik_extra_tcpudp_entrypoints: {}
 # traefik_extra_tcpudp_entrypoints:
 #   sflow: ":6343/udp"
+# Enable a default provider, which will respond with a 404.
 traefik_default_provider_enable: false
 # Enable Let's Encrypt certs for the default provider.
 traefik_default_provider_letsencrypt_enable: false

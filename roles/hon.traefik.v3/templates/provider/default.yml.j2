@@ -11,7 +11,7 @@ http:
 {% else %}
       tls: {}
 {% endif %}
-      # Hostname for TLS cert, wildcard for alternative access with IP address
+      # Hostname for TLS cert, wildcard for alternative access with IP address or other names.
       rule: 'Host(`{{ inventory_hostname }}`) || PathPrefix(`/`)'
       # Low priority
       priority: 1

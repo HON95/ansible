@@ -1,0 +1,98 @@
+#jinja2: trim_blocks:False
+# {{ ansible_managed }}
+
+http:
+  routers:
+
+{% if traefik_api_enable %}
+    api:
+      entryPoints: [api]
+      rule: 'PathPrefix(`/api/`) || PathPrefix(`/debug/`)'
+      middlewares: [api-allowlist]
+      service: api@internal
+
+    api-tls:
+      entryPoints: [api]
+      tls: {}
+      rule: 'Host(`{{ inventory_hostname }}`) && (PathPrefix(`/api/`) || PathPrefix(`/debug/`))'
+      middlewares: [api-allowlist]
+      service: api@internal
+{% endif %}
+
+{% if traefik_dashboard_enable %}
+    dashboard:
+      entryPoints: [api]
+      rule: 'PathPrefix(`/dashboard/`)'
+      middlewares: [dashboard-allowlist]
+      service: api@internal
+
+    dashboard-tls:
+      entryPoints: [api]
+      tls: {}
+      rule: 'Host(`{{ inventory_hostname }}`) && PathPrefix(`/dashboard/`)'
+      middlewares: [dashboard-allowlist]
+      service: api@internal
+{% endif %}
+
+{% if traefik_metrics_enable %}
+    metrics:
+      entryPoints: [metrics]
+      rule: 'PathPrefix(`/`)'
+      middlewares: [metrics-allowlist]
+      service: prometheus@internal
+
+    metrics-tls:
+      entryPoints: [metrics]
+      tls: {}
+      rule: 'Host(`{{ inventory_hostname }}`) && PathPrefix(`/`)'
+      middlewares: [metrics-allowlist]
+      service: prometheus@internal
+{% endif %}
+
+{% if traefik_ping_enable %}
+    ping:
+      entryPoints: [ping]
+      rule: 'PathPrefix(`/`)'
+      middlewares: [ping-allowlist]
+      service: ping@internal
+
+    ping-tls:
+      entryPoints: [ping]
+      tls: {}
+      rule: 'Host(`{{ inventory_hostname }}`) && PathPrefix(`/`)'
+      middlewares: [ping-allowlist]
+      service: ping@internal
+{% endif %}
+
+    slash-redirect:
+      entryPoints: [https]
+      tls: {}
+      rule: 'Host(`{{ inventory_hostname }}`) && Path(`/{a:.*[^/]}`)'
+      # Only if no other routers match
+      priority: 1
+      middlewares: [slash-redirect-redirect]
+      service: noop@internal
+
+  middlewares:
+
+    api-allowlist:
+      ipallowlist:
+        sourcerange: {{ traefik_api_allowlist | to_yaml }}
+
+    dashboard-allowlist:
+      ipallowlist:
+        sourcerange: {{ traefik_dashboard_allowlist | to_yaml }}
+
+    metrics-allowlist:
+      ipallowlist:
+        sourcerange: {{ traefik_metrics_allowlist | to_yaml }}
+
+    ping-allowlist:
+      ipallowlist:
+        sourcerange: {{ traefik_ping_allowlist | to_yaml }}
+
+    slash-redirect-redirect:
+      redirectRegex:
+        regex: "(.*)"
+        replacement: "${1}/"
+        permanent: false
