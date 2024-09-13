@@ -38,7 +38,7 @@ Instructions from Debian installation to ready PVE.
 
 ### Traefik Config
 
-If you're going to set up the Traefik reverse proxy, set `pve_traefik_provider_setup_enable: true` to create the PVE provider file.
+If you're going to set up the Traefik reverse proxy, set `pve_traefik_enable: true` to create the PVE provider file.
 
 If using my Traefik role, add this to its config to keep the PVE config:
 
@@ -51,3 +51,9 @@ traefik_provider_configs_extra:
 ## TODO
 
 - Remove functionality to create VM resources in the next major version. Use Terraform instead.
+
+## Changes
+
+### 2024-29-13
+
+- Rename `pve_traefik_provider_setup_enable` to `pve_traefik_enable`.
