@@ -4,4 +4,4 @@ Collection of my Ansible roles and stuff.
 
 ## Dependencies
 
-Run `requirements-install.sh` or see `requirements-*`.
+Run `setup.sh` or see the `requirements` directory.

@@ -53,7 +53,7 @@
       delegate_to: "localhost"
       shell:
         # Diff with sorted order and ignored newlines
-        cmd: "diff <(sort {{ vyos_current_config_file_result.path }} | sed '/^$/d') <(sort {{ vyos_intended_config_file_result.path }} | sed '/^$/d')"
+        cmd: "set -o pipefail && diff <(sort {{ vyos_current_config_file_result.path }} | sed '/^$/d') <(sort {{ vyos_intended_config_file_result.path }} | sed '/^$/d')"
       register: "vyos_config_diff_result"
       changed_when: "vyos_config_diff_result.rc != 0"
       failed_when: false
