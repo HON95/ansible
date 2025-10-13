@@ -1,0 +1,10 @@
+#jinja2: trim_blocks:False
+# {{ ansible_managed }}
+
+tls:
+  options:
+    cloudflare-pull:
+      clientAuth:
+        caFiles:
+          - {{ traefik_provider_cloudflare_pull_ca_path }}
+        clientAuthType: RequireAndVerifyClientCert

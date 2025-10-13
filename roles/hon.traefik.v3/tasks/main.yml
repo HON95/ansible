@@ -151,6 +151,12 @@
     content: ''
     force: false
 
+- name: Create certs dir
+  file:
+    path: '{{ traefik_certs_path }}'
+    state: directory
+    mode: '0755'
+
 - name: Create provider config dir
   file:
     path: '{{ traefik_provider_config_dir }}'
@@ -195,6 +201,18 @@
     src: logrotate.conf.j2
     dest: '{{ traefik_logrotate_config_path }}'
     mode: '0644'
+
+# Miscellanea
+
+- name: Download Cloudflare pull CA
+  when: 'traefik_provider_cloudflare_pull_enable'
+  get_url:
+    url: '{{ traefik_provider_cloudflare_pull_ca_download_url }}'
+    dest: '{{ traefik_provider_cloudflare_pull_ca_path }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify: Restart traefik.service
 
 # Make sure it's actually running, after the restart handler to avoid starting twice
 
