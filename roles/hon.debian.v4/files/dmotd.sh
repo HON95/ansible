@@ -2,15 +2,17 @@
 
 # Name: DMOTD
 # Description:
-# Prints optional static MOTD, neofetch info and logged in users.
+# Prints optional static MOTD, fastfetch info and logged in users.
 # Does not print if sudo environment is detected,
 # or if the UID is less than or equal to SYS_UID_MAX.
 # Type: profile.d script
-# Dependencies: neofetch lolcat
-# Version: 1.1.6
+# Dependencies: fastfetch lolcat
+# Version: 2.0.1
 # Author: HON
 
 # Changelog:
+# 2.0.1: Fix fastfetch option to hide distro logo.
+# 2.0.0: Replace neofetch with fastfetch, since neofetch is discontinued.
 # 1.1.7: Fixed MOTD header spacing.
 # 1.1.6: Added screen clearing option.
 # 1.1.5: Added excluded groups .
@@ -28,7 +30,7 @@
 # For boolean options, "yes" (not "YES", 1, true) is the only recognized value for true
 
 # Enable screen clearing before DMOTD
-USE_CLEAR="yes"
+USE_CLEAR="no"
 # Enable MOTD header
 USE_MOTD_HEADER="yes"
 # Path to logo
@@ -39,10 +41,10 @@ USE_MOTD_HEADER_LOLCAT="yes"
 USE_MOTD_FOOTER="yes"
 # Path to MOTD footer
 MOTD_FOOTER_PATH="/etc/motd"
-# Enable Neofetch
-USE_NEOFETCH="yes"
-# Enable Neofetch image
-USE_NEOFETCH_IMAGE="no"
+# Enable Fastfetch
+USE_FASTFETCH="yes"
+# Enable Fastfetch image
+USE_FASTFETCH_IMAGE="no"
 # Enable print last login
 USE_LAST_LOGIN="yes"
 # Enable print logged-in users
@@ -89,12 +91,12 @@ if [[ $USE_MOTD_HEADER = "yes" ]] && [[ -f $MOTD_HEADER_PATH ]]; then
   fi
 fi
 
-# Neofetch
-if [[ $USE_NEOFETCH = "yes" ]]; then
-  if [[ $USE_NEOFETCH_IMAGE = "yes" ]]; then
-    neofetch
+# Fastfetch
+if [[ $USE_FASTFETCH = "yes" ]]; then
+  if [[ $USE_FASTFETCH_IMAGE = "yes" ]]; then
+    fastfetch
   else
-    neofetch --off
+    fastfetch -l none
   fi
 fi
 

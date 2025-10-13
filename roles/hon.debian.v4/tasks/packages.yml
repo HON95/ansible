@@ -10,11 +10,20 @@
   register: apt_enable_repo_areas
 
 - name: Enable contrib and non-free archive areas (Debian 12)
-  when: "ansible_distribution_major_version|int >= 12"
+  when: "ansible_distribution_major_version|int == 12"
   replace:
     path: /etc/apt/sources.list
     regexp: '^(deb|deb-src)\s+(\S+)\s+(\S+)\s+.*main.*'
     replace: '\1 \2 \3 main contrib non-free non-free-firmware'
+    backup: true
+  register: apt_enable_repo_areas
+
+- name: Enable contrib and non-free archive areas (Debian 13)
+  when: "ansible_distribution_major_version|int == 13"
+  replace:
+    path: /etc/apt/sources.list.d/debian.sources
+    regexp: '^Components:.*main.*'
+    replace: 'Components: main contrib non-free non-free-firmware'
     backup: true
   register: apt_enable_repo_areas
 
@@ -44,11 +53,22 @@
       - python3-pip
       - rsync
       - screen
-      - software-properties-common
       - tcpdump
       - tmux
       - tree
       - vim
+
+- name: Install basic packages (Debian 10-12)
+  when: "ansible_distribution_major_version|int >= 10 and ansible_distribution_major_version|int <= 12"
+  apt:
+    name:
+      - software-properties-common
+
+- name: Install basic packages (Debian 13-)
+  when: "ansible_distribution_major_version|int >= 13"
+  apt:
+    name:
+      - lastlog2
 
 - name: Install machine type-specific packages (bare-metal)
   when: 'linux_machine_type == "bare-metal"'

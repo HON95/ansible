@@ -46,7 +46,7 @@
   when: 'linux_banner_dmotd_enable'
   apt:
     name:
-      - neofetch
+      - fastfetch
       - lolcat
 
 - name: Add logo for DMOTD

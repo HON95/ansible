@@ -9,7 +9,7 @@
     msg: "Unsupported machine: {{ linux_machine_type }}"
 
 - name: "Check if supported OS"
-  when: "ansible_distribution != 'Debian' or ansible_distribution_major_version|int < 10 or ansible_distribution_major_version|int > 12"
+  when: "ansible_distribution != 'Debian' or ansible_distribution_major_version|int < 10 or ansible_distribution_major_version|int > 13"
   fail:
     msg: "Unsupported OS: {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
 
