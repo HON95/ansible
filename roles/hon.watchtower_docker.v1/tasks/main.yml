@@ -11,8 +11,11 @@
     mode: '0644'
 
 - name: Start app
-  community.docker.docker_compose:
-    project_src: '{{ watchtower_srv_path }}'
-    state: present
-    pull: true
-    recreate: smart
+  # community.docker.docker_compose:
+  #   project_src: '{{ watchtower_srv_path }}'
+  #   state: present
+  #   pull: true
+  #   recreate: smart
+  command:
+    chdir: "{{ watchtower_srv_path }}"
+    cmd: "docker compose up -d --remove-orphans"

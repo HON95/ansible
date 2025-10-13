@@ -16,7 +16,7 @@
   register: "os_info_result"
 
 - name: "Add keyring (content)"
-  when: "apt_repo_src_file_path"
+  when: "apt_repo_src_file_path != None"
   copy:
     src: "{{ apt_repo_src_file_path }}"
     dest: "{{ apt_repo_keyring_path }}"
@@ -24,13 +24,13 @@
   notify: "Update APT cache"
 
 - name: "Check if keyring exists (download)"
-  when: "apt_repo_key_src_url"
+  when: "apt_repo_key_src_url != None"
   stat:
     path: "{{ apt_repo_keyring_path }}"
   register: "keyring_file_result"
 
 - name: "Add keyring (download)"
-  when: "apt_repo_key_src_url and (not keyring_file_result.stat.exists or apt_repo_force_download_key)"
+  when: "apt_repo_key_src_url != None and (not keyring_file_result.stat.exists or apt_repo_force_download_key)"
   vars:
     os_distro: "{{ os_info_result.stdout_lines[0] }}"
     dpkg_arch: "{{ dpkg_arch_result.stdout_lines[0] }}"
