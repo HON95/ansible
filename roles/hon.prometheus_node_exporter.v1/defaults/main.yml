@@ -1,5 +1,5 @@
 # You may want to override this to pin it
-prom_node_exp_version: '1.2.2'
+prom_node_exp_version: '1.9.1'
 # Add the daemon user to certain groups,
 # e.g. if you have enabled hidepid and the user needs to be part of the configured group for full system visibility
 prom_node_exp_user_extra_groups: []
