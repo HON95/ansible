@@ -11,8 +11,12 @@ ntsdumpdir /var/lib/chrony
 rtcsync
 # Enable HW timestamping (harmless if not supported)
 hwtimestamp *
-# Don't smear leap seconds
+# Let kernel handle leap seconds by jumping forward/backward one second (no smearing)
+leapsecmode system
+# Don't smear leap seconds (must be disabled if source is leap smearing)
 leapsectz right/UTC
+# Add leap second source (must be disabled if source is leap smearing)
+leapseclist /usr/share/zoneinfo/leap-seconds.list
 # Threshold in PPM for estimates to accept
 maxupdateskew 100
 # Correct the clock in 3 steps if it's more than a second away
