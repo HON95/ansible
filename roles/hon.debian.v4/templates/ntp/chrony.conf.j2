@@ -15,8 +15,10 @@ hwtimestamp *
 leapsecmode system
 # Don't smear leap seconds (must be disabled if source is leap smearing)
 leapsectz right/UTC
+{% if ansible_distribution_major_version >= "13" %}
 # Add leap second source (must be disabled if source is leap smearing)
 leapseclist /usr/share/zoneinfo/leap-seconds.list
+{% endif %}
 # Threshold in PPM for estimates to accept
 maxupdateskew 100
 # Correct the clock in 3 steps if it's more than a second away

@@ -18,13 +18,18 @@
     backup: true
   register: apt_enable_repo_areas
 
-- name: Enable contrib and non-free archive areas (Debian 13)
+- name: Remove sources.list (Debian 13)
   when: "ansible_distribution_major_version|int == 13"
-  replace:
-    path: /etc/apt/sources.list.d/debian.sources
-    regexp: '^Components:.*main.*'
-    replace: 'Components: main contrib non-free non-free-firmware'
-    backup: true
+  file:
+    path: "/etc/apt/sources.list"
+    state: absent
+
+- name: Setup debian.sources (Debian 13)
+  when: "ansible_distribution_major_version|int == 13"
+  template:
+    src: "packages/debian.sources.j2"
+    dest: "/etc/apt/sources.list.d/debian.sources"
+    mode: "0644"
   register: apt_enable_repo_areas
 
 - name: Update if changed repo areas

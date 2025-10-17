@@ -42,8 +42,15 @@
     dest: '/etc/issue.net'
     mode: '0644'
 
-- name: Install packages for DMOTD
-  when: 'linux_banner_dmotd_enable'
+- name: Install packages for DMOTD (Debian -12)
+  when: 'linux_banner_dmotd_enable and ansible_distribution_major_version <= "12"'
+  apt:
+    name:
+      - neofetch
+      - lolcat
+
+- name: Install packages for DMOTD (Debian 13-)
+  when: 'linux_banner_dmotd_enable and ansible_distribution_major_version >= "13"'
   apt:
     name:
       - fastfetch
@@ -56,8 +63,15 @@
     dest: '/etc/logo'
     mode: '0644'
 
-- name: Add DMOTD script
-  when: 'linux_banner_dmotd_enable'
+- name: Add DMOTD script (Debian -12)
+  when: 'linux_banner_dmotd_enable and ansible_distribution_major_version <= "12"'
+  copy:
+    src: 'dmotd.v1.sh'
+    dest: '/etc/profile.d/dmotd.sh'
+    mode: '0644'
+
+- name: Add DMOTD script (Debian 13-)
+  when: 'linux_banner_dmotd_enable and ansible_distribution_major_version >= "13"'
   copy:
     src: 'dmotd.sh'
     dest: '/etc/profile.d/dmotd.sh'
