@@ -40,7 +40,7 @@ IPv6AcceptRA=no
 LLDP={{ "yes" if linux_network_lldp_receive else "no" }}
 EmitLLDP={{ "yes" if linux_network_lldp_transmit else "no" }}
 
-{% elif linux_networking_ipv4_addressing == 'dhcp' %}
+{% if linux_networking_ipv4_addressing == 'dhcp' %}
 [DHCP]
 UseDNS=yes
 UseNTP=no
