@@ -3,7 +3,7 @@
 # The key must be a UUID (needs confirmation).
 # Use Ansible Vault or something to encrypt the key.
 # TODO: Replace whis with local_users and embedded tokens
-pve_user_tokens: []
+pve_user_tokens: {}
 # pve_user_tokens:
 #   "ansible@pam!main":
 #     key: !vault ...

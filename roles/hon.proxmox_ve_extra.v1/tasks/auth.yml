@@ -13,7 +13,6 @@
     mode: "0600"
 
 - name: "Setup PVE tokens"
-  when: "pve_user_tokens"
   no_log: true
   template:
     src: "token.cfg.j2"
