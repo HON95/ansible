@@ -15,3 +15,11 @@ URIs: http://deb.debian.org/debian/
 Suites: trixie-updates
 Components: main contrib non-free non-free-firmware
 Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+{% if linux_apt_enable_oldstable %}
+Types: deb deb-src
+URIs: http://deb.debian.org/debian/
+Suites: bookworm
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+{% endif %}
