@@ -20,4 +20,3 @@ ansible-galaxy role install --force -r "$dir/ansible.yml"
 
 echo
 echo -e "\033[0;32m""Done!""\033[0m"
-|
