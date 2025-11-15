@@ -8,6 +8,3 @@ collections:
   - name: vyos.vyos
 
 roles: []
-  # Use GH repo instead: https://github.com/lae/ansible-role-proxmox
-  #- name: lae.proxmox
-  #  version: v1.10.0
